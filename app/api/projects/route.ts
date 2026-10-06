@@ -1,0 +1,80 @@
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { ProjectService } from "@/services/projects/project.service";
+import { requireAuth } from "@/lib/permissions/roles";
+import { Role, ContentStatus } from "@prisma/client";
+
+const projectSchema = z.object({
+  title: z.string().min(2, "Title is required"),
+  category: z.string().min(2, "Category is required"),
+  summary: z.string().min(10, "Summary must be at least 10 characters"),
+  problem: z.string().min(10, "Problem description is required"),
+  solution: z.string().min(10, "Solution description is required"),
+  technology: z.string().min(2, "Technologies are required"),
+  innovation: z.string().optional(),
+  outcomes: z.string().optional(),
+  status: z.nativeEnum(ContentStatus).default(ContentStatus.DRAFT),
+  isFeatured: z.boolean().default(false),
+  heroImage: z.string().optional(),
+  demoUrl: z.string().optional(),
+  videoUrl: z.string().optional(),
+  githubUrl: z.string().optional(),
+  teamMembers: z.string().optional(),
+  order: z.number().default(0),
+});
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const category = searchParams.get("category") || undefined;
+    const statusParam = searchParams.get("status");
+    const search = searchParams.get("q") || undefined;
+
+    let status: ContentStatus | undefined;
+    if (statusParam && Object.values(ContentStatus).includes(statusParam as ContentStatus)) {
+      status = statusParam as ContentStatus;
+    }
+
+    const result = await ProjectService.getAllAdmin({
+      category,
+      status,
+      search,
+    });
+
+    return NextResponse.json({ success: true, ...result });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to fetch projects";
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    // 1. Role verification
+    await requireAuth([Role.ADMIN, Role.EDITOR]);
+
+    // 2. Input validation
+    const body = await req.json();
+    const parsed = projectSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { success: false, error: parsed.error.issues[0]?.message || "Invalid input" },
+        { status: 400 }
+      );
+    }
+
+    // 3. Service execution
+    const project = await ProjectService.createProject(parsed.data);
+
+    return NextResponse.json({
+      success: true,
+      message: "Project created successfully",
+      project,
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Error creating project";
+    const status = message === "UNAUTHORIZED" ? 401 : message === "FORBIDDEN" ? 403 : 500;
+    return NextResponse.json({ success: false, error: message }, { status });
+  }
+}

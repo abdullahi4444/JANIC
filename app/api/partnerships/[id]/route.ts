@@ -1,0 +1,44 @@
+import { NextRequest, NextResponse } from "next/server";
+import { PartnershipService } from "@/services/partnerships/partnership.service";
+import { requireAuth } from "@/lib/permissions/roles";
+import { Role, PartnershipStatus } from "@prisma/client";
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    await requireAuth([Role.ADMIN, Role.EDITOR, Role.STAFF]);
+    const { id } = await params;
+    const body = await req.json();
+
+    const updated = await PartnershipService.updateStatus(
+      id,
+      body.status as PartnershipStatus,
+      body.adminNotes
+    );
+
+    return NextResponse.json({ success: true, item: updated });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Error";
+    const status = msg === "UNAUTHORIZED" ? 401 : msg === "FORBIDDEN" ? 403 : 500;
+    return NextResponse.json({ success: false, error: msg }, { status });
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    await requireAuth([Role.ADMIN]);
+    const { id } = await params;
+
+    await PartnershipService.deleteInquiry(id);
+    return NextResponse.json({ success: true });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Error";
+    const status = msg === "UNAUTHORIZED" ? 401 : msg === "FORBIDDEN" ? 403 : 500;
+    return NextResponse.json({ success: false, error: msg }, { status });
+  }
+}

@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  --color-janic-navy: #08245C;
+  --color-janic-navy-dark: #051532;
+  --color-janic-blue: #0875D1;
+  --color-janic-blue-hover: #065ea8;
+  --color-janic-blue-light: #DCEEFF;
+  --color-janic-ice: #F0F7FF;
+  --color-janic-green: #059669;
+  --color-janic-emerald: #10B981;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom utility styles */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.glass-panel-dark {
+  background: rgba(8, 36, 92, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.text-gradient-blue {
+  background: linear-gradient(135deg, #0875D1 0%, #00B4D8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-navy {
+  background: linear-gradient(135deg, #08245C 0%, #0875D1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

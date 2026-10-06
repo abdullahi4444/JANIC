@@ -1,0 +1,116 @@
+import prisma from "@/lib/db/prisma";
+import { ContentStatus, Prisma } from "@prisma/client";
+
+export class ProjectRepository {
+  static async findPublished(options?: {
+    category?: string;
+    isFeatured?: boolean;
+    search?: string;
+    limit?: number;
+  }) {
+    const where: Prisma.ProjectWhereInput = {
+      status: ContentStatus.PUBLISHED,
+    };
+
+    if (options?.category && options.category !== "all") {
+      where.category = { contains: options.category };
+    }
+
+    if (options?.isFeatured !== undefined) {
+      where.isFeatured = options.isFeatured;
+    }
+
+    if (options?.search) {
+      where.OR = [
+        { title: { contains: options.search } },
+        { summary: { contains: options.search } },
+        { technology: { contains: options.search } },
+      ];
+    }
+
+    return prisma.project.findMany({
+      where,
+      orderBy: [{ isFeatured: "desc" }, { order: "asc" }, { createdAt: "desc" }],
+      take: options?.limit,
+      include: { gallery: { orderBy: { order: "asc" } } },
+    });
+  }
+
+  static async findBySlug(slug: string) {
+    return prisma.project.findUnique({
+      where: { slug },
+      include: { gallery: { orderBy: { order: "asc" } } },
+    });
+  }
+
+  static async findAllAdmin(options?: {
+    status?: ContentStatus;
+    category?: string;
+    search?: string;
+    skip?: number;
+    take?: number;
+  }) {
+    const where: Prisma.ProjectWhereInput = {};
+
+    if (options?.status) {
+      where.status = options.status;
+    }
+
+    if (options?.category && options.category !== "all") {
+      where.category = { contains: options.category };
+    }
+
+    if (options?.search) {
+      where.OR = [
+        { title: { contains: options.search } },
+        { summary: { contains: options.search } },
+      ];
+    }
+
+    const [items, total] = await Promise.all([
+      prisma.project.findMany({
+        where,
+        orderBy: { updatedAt: "desc" },
+        skip: options?.skip,
+        take: options?.take,
+        include: { gallery: true },
+      }),
+      prisma.project.count({ where }),
+    ]);
+
+    return { items, total };
+  }
+
+  static async findById(id: string) {
+    return prisma.project.findUnique({
+      where: { id },
+      include: { gallery: { orderBy: { order: "asc" } } },
+    });
+  }
+
+  static async create(data: Prisma.ProjectCreateInput) {
+    return prisma.project.create({ data });
+  }
+
+  static async update(id: string, data: Prisma.ProjectUpdateInput) {
+    return prisma.project.update({
+      where: { id },
+      data,
+    });
+  }
+
+  static async delete(id: string) {
+    return prisma.project.delete({
+      where: { id },
+    });
+  }
+
+  static async getCategories() {
+    const projects = await prisma.project.findMany({
+      where: { status: ContentStatus.PUBLISHED },
+      select: { category: true },
+      distinct: ["category"],
+    });
+    return projects.map((p) => p.category);
+  }
+}
