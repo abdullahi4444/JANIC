@@ -24,17 +24,18 @@ export async function PublicFooter() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Brand Column (2 cols) */}
           <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="inline-block">
-              <div className="relative w-48 h-12">
+            <Link href="/" className="inline-block group">
+              <div className="relative w-48 h-12 transition-transform group-hover:scale-[1.02]">
                 <Image
                   src="/images/janic-logo-white.png"
                   alt="JANIC Logo"
                   fill
                   className="object-contain object-left"
+                  sizes="192px"
                 />
               </div>
             </Link>
-            <p className="text-sm text-slate-400 font-medium">{tagline}</p>
+            <p className="text-sm text-slate-300 font-medium">{tagline}</p>
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
               A technology and innovation initiative of the Faculty of Computer Science & IT, Jazeera University in Mogadishu, Somalia. Founded {founded}.
             </p>
@@ -52,25 +53,25 @@ export async function PublicFooter() {
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/about" className="hover:text-white transition">About JANIC</Link>
+                <Link href="/about" className="text-slate-400 hover:text-white transition">About JANIC</Link>
               </li>
               <li>
-                <Link href="/what-we-do" className="hover:text-white transition">What We Do</Link>
+                <Link href="/what-we-do" className="text-slate-400 hover:text-white transition">What We Do</Link>
               </li>
               <li>
-                <Link href="/innovation-hub" className="hover:text-white transition">Innovation Hub</Link>
+                <Link href="/innovation-hub" className="text-slate-400 hover:text-white transition">Innovation Hub</Link>
               </li>
               <li>
-                <Link href="/projects" className="hover:text-white transition">Student Projects</Link>
+                <Link href="/projects" className="text-slate-400 hover:text-white transition">Student Projects</Link>
               </li>
               <li>
-                <Link href="/training" className="hover:text-white transition">Training & Certifications</Link>
+                <Link href="/training" className="text-slate-400 hover:text-white transition">Training & Certifications</Link>
               </li>
               <li>
-                <Link href="/research" className="hover:text-white transition">Applied Research</Link>
+                <Link href="/research" className="text-slate-400 hover:text-white transition">Applied Research</Link>
               </li>
               <li>
-                <Link href="/events" className="hover:text-white transition">Events & Hackathons</Link>
+                <Link href="/events" className="text-slate-400 hover:text-white transition">Events & Hackathons</Link>
               </li>
               <li>
                 <Link href="/team" className="hover:text-white transition">Our Team</Link>
@@ -94,18 +95,18 @@ export async function PublicFooter() {
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/submit-innovation" className="hover:text-white transition text-blue-400 font-semibold">
+                <Link href="/submit-innovation" className="hover:text-blue-300 transition text-blue-400 font-semibold">
                   Submit Your Idea →
                 </Link>
               </li>
               <li>
-                <Link href="/partnerships" className="hover:text-white transition">Partnerships</Link>
+                <Link href="/partnerships" className="text-slate-400 hover:text-white transition">Partnerships</Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-white transition">Contact Us</Link>
+                <Link href="/contact" className="text-slate-400 hover:text-white transition">Contact Us</Link>
               </li>
               <li>
-                <Link href="/admin/login" className="hover:text-white transition">Staff Sign In</Link>
+                <Link href="/admin/login" className="text-slate-400 hover:text-white transition">Staff Sign In</Link>
               </li>
             </ul>
           </div>

@@ -25,7 +25,10 @@ export const metadata: Metadata = {
   authors: [{ name: "Jazeera University - Faculty of Computer Science & IT" }],
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
   icons: {
-    icon: "/images/janic-logo-blue.png",
+    icon: [
+      { url: "/images/janic-logo-blue.png", media: "(prefers-color-scheme: light)" },
+      { url: "/images/janic-logo-white.png", media: "(prefers-color-scheme: dark)" },
+    ],
     apple: "/images/janic-logo-blue.png",
   },
 };

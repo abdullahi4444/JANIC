@@ -56,26 +56,35 @@ export function AuthPage() {
 
 	return (
 		<section className="mx-auto w-full max-w-[1380px] px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-			<main className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-blue-900/5 lg:grid lg:grid-cols-2">
-				<div className="bg-[#F8FBFF] relative hidden h-full flex-col border-r border-slate-100 p-10 lg:flex">
+			<main className="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl shadow-blue-900/5 lg:grid lg:grid-cols-2">
+				<div className="bg-[#F8FBFF] dark:bg-slate-950 relative hidden h-full flex-col border-r border-slate-100 dark:border-slate-800 p-10 lg:flex">
 					<div className="z-10 flex items-center gap-3">
 						<div className="relative h-10 w-36">
 							<Image
 								src="/images/janic-logo-blue.png"
 								alt="JANIC — Jazeera Nexus Innovation Center"
 								fill
-								className="object-contain object-left"
+								className="object-contain object-left dark:hidden"
 								priority
+								sizes="144px"
+							/>
+							<Image
+								src="/images/janic-logo-white.png"
+								alt="JANIC — Jazeera Nexus Innovation Center"
+								fill
+								className="object-contain object-left hidden dark:block"
+								priority
+								sizes="144px"
 							/>
 						</div>
 					</div>
 					<div className="z-10 mt-auto">
 						<blockquote className="space-y-2">
-							<p className="text-xl text-slate-700">
+							<p className="text-xl text-slate-700 dark:text-slate-200">
 								&ldquo;JANIC connected our education with real innovation and helped
 								us ship faster.&rdquo;
 							</p>
-							<footer className="font-mono text-sm font-semibold text-slate-900">
+							<footer className="font-mono text-sm font-semibold text-slate-900 dark:text-slate-100">
 								~ Ali Hassan
 							</footer>
 						</blockquote>
@@ -97,13 +106,22 @@ export function AuthPage() {
 									src="/images/janic-logo-blue.png"
 									alt="JANIC logo"
 									fill
-									className="object-contain object-left"
+									className="object-contain object-left dark:hidden"
 									priority
+									sizes="112px"
+								/>
+								<Image
+									src="/images/janic-logo-white.png"
+									alt="JANIC logo"
+									fill
+									className="object-contain object-left hidden dark:block"
+									priority
+									sizes="112px"
 								/>
 							</div>
 						</div>
 						<div className="flex flex-col space-y-1">
-							<h1 className="font-heading text-2xl font-bold tracking-wide text-[#08245C]">
+							<h1 className="font-heading text-2xl font-bold tracking-wide text-[#08245C] dark:text-white">
 								Sign In or Join Now!
 							</h1>
 							<p className="text-muted-foreground text-base">
