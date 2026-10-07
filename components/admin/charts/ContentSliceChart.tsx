@@ -8,7 +8,7 @@ interface Slice {
   value: number;
 }
 
-export function PaymentMethodChart({ data }: { data: Slice[] }) {
+export function ContentSliceChart({ data }: { data: Slice[] }) {
   return (
     <div className="h-32 w-full lg:h-[250px]">
       <ResponsiveContainer width="100%" height="100%">

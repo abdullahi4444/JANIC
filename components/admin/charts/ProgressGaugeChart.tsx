@@ -3,7 +3,7 @@
 import React from "react";
 import { RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer } from "recharts";
 
-export function ExerciseChart({ value }: { value: number }) {
+export function ProgressGaugeChart({ value }: { value: number }) {
   const data = [{ name: "Progress", value, fill: "var(--primary)" }];
   return (
     <div className="h-[100px] w-full">

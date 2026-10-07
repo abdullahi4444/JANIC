@@ -8,13 +8,13 @@ interface Point {
   value: number;
 }
 
-export function RevenueChart({ data }: { data: Point[] }) {
+export function ContentTrendChart({ data }: { data: Point[] }) {
   return (
     <div className="h-[85px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
           <defs>
-            <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id="colorTrend" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3} />
               <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
             </linearGradient>
@@ -36,7 +36,7 @@ export function RevenueChart({ data }: { data: Point[] }) {
             stroke="var(--primary)"
             strokeWidth={2}
             fillOpacity={1}
-            fill="url(#colorRevenue)"
+            fill="url(#colorTrend)"
           />
         </AreaChart>
       </ResponsiveContainer>
