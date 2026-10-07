@@ -87,11 +87,20 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
           <Link href="/admin/dashboard" className="flex items-center gap-2" onClick={onClose}>
             <div className="relative w-32 h-8">
               <Image
+                src="/images/janic-logo-blue.png"
+                alt="JANIC Admin"
+                fill
+                className="object-contain object-left dark:hidden"
+                priority
+                sizes="128px"
+              />
+              <Image
                 src="/images/janic-logo-white.png"
                 alt="JANIC Admin"
                 fill
-                className="object-contain"
+                className="object-contain object-left hidden dark:block"
                 priority
+                sizes="128px"
               />
             </div>
           </Link>

@@ -132,8 +132,17 @@ export default function AdminLoginPage() {
                   src="/images/janic-logo-blue.png"
                   alt="JANIC Logo"
                   fill
-                  className="object-contain"
+                  className="object-contain dark:hidden"
                   priority
+                  sizes="176px"
+                />
+                <Image
+                  src="/images/janic-logo-white.png"
+                  alt="JANIC Logo"
+                  fill
+                  className="object-contain hidden dark:block"
+                  priority
+                  sizes="176px"
                 />
               </div>
             </div>
