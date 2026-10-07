@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { MediaViewer, GalleryMediaItem } from "@/components/public/MediaViewer";
+import { MediaViewer, MediaItem } from "@/components/public/MediaViewer";
 import {
   Grid,
   Columns,
@@ -13,8 +13,9 @@ import {
   FolderOpen,
   Filter,
 } from "lucide-react";
+import { cleanCaption } from "@/lib/media/post-media";
 
-export function GalleryBrowser({ items }: { items: GalleryMediaItem[] }) {
+export function PostsBrowser({ items }: { items: MediaItem[] }) {
   const [activeTab, setActiveTab] = useState<string>("All");
   const [search, setSearch] = useState("");
   const [layoutMode, setLayoutMode] = useState<"cards" | "masonry">("cards");
@@ -51,7 +52,8 @@ export function GalleryBrowser({ items }: { items: GalleryMediaItem[] }) {
         const matchTitle = (m.alt || "").toLowerCase().includes(query);
         const matchName = m.fileName.toLowerCase().includes(query);
         const matchFolder = (m.folder || "").toLowerCase().includes(query);
-        if (!matchTitle && !matchName && !matchFolder) return false;
+        const matchCaption = cleanCaption(m.caption || "").toLowerCase().includes(query);
+        if (!matchTitle && !matchName && !matchFolder && !matchCaption) return false;
       }
 
       return true;

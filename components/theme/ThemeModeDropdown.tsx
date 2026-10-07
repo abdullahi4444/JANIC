@@ -4,70 +4,13 @@ import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { Sun, Moon, Monitor } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ThemeModeDropdownProps {
   className?: string;
 }
 
-const THEME_OPTIONS = [
-  {
-    value: "light",
-    label: "Light mode",
-    Icon: Sun,
-  },
-  {
-    value: "dark",
-    label: "Dark mode",
-    Icon: Moon,
-  },
-  {
-    value: "system",
-    label: "System theme",
-    Icon: Monitor,
-  },
-] as const;
-
-type ThemeValue = (typeof THEME_OPTIONS)[number]["value"];
-
-function ThemeIconSegment({
-  value,
-  activeValue,
-  onSelect,
-  Icon,
-  label,
-}: {
-  value: ThemeValue;
-  activeValue: ThemeValue;
-  onSelect: (v: ThemeValue) => void;
-  Icon: typeof Sun;
-  label: string;
-}) {
-  const isActive = activeValue === value;
-  return (
-    <button
-      type="button"
-      role="radio"
-      aria-checked={isActive}
-      aria-label={label}
-      title={label}
-      onClick={() => onSelect(value)}
-      className={cn(
-        "relative inline-flex items-center justify-center w-8 h-8 xl:w-9 xl:h-9 rounded-full transition-all duration-300",
-        isActive
-          ? "bg-gradient-to-br from-[#0875D1] to-[#08245C] text-white shadow-[0_8px_20px_-10px_rgba(8,117,209,0.7)] ring-1 ring-[#0875D1]/20"
-          : "text-slate-500 hover:text-[#0875D1] dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
-      )}
-    >
-      <Icon
-        className={cn(
-          "w-4 h-4 xl:w-[18px] xl:h-[18px] transition-transform duration-300",
-          isActive ? "scale-110" : ""
-        )}
-        strokeWidth={isActive ? 2.25 : 2}
-      />
-    </button>
-  );
-}
+type ThemeValue = "light" | "dark" | "system";
 
 export function ThemeModeDropdown({ className }: ThemeModeDropdownProps) {
   const { theme, setTheme } = useTheme();
@@ -79,57 +22,100 @@ export function ThemeModeDropdown({ className }: ThemeModeDropdownProps) {
 
   const currentTheme = (theme ?? "system") as ThemeValue;
 
+  // Cycle: Light -> Dark -> System -> Light
+  const handleToggle = () => {
+    if (currentTheme === "light") {
+      setTheme("dark");
+    } else if (currentTheme === "dark") {
+      setTheme("system");
+    } else {
+      setTheme("light");
+    }
+  };
+
+  const getThemeDetails = (val: ThemeValue) => {
+    switch (val) {
+      case "light":
+        return {
+          label: "Theme: Light (Click for Dark)",
+          nextMode: "Dark mode",
+          Icon: Sun,
+          iconClass: "text-amber-500",
+          ringHover: "hover:border-amber-400/50 hover:bg-amber-50/50 dark:hover:bg-amber-950/20",
+          dotClass: "bg-amber-500",
+        };
+      case "dark":
+        return {
+          label: "Theme: Dark (Click for System)",
+          nextMode: "System theme",
+          Icon: Moon,
+          iconClass: "text-sky-400",
+          ringHover: "hover:border-sky-400/50 hover:bg-sky-50/50 dark:hover:bg-sky-950/20",
+          dotClass: "bg-sky-400",
+        };
+      case "system":
+      default:
+        return {
+          label: "Theme: System (Click for Light)",
+          nextMode: "Light mode",
+          Icon: Monitor,
+          iconClass: "text-[#0875D1] dark:text-sky-400",
+          ringHover: "hover:border-blue-400/50 hover:bg-blue-50/50 dark:hover:bg-blue-950/20",
+          dotClass: "bg-blue-500",
+        };
+    }
+  };
+
   if (!mounted) {
     return (
-      <div
-        role="radiogroup"
+      <button
+        type="button"
+        disabled
         aria-label="Theme mode"
-        aria-hidden="true"
         className={cn(
-          "inline-flex items-center gap-1 rounded-full border border-slate-200/80 bg-white p-1 shadow-sm dark:border-slate-800 dark:bg-slate-950",
+          "relative inline-flex items-center justify-center w-9 h-9 xl:w-10 xl:h-10 rounded-full border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-600 shadow-sm",
           className
         )}
       >
-        {THEME_OPTIONS.map(({ value, Icon, label }) => (
-          <button
-            key={value}
-            type="button"
-            disabled
-            aria-label={label}
-            aria-hidden="true"
-            tabIndex={-1}
-            className="inline-flex items-center justify-center w-8 h-8 xl:w-9 xl:h-9 rounded-full text-slate-400 dark:text-slate-600"
-          >
-            <Icon className="w-4 h-4 xl:w-[18px] xl:h-[18px]" />
-          </button>
-        ))}
-      </div>
+        <Sun className="w-4 h-4 xl:w-[18px] xl:h-[18px]" />
+      </button>
     );
   }
 
-  const handleSelect = (v: ThemeValue) => {
-    setTheme(v);
-  };
+  const { label, Icon, iconClass, ringHover, dotClass } = getThemeDetails(currentTheme);
 
   return (
-    <div
-      role="radiogroup"
-      aria-label="Theme mode"
+    <button
+      type="button"
+      onClick={handleToggle}
+      title={label}
+      aria-label={label}
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border border-slate-200/80 bg-gradient-to-r from-white via-slate-50 to-white p-1 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_6px_18px_-10px_rgba(8,36,92,0.12)] transition-all duration-300 hover:border-slate-300 hover:shadow-[0_2px_4px_rgba(0,0,0,0.05),0_10px_28px_-10px_rgba(8,36,92,0.2)] dark:border-slate-800 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:hover:border-slate-700",
+        "group relative inline-flex items-center justify-center w-9 h-9 xl:w-10 xl:h-10 rounded-full border border-slate-200/80 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-[0_1px_2px_rgba(0,0,0,0.04),0_6px_18px_-10px_rgba(8,36,92,0.12)] transition-all duration-300 hover:shadow-md hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0875D1]",
+        ringHover,
         className
       )}
     >
-      {THEME_OPTIONS.map(({ value, Icon, label }) => (
-        <ThemeIconSegment
-          key={value}
-          value={value}
-          activeValue={currentTheme}
-          onSelect={handleSelect}
-          Icon={Icon}
-          label={label}
-        />
-      ))}
-    </div>
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.span
+          key={currentTheme}
+          initial={{ scale: 0.5, rotate: -90, opacity: 0 }}
+          animate={{ scale: 1, rotate: 0, opacity: 1 }}
+          exit={{ scale: 0.5, rotate: 90, opacity: 0 }}
+          transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+          className="inline-flex items-center justify-center"
+        >
+          <Icon className={cn("w-4 h-4 xl:w-[18px] xl:h-[18px] transition-colors stroke-[2.25]", iconClass)} />
+        </motion.span>
+      </AnimatePresence>
+
+      {/* Subtle indicator dot on the corner */}
+      <span
+        className={cn(
+          "absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full ring-2 ring-white dark:ring-slate-900 transition-colors",
+          dotClass
+        )}
+      />
+    </button>
   );
 }

@@ -19,6 +19,7 @@ export async function PUT(
       data: {
         alt: body.alt ?? undefined,
         folder: body.folder ?? undefined,
+        caption: body.caption ?? undefined,
       },
     });
     return NextResponse.json({ success: true, item: updated });

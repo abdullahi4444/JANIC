@@ -34,7 +34,7 @@ export default async function AdminMediaPage() {
             <span>Asset Management System</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
-            Media & Storage Library
+            Posts & Media Library
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-2xl">
             Upload, organize, inspect, and manage image assets, project media, video highlights, and documents across JANIC portal.

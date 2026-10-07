@@ -4,6 +4,7 @@ import { requireAuth } from "@/lib/permissions/roles";
 import { Role } from "@prisma/client";
 import fs from "fs";
 import path from "path";
+import { formatPostCaption } from "@/lib/media/post-media";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,6 +13,8 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const folder = (formData.get("folder") as string) || "general";
     const alt = (formData.get("alt") as string) || "";
+    const caption = (formData.get("caption") as string) || "";
+    const groupPost = formData.get("groupPost") === "true";
 
     // Support both single "file" and multiple "files" or multiple "file" entries
     const allFiles: File[] = [];
@@ -31,11 +34,78 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "No file provided" }, { status: 400 });
     }
 
+    // Video vs Image validation rule:
+    // User can post 1 image, or 2+ images on one card, but video MUST be 1 at a time!
+    const isVideoFile = (f: File) =>
+      f.type.startsWith("video/") || /\.(mp4|webm|ogg|mov|m4v|avi)$/i.test(f.name);
+    const videoFiles = allFiles.filter(isVideoFile);
+    const imageFiles = allFiles.filter((f) => !isVideoFile(f));
+
+    if (videoFiles.length > 1) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Only one video can be uploaded at a time. Please upload each video individually.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (videoFiles.length === 1 && imageFiles.length > 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Videos cannot be combined with images in the same post. Please upload the video separately.",
+        },
+        { status: 400 }
+      );
+    }
+
     const uploadDir = path.join(process.cwd(), "public", "uploads");
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
 
+    // MULTI-IMAGE POST: If 2 or more images and grouped into one card
+    if (groupPost && imageFiles.length > 1) {
+      const uploadedUrls: string[] = [];
+
+      for (const file of imageFiles) {
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+
+        const safeName = file.name.replace(/[^\w.-]/g, "_");
+        const uniqueFileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}_${safeName}`;
+        const filePath = path.join(uploadDir, uniqueFileName);
+
+        await fs.promises.writeFile(filePath, buffer);
+        uploadedUrls.push(`/uploads/${uniqueFileName}`);
+      }
+
+      const primaryFile = imageFiles[0];
+      const formattedCaption = formatPostCaption(caption, uploadedUrls);
+
+      const mediaRecord = await prisma.media.create({
+        data: {
+          fileName: `${primaryFile.name} (+${imageFiles.length - 1} photos)`,
+          url: uploadedUrls[0],
+          alt: alt || primaryFile.name,
+          mimeType: primaryFile.type,
+          sizeBytes: imageFiles.reduce((acc, f) => acc + f.size, 0),
+          folder,
+          caption: formattedCaption,
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        url: mediaRecord.url,
+        media: mediaRecord,
+        items: [mediaRecord],
+      });
+    }
+
+    // Standard individual upload loop (for single image, single video, or ungrouped files)
     const createdRecords = [];
 
     for (const file of allFiles) {
@@ -58,6 +128,7 @@ export async function POST(req: NextRequest) {
           mimeType: file.type,
           sizeBytes: file.size,
           folder,
+          caption: caption || null,
         },
       });
 

@@ -1,17 +1,17 @@
 import React from "react";
-import { GalleryBrowser } from "@/components/public/GalleryBrowser";
+import { PostsBrowser } from "@/components/public/PostsBrowser";
 import { SectionHero } from "@/components/layout/SectionHero";
 import { MediaRepository } from "@/repositories/media.repository";
 
 export const metadata = {
-  title: "Media Gallery & Showcases | JANIC",
+  title: "Posts | JANIC",
   description:
     "Explore photos, videos, hackathon highlights, workshops, and innovation showcases from Jazeera University's JANIC tech hub.",
 };
 
 export const dynamic = "force-dynamic";
 
-export default async function GalleryPage() {
+export default async function PostsPage() {
   const media = await MediaRepository.findAll();
   const items = media.filter(
     (m) =>
@@ -35,10 +35,10 @@ export default async function GalleryPage() {
     <div>
       {/* Hero Section */}
       <SectionHero
-        badge="Media • Moments • Highlights"
-        title="JANIC Innovation Gallery & Media Archive"
+        badge="Posts • Moments • Highlights"
+        title="JANIC Posts & Media Archive"
         description="A visual chronicle of groundbreaking student prototypes, hackathon challenges, hands-on lab sessions, robotics demonstrations, and campus moments at Jazeera University."
-        breadcrumbs={[{ label: "Gallery" }]}
+        breadcrumbs={[{ label: "Posts" }]}
       />
 
       {/* Focus Disciplines / Highlights Bar (Like Training Page) */}
@@ -60,7 +60,7 @@ export default async function GalleryPage() {
         </div>
       </section>
 
-      {/* Gallery Catalog Section (Like Training Page Course Catalog) */}
+      {/* Posts Catalog Section (Like Training Page Course Catalog) */}
       <section className="py-20 bg-slate-50 dark:bg-slate-950 min-h-[600px]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Centered Heading */}
@@ -77,7 +77,7 @@ export default async function GalleryPage() {
           </div>
 
           {/* Browser Catalog with Training-Style Cards */}
-          <GalleryBrowser items={items} />
+          <PostsBrowser items={items} />
         </div>
       </section>
     </div>

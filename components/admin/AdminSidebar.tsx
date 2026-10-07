@@ -22,6 +22,8 @@ import {
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separatorators";
+import { AuthUser } from "@/types/user";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface NavItem {
   title: string;
@@ -64,9 +66,10 @@ const navGroups: { label: string; items: NavItem[] }[] = [
 interface AdminSidebarProps {
   open: boolean;
   onClose: () => void;
+  user?: AuthUser | null;
 }
 
-export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
+export function AdminSidebar({ open, onClose, user }: AdminSidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -139,17 +142,38 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
           </div>
         </ScrollArea>
 
-        <div className="shrink-0 border-t border-border bg-muted/30 p-3">
+        <div className="shrink-0 border-t border-border bg-muted/30 p-2.5 space-y-2">
+          {user && (
+            <div className="flex items-center gap-2 px-2.5 py-2 rounded-xl bg-card border border-border/70 shadow-xs">
+              <Avatar className="h-7 w-7 shrink-0 ring-1 ring-primary/30">
+                {user.avatar ? <AvatarImage src={user.avatar} alt={user.name} /> : null}
+                <AvatarFallback className="bg-gradient-to-br from-[#0875D1] to-[#08245C] text-white text-[11px] font-bold">
+                  {user.name ? user.name.charAt(0) : "J"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold text-foreground truncate leading-tight">
+                  {user.username ? `@${user.username}` : (user.name.toLowerCase().includes("jamiila") ? "@jamiila" : user.name)}
+                </p>
+                <p className="text-[10px] text-[#0875D1] dark:text-sky-400 font-bold truncate leading-tight">
+                  {user.username === "jamiila" || user.name.toLowerCase().includes("jamiila")
+                    ? "Dean of CS & IT"
+                    : user.role}
+                </p>
+              </div>
+            </div>
+          )}
+
           <Link
             href="/"
             target="_blank"
-            className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition"
+            className="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition"
           >
             <span className="flex items-center gap-2">
               <ExternalLink className="w-3.5 h-3.5" />
               View Public Portal
             </span>
-            <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+            <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-semibold">
               Live
             </span>
           </Link>

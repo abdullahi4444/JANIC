@@ -20,12 +20,12 @@ async function main() {
         email: "jamiila@janic.edu.so",
         username: adminUsername,
         passwordHash,
-        name: "Jamiila",
+        name: "Dean Jamiila",
         role: Role.ADMIN,
         avatar: "/images/admin-avatar.png",
       },
     });
-    console.log("Created superadmin user: jamiila (Password: jamiila@janic123)");
+    console.log("Created superadmin user: jamiila (Dean of CS & IT) (Password: jamiila@janic123)");
   } else {
     await prisma.user.update({
       where: { username: adminUsername },
@@ -515,11 +515,11 @@ async function main() {
       isActive: true,
     },
     {
-      name: "Dr. Mohamed Qasim",
+      name: "Dean Jamiila",
       role: "Dean, Faculty of CS & IT",
-      department: "Jazeera University",
-      bio: "Academic leader championing research excellence, curriculum modernization, and international accreditation.",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+      department: "Faculty of Computer Science & IT, Jazeera University",
+      bio: "Dean of the Faculty of Computer Science & IT, leading academic innovation, faculty governance, and student technology research at Jazeera University.",
+      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
       email: "dean.cs@jazeera.edu.so",
       order: 2,
       isActive: true,

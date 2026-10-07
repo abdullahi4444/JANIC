@@ -28,10 +28,14 @@ import {
   CheckSquare,
   Square,
   Sparkles,
+  Images,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { extractMediaGallery, cleanCaption } from "@/lib/media/post-media";
 
 export interface MediaItem {
   id: string;
@@ -41,6 +45,7 @@ export interface MediaItem {
   mimeType?: string | null;
   sizeBytes?: number | null;
   folder?: string;
+  caption?: string | null;
   width?: number | null;
   height?: number | null;
   createdAt: string | Date;
@@ -68,6 +73,8 @@ function isVideo(m: MediaItem): boolean {
 
 function getFormatBadge(m: MediaItem): string {
   if (isVideo(m)) return "VIDEO";
+  const gallery = extractMediaGallery(m);
+  if (gallery.length > 1) return `${gallery.length} PHOTOS`;
   if (m.mimeType) {
     const sub = m.mimeType.split("/")[1];
     if (sub) return sub.toUpperCase();
@@ -110,11 +117,19 @@ export function MediaManager({
   // Upload config
   const [uploadFolder, setUploadFolder] = useState<string>("general");
   const [uploadAlt, setUploadAlt] = useState<string>("");
+  const [uploadCaption, setUploadCaption] = useState<string>("" );
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [groupPost, setGroupPost] = useState<boolean>(true);
 
   // Modals
   const [inspectItem, setInspectItem] = useState<MediaItem | null>(null);
+  const [inspectPhotoIdx, setInspectPhotoIdx] = useState<number>(0);
   const [editingItem, setEditingItem] = useState<MediaItem | null>(null);
+
+  const openInspect = (m: MediaItem) => {
+    setInspectItem(m);
+    setInspectPhotoIdx(0);
+  };
 
   // Copy indicator
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -210,10 +225,43 @@ export function MediaManager({
     toast.info(`Downloading ${item.fileName}`);
   };
 
+  const isVideoFile = (f: File) =>
+    f.type.startsWith("video/") || /\.(mp4|webm|ogg|mov|m4v|avi)$/i.test(f.name);
+
   const handleFilesSelected = (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    const newFiles = Array.from(files);
-    setSelectedFiles((prev) => [...prev, ...newFiles]);
+    const incomingFiles = Array.from(files);
+
+    const incomingVideos = incomingFiles.filter(isVideoFile);
+    const incomingImages = incomingFiles.filter((f) => !isVideoFile(f));
+
+    // Rule: Video must be one time each video!
+    if (incomingVideos.length > 1) {
+      toast.error("Only one video can be uploaded at a time. Please select videos individually.");
+      return;
+    }
+
+    if (incomingVideos.length === 1 && incomingImages.length > 0) {
+      toast.error("Videos cannot be combined with images in the same post. Please upload the video separately.");
+      return;
+    }
+
+    if (incomingVideos.length === 1) {
+      setSelectedFiles([incomingVideos[0]]);
+      toast.info("1 video selected for upload.");
+      setUploadDrawerOpen(true);
+      return;
+    }
+
+    // Multiple images (or 1 image) allowed:
+    setSelectedFiles((prev) => {
+      const existingImages = prev.filter((f) => !isVideoFile(f));
+      const total = [...existingImages, ...incomingImages];
+      if (total.length > 1) {
+        toast.info(`${total.length} images selected. They can be published together on 1 card.`);
+      }
+      return total;
+    });
     setUploadDrawerOpen(true);
   };
 
@@ -227,11 +275,26 @@ export function MediaManager({
       return;
     }
 
+    const videoFiles = selectedFiles.filter(isVideoFile);
+    const imageFiles = selectedFiles.filter((f) => !isVideoFile(f));
+
+    if (videoFiles.length > 1) {
+      toast.error("Only one video can be uploaded at a time. Please upload each video individually.");
+      return;
+    }
+
+    if (videoFiles.length === 1 && imageFiles.length > 0) {
+      toast.error("Videos cannot be combined with images in the same post. Please upload the video separately.");
+      return;
+    }
+
     setUploading(true);
     const formData = new FormData();
     selectedFiles.forEach((f) => formData.append("files", f));
     formData.append("folder", uploadFolder);
     if (uploadAlt) formData.append("alt", uploadAlt);
+    if (uploadCaption) formData.append("caption", uploadCaption);
+    formData.append("groupPost", groupPost ? "true" : "false");
 
     try {
       const res = await fetch("/api/upload", { method: "POST", body: formData });
@@ -242,8 +305,13 @@ export function MediaManager({
       setItems((prev) => [...createdItems, ...prev]);
       setSelectedFiles([]);
       setUploadAlt("");
+      setUploadCaption("");
       setUploadDrawerOpen(false);
-      toast.success(`Successfully uploaded ${createdItems.length} media file(s)!`);
+      toast.success(
+        groupPost && selectedFiles.length > 1
+          ? `Successfully published multi-image post with ${selectedFiles.length} photos on 1 card!`
+          : `Successfully uploaded ${createdItems.length} media file(s)!`
+      );
       router.refresh();
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Error uploading files");
@@ -277,10 +345,17 @@ export function MediaManager({
   const handleSaveEdit = async () => {
     if (!editingItem) return;
     try {
+      const original = items.find((i) => i.id === editingItem.id);
+      const existingMatch = (original?.caption || "").match(/<!--GALLERY:(.*?)-->/);
+      let finalCaption = (editingItem.caption || "").trim();
+      if (existingMatch && !finalCaption.includes("<!--GALLERY:")) {
+        finalCaption = finalCaption ? `${finalCaption}\n${existingMatch[0]}` : existingMatch[0];
+      }
+
       const res = await fetch(`/api/media/${editingItem.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ alt: editingItem.alt, folder: editingItem.folder }),
+        body: JSON.stringify({ alt: editingItem.alt, folder: editingItem.folder, caption: finalCaption }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || "Update failed");
@@ -503,7 +578,7 @@ export function MediaManager({
                   Drop files to upload, or <span className="text-blue-600 dark:text-blue-400 underline">browse</span>
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  JPG, PNG, WebP, SVG, MP4, MOV, WebM. Multi-file upload supported.
+                  Upload 1 image or 2+ images on 1 card. Videos must be uploaded one at a time.
                 </p>
               </div>
 
@@ -554,11 +629,59 @@ export function MediaManager({
                     Applied to uploaded files for accessibility and SEO.
                   </p>
                 </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-foreground mb-1.5">
+                    Caption (Optional)
+                  </label>
+                  <input
+                    value={uploadCaption}
+                    onChange={(e) => setUploadCaption(e.target.value)}
+                    placeholder="Caption shown on the public Posts page"
+                    className="w-full rounded-xl border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                  />
+                </div>
               </div>
 
               {/* Staged file queue */}
               {selectedFiles.length > 0 && (
-                <div className="rounded-2xl border border-border bg-muted/30 p-3.5 space-y-2">
+                <div className="rounded-2xl border border-border bg-muted/30 p-3.5 space-y-3">
+                  {/* Mode banner */}
+                  {selectedFiles.some((f) => isVideoFile(f)) ? (
+                    <div className="flex items-center gap-2 p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-700 dark:text-purple-300 text-xs font-bold">
+                      <Film className="w-4 h-4 shrink-0" />
+                      <span>Single Video Post (1 video)</span>
+                    </div>
+                  ) : selectedFiles.length > 1 ? (
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-300">
+                      <div className="flex items-center gap-2">
+                        <Images className="w-4 h-4 shrink-0" />
+                        <div>
+                          <p className="text-xs font-bold">
+                            Multi-Image Post ({selectedFiles.length} photos)
+                          </p>
+                          <p className="text-[11px] opacity-80">
+                            Photos will be displayed together on 1 card (with carousel & counter)
+                          </p>
+                        </div>
+                      </div>
+                      <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold shrink-0 select-none bg-card/80 px-2.5 py-1.5 rounded-lg border border-border/60">
+                        <input
+                          type="checkbox"
+                          checked={groupPost}
+                          onChange={(e) => setGroupPost(e.target.checked)}
+                          className="rounded text-blue-600 focus:ring-blue-500"
+                        />
+                        <span>Publish on 1 card</span>
+                      </label>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
+                      <FileImage className="w-4 h-4 shrink-0" />
+                      <span>Single Image Post (1 photo on 1 card)</span>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between text-xs font-bold text-foreground">
                     <span>Staged Files ({selectedFiles.length})</span>
                     <button
@@ -681,7 +804,7 @@ export function MediaManager({
               <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground" />
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={(e) => setSortBy(e.target.value as "newest" | "oldest" | "name" | "size")}
                 aria-label="Sort media by"
                 className="bg-transparent text-foreground font-medium focus:outline-none cursor-pointer"
               >
@@ -883,8 +1006,8 @@ export function MediaManager({
                         playsInline
                       />
                       <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition">
-                        <span className="w-10 h-10 rounded-full bg-white/90 text-slate-900 flex items-center justify-center shadow-lg group-hover:scale-110 transition">
-                          <Play className="w-5 h-5 ml-0.5" fill="currentColor" />
+                        <span className="w-10 h-10 rounded-full bg-white/95 dark:bg-slate-900/95 text-slate-900 dark:text-slate-100 border border-slate-200/50 dark:border-slate-700/80 flex items-center justify-center shadow-lg group-hover:scale-110 transition">
+                          <Play className="w-5 h-5 ml-0.5 fill-current" />
                         </span>
                       </div>
                     </div>
@@ -925,42 +1048,42 @@ export function MediaManager({
                   </button>
 
                   {/* Quick Action Overlay on Hover */}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2">
+                  <div className="absolute inset-0 bg-black/60 dark:bg-black/75 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2 backdrop-blur-[2px]">
                     <button
-                      onClick={() => setInspectItem(m)}
-                      className="p-2 rounded-xl bg-white/90 hover:bg-white text-slate-900 shadow-md transition hover:scale-110"
+                      onClick={() => openInspect(m)}
+                      className="p-2.5 rounded-xl bg-white/95 hover:bg-white dark:bg-slate-900/95 dark:hover:bg-slate-800 text-slate-700 hover:text-blue-600 dark:text-slate-200 dark:hover:text-blue-400 border border-slate-200/80 dark:border-slate-700 shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
                       title="Inspect / Preview"
                       aria-label="Inspect or preview media"
                     >
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-4 h-4 stroke-[2.25]" />
                     </button>
                     <button
                       onClick={() => handleCopy(m.url, m.id)}
-                      className="p-2 rounded-xl bg-white/90 hover:bg-white text-blue-600 shadow-md transition hover:scale-110"
+                      className="p-2.5 rounded-xl bg-white/95 hover:bg-white dark:bg-slate-900/95 dark:hover:bg-slate-800 text-blue-600 hover:text-blue-700 dark:text-sky-400 dark:hover:text-sky-300 border border-slate-200/80 dark:border-slate-700 shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
                       title="Copy URL"
                       aria-label="Copy media URL"
                     >
                       {copiedId === m.id ? (
-                        <Check className="w-4 h-4 text-emerald-600" />
+                        <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.25]" />
                       ) : (
-                        <Copy className="w-4 h-4" />
+                        <Copy className="w-4 h-4 stroke-[2.25]" />
                       )}
                     </button>
                     <button
-                      onClick={() => setEditingItem({ ...m })}
-                      className="p-2 rounded-xl bg-white/90 hover:bg-white text-slate-700 shadow-md transition hover:scale-110"
+                      onClick={() => setEditingItem({ ...m, caption: cleanCaption(m.caption) })}
+                      className="p-2.5 rounded-xl bg-white/95 hover:bg-white dark:bg-slate-900/95 dark:hover:bg-slate-800 text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 border border-slate-200/80 dark:border-slate-700 shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
                       title="Edit metadata"
                       aria-label="Edit metadata"
                     >
-                      <Pencil className="w-4 h-4" />
+                      <Pencil className="w-4 h-4 stroke-[2.25]" />
                     </button>
                     <button
                       onClick={() => handleDeleteOne(m)}
-                      className="p-2 rounded-xl bg-white/90 hover:bg-white text-red-600 shadow-md transition hover:scale-110"
+                      className="p-2.5 rounded-xl bg-white/95 hover:bg-white dark:bg-slate-900/95 dark:hover:bg-slate-800 text-red-600 hover:text-red-700 dark:text-rose-400 dark:hover:text-rose-300 border border-slate-200/80 dark:border-slate-700 shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
                       title="Delete"
                       aria-label="Delete media item"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4 stroke-[2.25]" />
                     </button>
                   </div>
                 </div>
@@ -1073,7 +1196,7 @@ export function MediaManager({
                           </div>
                           <div className="truncate max-w-[200px] sm:max-w-xs">
                             <p
-                              onClick={() => setInspectItem(m)}
+                              onClick={() => openInspect(m)}
                               className="font-semibold text-foreground truncate cursor-pointer hover:text-blue-600"
                             >
                               {m.fileName}
@@ -1097,7 +1220,7 @@ export function MediaManager({
                       <td className="p-3 text-right">
                         <div className="flex items-center justify-end gap-1">
                           <button
-                            onClick={() => setInspectItem(m)}
+                            onClick={() => openInspect(m)}
                             className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg"
                             title="Inspect"
                             aria-label="Inspect media details"
@@ -1113,7 +1236,7 @@ export function MediaManager({
                             <Copy className="w-3.5 h-3.5" />
                           </button>
                           <button
-                            onClick={() => setEditingItem({ ...m })}
+                            onClick={() => setEditingItem({ ...m, caption: cleanCaption(m.caption) })}
                             className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg"
                             title="Edit"
                             aria-label="Edit media"
@@ -1177,7 +1300,7 @@ export function MediaManager({
               {/* Modal Body: Left Preview, Right Specs */}
               <div className="flex-1 overflow-y-auto grid grid-cols-1 lg:grid-cols-12 gap-6 p-6">
                 {/* Preview Window */}
-                <div className="lg:col-span-7 flex flex-col items-center justify-center bg-muted/30 rounded-2xl p-4 border border-border/80 min-h-[280px]">
+                <div className="lg:col-span-7 flex flex-col items-center justify-center bg-muted/30 rounded-2xl p-4 border border-border/80 min-h-[280px] relative">
                   {isVideo(inspectItem) ? (
                     <video
                       src={inspectItem.url}
@@ -1185,16 +1308,53 @@ export function MediaManager({
                       autoPlay
                       className="max-h-[50vh] w-full rounded-xl shadow-lg bg-black"
                     />
-                  ) : (
-                    <div className="relative w-full h-[45vh] max-h-[420px]">
-                      <Image
-                        src={inspectItem.url}
-                        alt={inspectItem.alt || inspectItem.fileName}
-                        fill
-                        className="object-contain rounded-xl"
-                      />
-                    </div>
-                  )}
+                  ) : (() => {
+                    const gallery = extractMediaGallery(inspectItem);
+                    const currentImg = gallery[inspectPhotoIdx] || inspectItem.url;
+                    return (
+                      <div className="relative w-full h-[45vh] max-h-[420px] flex items-center justify-center">
+                        <Image
+                          key={currentImg}
+                          src={currentImg}
+                          alt={inspectItem.alt || inspectItem.fileName}
+                          fill
+                          className="object-contain rounded-xl"
+                        />
+                        {gallery.length > 1 && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setInspectPhotoIdx((s) => (s - 1 + gallery.length) % gallery.length);
+                              }}
+                              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition z-10 shadow"
+                              aria-label="Previous photo"
+                            >
+                              <ChevronLeft className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setInspectPhotoIdx((s) => (s + 1) % gallery.length);
+                              }}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition z-10 shadow"
+                              aria-label="Next photo"
+                            >
+                              <ChevronRight className="w-4 h-4" />
+                            </button>
+                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-white text-[10px] font-bold z-10">
+                              <Images className="w-3 h-3 text-sky-400" />
+                              <span>
+                                Photo {inspectPhotoIdx + 1} of {gallery.length}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Metadata & Embed Snippets */}
@@ -1310,7 +1470,7 @@ export function MediaManager({
                       onClick={() => {
                         const it = inspectItem;
                         setInspectItem(null);
-                        setEditingItem({ ...it });
+                        setEditingItem({ ...it, caption: cleanCaption(it.caption) });
                       }}
                       className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition"
                     >
@@ -1362,6 +1522,18 @@ export function MediaManager({
                     onChange={(e) => setEditingItem({ ...editingItem, alt: e.target.value })}
                     className="w-full rounded-xl border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                     placeholder="Describe image content"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-foreground mb-1">
+                    Caption
+                  </label>
+                  <input
+                    value={editingItem.caption || ""}
+                    onChange={(e) => setEditingItem({ ...editingItem, caption: e.target.value })}
+                    className="w-full rounded-xl border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                    placeholder="Caption shown publicly"
                   />
                 </div>
 

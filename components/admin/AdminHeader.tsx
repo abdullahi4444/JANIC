@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface AdminHeaderProps {
   user: AuthUser | null;
@@ -26,6 +26,17 @@ interface AdminHeaderProps {
 export function AdminHeader({ user, onMenu, notifCount = 0 }: AdminHeaderProps) {
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
+
+  const isJamiila =
+    user?.username === "jamiila" ||
+    Boolean(user?.name && user.name.toLowerCase().includes("jamiila")) ||
+    Boolean(user?.email && user.email.toLowerCase().includes("jamiila"));
+  const displayName = user?.username
+    ? `@${user.username}`
+    : isJamiila
+    ? "@jamiila"
+    : user?.name || "Administrator";
+  const displayTitle = isJamiila ? "Dean of CS & IT" : user?.role || "Administrator";
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -82,19 +93,52 @@ export function AdminHeader({ user, onMenu, notifCount = 0 }: AdminHeaderProps) 
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-              <Avatar className="h-9 w-9">
-                <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">
-                  {user?.name ? user.name.charAt(0) : "A"}
+            <Button
+              variant="ghost"
+              className="relative h-10 px-2 sm:px-2.5 gap-2 rounded-full hover:bg-accent border border-border/60 transition-all shrink-0"
+            >
+              <Avatar className="h-7 w-7 ring-1 ring-primary/30">
+                {user?.avatar ? <AvatarImage src={user.avatar} alt={user?.name} /> : null}
+                <AvatarFallback className="bg-gradient-to-br from-[#0875D1] to-[#08245C] text-white font-bold text-xs">
+                  {user?.name ? user.name.charAt(0) : "J"}
                 </AvatarFallback>
               </Avatar>
+              <div className="hidden sm:flex flex-col text-left leading-tight">
+                <span className="text-xs font-bold text-foreground">
+                  {displayName}
+                </span>
+                <span className="text-[10px] font-semibold text-[#0875D1] dark:text-sky-400">
+                  {displayTitle}
+                </span>
+              </div>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="end" forceMount>
-            <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{user?.name || "Administrator"}</p>
-                <p className="text-xs text-muted-foreground">{user?.email || "admin@janic.edu.so"}</p>
+          <DropdownMenuContent className="w-64" align="end" forceMount>
+            <DropdownMenuLabel className="font-normal p-3 rounded-lg bg-muted/60 border border-border/50">
+              <div className="flex flex-col space-y-1.5">
+                <div className="flex items-center justify-between gap-1.5">
+                  <p className="text-sm font-bold text-foreground">
+                    {displayName}
+                  </p>
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-primary/15 text-primary">
+                    {isJamiila ? "ADMIN" : user?.role || "ADMIN"}
+                  </span>
+                </div>
+                {isJamiila ? (
+                  <p className="text-xs font-bold text-[#0875D1] dark:text-sky-400">
+                    Dean of CS & IT
+                  </p>
+                ) : null}
+                <p className="text-[11px] text-muted-foreground break-all">
+                  {user?.email || "jamiila@janic.edu.so"}
+                </p>
+                {isJamiila && (
+                  <div className="mt-1 pt-1.5 border-t border-border/40">
+                    <p className="text-[10px] font-extrabold text-[#0875D1] dark:text-sky-400 uppercase tracking-wider">
+                      Dean, Faculty of CS & IT • System Admin
+                    </p>
+                  </div>
+                )}
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

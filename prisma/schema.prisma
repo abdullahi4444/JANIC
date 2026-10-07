@@ -252,9 +252,34 @@ model Media {
   mimeType  String?
   sizeBytes Int?
   folder    String   @default("general")
+  caption   String?  @db.Text
   createdAt DateTime @default(now())
+  likes     MediaLike[]
+  comments  MediaComment[]
 
   @@index([folder, createdAt])
+}
+
+model MediaLike {
+  id        String   @id @default(cuid())
+  mediaId   String
+  visitorId String
+  createdAt DateTime @default(now())
+  media     Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@unique([mediaId, visitorId])
+  @@index([mediaId])
+}
+
+model MediaComment {
+  id        String   @id @default(cuid())
+  mediaId   String
+  name      String
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+  media     Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@index([mediaId])
 }
 
 model SiteSetting {

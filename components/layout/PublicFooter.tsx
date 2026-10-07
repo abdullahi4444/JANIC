@@ -76,7 +76,7 @@ export async function PublicFooter() {
                 <Link href="/team" className="hover:text-white transition">Our Team</Link>
               </li>
               <li>
-                <Link href="/gallery" className="hover:text-white transition">Gallery</Link>
+                <Link href="/posts" className="hover:text-white transition">Posts</Link>
               </li>
               <li>
                 <Link href="/faq" className="hover:text-white transition">FAQ</Link>

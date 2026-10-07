@@ -10,7 +10,7 @@ export function AdminShell({ user, children, notifCount = 0 }: { user: AuthUser;
 
   return (
     <div className="min-h-screen w-full bg-muted/30">
-      <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={user} />
       <div className="flex flex-col min-h-screen lg:ml-[208px]">
         <AdminHeader user={user} onMenu={() => setSidebarOpen(true)} notifCount={notifCount} />
         <main className="flex-1 p-4 md:p-5 xl:px-7">{children}</main>

@@ -50,39 +50,63 @@ interface UserAvatarMenuProps {
 function UserAvatarMenu({ user, loggingOut, onLogout }: UserAvatarMenuProps) {
   const router = useRouter();
   const initial = getUserInitial(user.name);
+  const isJamiila =
+    user.username === "jamiila" ||
+    user.name.toLowerCase().includes("jamiila") ||
+    user.email?.toLowerCase().includes("jamiila");
+  const usernameDisplay = user.username ? `@${user.username}` : (isJamiila ? "@jamiila" : user.name);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="relative h-9 w-9 xl:h-10 xl:w-10 rounded-full ring-1 ring-black/5 hover:ring-[#0875D1]/30 transition-shadow shrink-0"
+          className="relative inline-flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-full border border-slate-200/90 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 hover:bg-blue-50/60 dark:hover:bg-slate-800 transition-all shadow-xs shrink-0 group"
           aria-label="User menu"
         >
-          <Avatar className="h-9 w-9 xl:h-10 xl:w-10">
+          <Avatar className="h-8 w-8 xl:h-8.5 xl:w-8.5 ring-2 ring-[#0875D1]/30">
             {user.avatar ? (
               <AvatarImage src={user.avatar} alt={user.name} />
             ) : null}
-            <AvatarFallback className="bg-gradient-to-br from-[#0875D1] to-[#08245C] text-white font-bold text-sm">
+            <AvatarFallback className="bg-gradient-to-br from-[#0875D1] to-[#08245C] text-white font-bold text-xs">
               {initial}
             </AvatarFallback>
           </Avatar>
+          <div className="hidden sm:flex flex-col text-left leading-tight">
+            <span className="text-[11px] font-extrabold text-[#08245C] dark:text-slate-100 group-hover:text-[#0875D1] transition-colors">
+              {usernameDisplay}
+            </span>
+            <span className="text-[9px] font-bold text-[#0875D1] dark:text-sky-400 tracking-tight">
+              {isJamiila ? "Dean of CS & IT" : user.role}
+            </span>
+          </div>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-60 overflow-hidden rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-950 p-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_20px_45px_-12px_rgba(8,36,92,0.25)] backdrop-blur-xl"
+        className="w-64 overflow-hidden rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-950 p-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_20px_45px_-12px_rgba(8,36,92,0.25)] backdrop-blur-xl"
         align="end"
         forceMount
       >
         <DropdownMenuLabel className="font-normal rounded-lg bg-gradient-to-br from-[#F5F9FF] via-white to-[#E9F3FD] dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 p-3 mb-1 border border-slate-100/80 dark:border-slate-800/80">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-bold leading-none text-[#08245C] dark:text-slate-100">
-              {user.name}
-            </p>
+            <div className="flex items-center justify-between gap-1.5">
+              <p className="text-sm font-bold leading-none text-[#08245C] dark:text-slate-100">
+                {usernameDisplay}
+              </p>
+              <span className="px-2 py-0.5 rounded-full bg-[#0875D1]/15 text-[#0875D1] dark:text-sky-300 text-[9px] font-black uppercase tracking-wider">
+                {isJamiila ? "ADMIN" : user.role}
+              </span>
+            </div>
+            {isJamiila ? (
+              <p className="text-xs font-bold text-[#0875D1] dark:text-sky-400">
+                Dean of CS & IT
+              </p>
+            ) : null}
             <p className="text-[11px] text-slate-500 dark:text-slate-400 break-all">
               {user.email}
             </p>
-            <p className="inline-flex items-center w-fit mt-1 px-2 py-0.5 rounded-full bg-[#0875D1]/10 border border-[#0875D1]/15 text-[10px] font-extrabold tracking-wider text-[#08245C] dark:text-[#7FB7EC] uppercase">
-              {user.role}
+            <p className="inline-flex items-center w-fit mt-1 px-2 py-0.5 rounded-full bg-[#08245C] dark:bg-[#0875D1] text-white text-[10px] font-extrabold tracking-wider uppercase shadow-xs">
+              {isJamiila ? "Dean of CS & IT • System Admin" : user.role}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -268,13 +292,20 @@ export function PublicHeader({ navLinks, currentUser }: PublicHeaderProps) {
               </Avatar>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
-                  {currentUser.name}
+                  {currentUser.username ? `@${currentUser.username}` : currentUser.name}
                 </p>
+                {currentUser.username === "jamiila" || currentUser.name.toLowerCase().includes("jamiila") ? (
+                  <p className="text-xs font-bold text-[#0875D1] dark:text-sky-400">
+                    Dean of CS & IT
+                  </p>
+                ) : null}
                 <p className="text-[11px] text-muted-foreground truncate">
                   {currentUser.email}
                 </p>
                 <p className="text-[10px] font-extrabold tracking-wider text-[#0875D1] uppercase mt-0.5">
-                  {currentUser.role}
+                  {currentUser.username === "jamiila" || currentUser.name.toLowerCase().includes("jamiila")
+                    ? "Dean of CS & IT • System Admin"
+                    : currentUser.role}
                 </p>
               </div>
             </div>
