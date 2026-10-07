@@ -72,6 +72,18 @@ export async function PublicFooter() {
               <li>
                 <Link href="/events" className="hover:text-white transition">Events & Hackathons</Link>
               </li>
+              <li>
+                <Link href="/team" className="hover:text-white transition">Our Team</Link>
+              </li>
+              <li>
+                <Link href="/gallery" className="hover:text-white transition">Gallery</Link>
+              </li>
+              <li>
+                <Link href="/faq" className="hover:text-white transition">FAQ</Link>
+              </li>
+              <li>
+                <Link href="/search" className="hover:text-white transition">Search</Link>
+              </li>
             </ul>
           </div>
 

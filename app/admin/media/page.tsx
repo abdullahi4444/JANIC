@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import { KpiRow } from "@/components/admin/KpiRow";
 import prisma from "@/lib/db/prisma";
 import { MediaManager } from "@/components/admin/MediaManager";
 
@@ -11,25 +10,39 @@ export default async function AdminMediaPage() {
     orderBy: { createdAt: "desc" },
   });
 
+  // Calculate detailed stats
+  const totalFiles = media.length;
+  const totalSizeBytes = media.reduce((acc, m) => acc + (m.sizeBytes || 0), 0);
+  const imageCount = media.filter((m) => !m.mimeType || m.mimeType.startsWith("image")).length;
+  const videoCount = media.filter((m) => !!m.mimeType?.startsWith("video")).length;
+  const folderSet = Array.from(new Set(media.map((m) => m.folder || "general")));
+
+  const stats = {
+    totalFiles,
+    totalSizeBytes,
+    imageCount,
+    videoCount,
+    foldersCount: folderSet.length,
+  };
+
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-extrabold text-foreground tracking-tight">
-          Media & Storage Library
-        </h1>
-        <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-          Upload and manage images, project logos, diagrams, and media attachments.
-        </p>
+    <div className="space-y-6 pb-12">
+      {/* Top Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-blue-900/10 via-blue-800/5 to-transparent p-6 rounded-3xl border border-border/80 backdrop-blur-sm">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-semibold uppercase tracking-wider mb-2">
+            <span>Asset Management System</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+            Media & Storage Library
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-2xl">
+            Upload, organize, inspect, and manage image assets, project media, video highlights, and documents across JANIC portal.
+          </p>
+        </div>
       </div>
 
-      <KpiRow items={[
-      { title: "Files", value: media.length, sub: "total uploads" },
-      { title: "Images", value: media.filter((m) => m.mimeType?.startsWith("image")).length, sub: "media assets" },
-      { title: "Folders", value: new Set(media.map((m) => m.folder)).size, sub: "collections" },
-      { title: "Size", value: Math.round(media.reduce((a, m) => a + (m.sizeBytes || 0), 0) / 1024), sub: "KB total" },
-    ]} />
-
-      <MediaManager initialMedia={media as any} />
+      <MediaManager initialMedia={media as any} folders={folderSet} stats={stats} />
     </div>
   );
 }

@@ -25,9 +25,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { RevenueChart } from "@/components/admin/charts/RevenueChart";
-import { ExerciseChart } from "@/components/admin/charts/ExerciseChart";
-import { PaymentMethodChart } from "@/components/admin/charts/PaymentMethodChart";
+import { ContentTrendChart } from "@/components/admin/charts/ContentTrendChart";
+import { ProgressGaugeChart } from "@/components/admin/charts/ProgressGaugeChart";
+import { ContentSliceChart } from "@/components/admin/charts/ContentSliceChart";
 import { Sparkline } from "@/components/admin/charts/Sparkline";
 import { ProjectActivity } from "@/components/admin/charts/ProjectActivity";
 
@@ -301,7 +301,7 @@ export default async function AdminDashboardPage() {
             <CardDescription className="text-xs">Distribution of published content.</CardDescription>
           </CardHeader>
           <CardContent className="px-4 pb-4">
-            <PaymentMethodChart data={contentSlices} />
+            <ContentSliceChart data={contentSlices} />
           </CardContent>
         </Card>
       </div>
@@ -400,7 +400,7 @@ export default async function AdminDashboardPage() {
               {pendingSubmissions} pending • {approvedSubmissions} approved • {rejectedSubmissions} rejected
             </p>
             <div className="mt-3">
-              <ExerciseChart value={approvalRate} />
+              <ProgressGaugeChart value={approvalRate} />
             </div>
             <div className="mt-2">
               <Link href="/admin/submissions" className="text-xs font-medium text-primary hover:underline">
@@ -439,7 +439,7 @@ export default async function AdminDashboardPage() {
             <div className="text-2xl font-bold text-foreground">{publishedResearch}</div>
             <p className="text-[11px] text-muted-foreground mt-0.5">published of {totalResearch} papers</p>
             <div className="mt-3">
-              <ExerciseChart value={totalResearch > 0 ? Math.round((publishedResearch / totalResearch) * 100) : 0} />
+              <ProgressGaugeChart value={totalResearch > 0 ? Math.round((publishedResearch / totalResearch) * 100) : 0} />
             </div>
             <div className="mt-2">
               <Link href="/admin/research" className="text-xs font-medium text-primary hover:underline">
