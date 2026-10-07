@@ -42,11 +42,11 @@ export default async function ProjectsPage({
       />
 
       {/* 2. SEARCH, FILTERS & PROJECTS BENTO GRID - FADE UP */}
-      <section className="py-8 sm:py-14 bg-white min-h-[600px] overflow-hidden">
+      <section className="py-8 sm:py-14 bg-slate-50 min-h-[600px] overflow-hidden">
         <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal animation="fade-up" duration={850}>
             {/* Controls Bento Card: Search & Filter Tabs */}
-            <div className="bg-[#F0F6FE] p-6 sm:p-8 rounded-[28px] sm:rounded-[32px] border border-blue-100/70 shadow-sm mb-12 space-y-5">
+            <div className="bg-[#F0F6FE] p-6 sm:p-8 rounded-2xl sm:rounded-2xl border border-blue-100/70 shadow-sm mb-12 space-y-5">
               {/* Search Input */}
               <form method="GET" action="/projects" className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
@@ -105,7 +105,7 @@ export default async function ProjectsPage({
 
             {/* Projects Grid */}
             {projects.length === 0 ? (
-              <div className="bg-[#F0F6FE] rounded-[32px] border border-blue-100/70 p-16 text-center max-w-lg mx-auto shadow-sm">
+              <div className="bg-[#F0F6FE] rounded-2xl border border-blue-100/70 p-16 text-center max-w-lg mx-auto shadow-sm">
                 <Sparkles className="w-10 h-10 text-slate-300 mx-auto mb-4" />
                 <h3 className="text-lg font-bold text-[#08245C]">No projects found</h3>
                 <p className="text-xs text-slate-500 mt-1">
@@ -119,15 +119,15 @@ export default async function ProjectsPage({
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {projects.map((project) => (
                   <Link
                     key={project.id}
                     href={`/projects/${project.slug}`}
-                    className="bg-white rounded-[26px] border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col hover:-translate-y-1"
+                    className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-xl transition-all group flex flex-col hover:-translate-y-1"
                   >
                     {/* Image with frosted category pill */}
-                    <div className="aspect-[16/10] relative bg-slate-100 overflow-hidden">
+                    <div className="aspect-[16/9] relative bg-slate-100 overflow-hidden">
                       <Image
                         src={
                           project.heroImage ||
@@ -137,7 +137,7 @@ export default async function ProjectsPage({
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                       />
-                      <div className="absolute top-3.5 left-3.5 bg-white/85 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-slate-800 shadow-sm uppercase tracking-wider">
+                      <div className="absolute top-3 left-3 bg-white/95 px-2.5 py-1 rounded-full text-[11px] font-bold text-[#08245C] uppercase tracking-wider">
                         {project.category}
                       </div>
                     </div>
@@ -167,10 +167,13 @@ export default async function ProjectsPage({
                         </div>
                       </div>
 
-                      <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#0875D1]">
-                        <span>View Solution</span>
-                        <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                      </div>
+                      <Link
+                        href={`/projects/${project.slug}`}
+                        className="w-full py-2.5 px-4 rounded-xl bg-[#08245C] hover:bg-[#061B40] text-white font-semibold text-xs flex items-center justify-center gap-2 transition"
+                      >
+                        View Solution
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
                     </div>
                   </Link>
                 ))}

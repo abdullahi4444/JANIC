@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { SubmissionService } from "@/services/submissions/submission.service";
+import { isEnabled } from "@/lib/settings";
 
 const submissionSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -30,6 +31,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!(await isEnabled("allow_submissions", true))) {
+      return NextResponse.json({ success: false, error: "Submissions are currently closed" }, { status: 403 });
+    }
     const submission = await SubmissionService.submitInnovation(parsed.data);
 
     return NextResponse.json({

@@ -71,7 +71,7 @@ export default function PartnershipsPage() {
                       return (
                         <div
                           key={b.title}
-                          className="bg-white p-6 rounded-[24px] border border-blue-100/80 flex items-start gap-4 shadow-sm hover:shadow-md transition-all group"
+                          className="bg-white p-6 rounded-2xl border border-blue-100/80 flex items-start gap-4 shadow-sm hover:shadow-md transition-all group"
                         >
                           <div className="w-11 h-11 rounded-xl bg-blue-50 text-[#0875D1] flex items-center justify-center font-bold shrink-0 group-hover:scale-105 transition-transform">
                             <Icon className="w-5 h-5" />
@@ -89,7 +89,7 @@ export default function PartnershipsPage() {
                     })}
                   </div>
 
-                  <div className="p-7 rounded-[26px] bg-[#0A224E] text-white space-y-2 border border-blue-900/60 shadow-lg">
+                  <div className="p-7 rounded-2xl bg-[#0A224E] text-white space-y-2 border border-blue-900/60 shadow-lg">
                     <div className="flex items-center gap-2 text-xs font-bold text-cyan-300 uppercase tracking-wider">
                       <ShieldCheck className="w-4 h-4" /> Institutional Integrity
                     </div>
@@ -100,7 +100,7 @@ export default function PartnershipsPage() {
                 </div>
 
                 {/* Right Column: Partnership Form (6 cols) */}
-                <div className="lg:col-span-6 bg-white p-8 sm:p-10 rounded-[28px] border border-blue-100/80 shadow-md space-y-6">
+                <div className="lg:col-span-6 bg-white p-8 sm:p-10 rounded-2xl border border-blue-100/80 shadow-md space-y-6">
                   <div>
                     <span className="text-xs font-bold uppercase tracking-wider text-[#0875D1] block mb-1">
                       Partnership Inquiries

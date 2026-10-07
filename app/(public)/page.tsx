@@ -3,45 +3,42 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
-  Sparkles,
   Cpu,
-  GraduationCap,
   Rocket,
-  FlaskConical,
-  Briefcase,
-  Globe2,
-  Calendar,
-  Clock,
   MapPin,
   CheckCircle2,
-  ChevronRight,
-  Activity,
-  Layers,
-  Award,
-  BookOpen,
-  Users2,
-  ExternalLink,
   Shield,
   Cloud,
   Binary,
   Code2,
+  ArrowUpRight,
+  Sparkles,
+  Users,
+  Zap,
+  Award,
+  Target,
 } from "lucide-react";
-import { ProjectService } from "@/services/projects/project.service";
-import { TrainingService } from "@/services/training/training.service";
 import { ResearchService } from "@/services/research/research.service";
 import { EventService } from "@/services/events/event.service";
+import { ProjectService } from "@/services/projects/project.service";
 import { InnovationPipelineNodes } from "@/components/public/InnovationPipelineNodes";
 import { ScrollReveal } from "@/components/public/ScrollReveal";
-import { formatDate } from "@/lib/utils";
+import { getSetting } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [projects, researchPapers, upcomingEvents] = await Promise.all([
-    ProjectService.getPublishedProjects({ limit: 6 }),
-    ResearchService.getPublishedPapers({ limit: 3 }),
+  const [researchPapers, upcomingEvents, featuredProjects] = await Promise.all([
+    ResearchService.getFeaturedPapers(3),
     EventService.getUpcomingEvents(3),
+    ProjectService.getFeaturedProjects(5),
   ]);
+
+  const heroTitle = await getSetting("hero_title", "Innovating Technology. Empowering the Future.");
+  const heroSubtitle = await getSetting("hero_subtitle", "The leading institutional hub for technological transformation, advanced research, and digital excellence.");
+  const heroImage = await getSetting("hero_image", "/images/janic-hero-lab.jpg");
+  const heroBadgeValue = await getSetting("hero_badge_value", "18+");
+  const heroBadgeLabel = await getSetting("hero_badge_label", "STUDENT INNOVATION PROJECTS");
 
   return (
     <div className="flex flex-col min-h-screen overflow-x-clip">
@@ -53,7 +50,7 @@ export default async function HomePage() {
             <div className="relative rounded-[2rem] md:rounded-[2.5rem] overflow-hidden min-h-[580px] lg:min-h-[640px] flex flex-col justify-between p-6 sm:p-10 lg:p-14 shadow-2xl">
               {/* Background Image */}
               <Image
-                src="/images/janic-hero-lab.jpg"
+                src={heroImage}
                 alt="JANIC Innovation Lab"
                 fill
                 className="object-cover object-center"
@@ -73,9 +70,9 @@ export default async function HomePage() {
                     <Rocket className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-xl font-black text-white leading-tight">18+</div>
+                    <div className="text-xl font-black text-white leading-tight">{heroBadgeValue}</div>
                     <div className="text-[10px] font-bold text-blue-200 uppercase tracking-wider">
-                      STUDENT INNOVATION PROJECTS
+                      {heroBadgeLabel}
                     </div>
                   </div>
                 </div>
@@ -85,14 +82,11 @@ export default async function HomePage() {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end relative z-10 pt-10 sm:pt-16">
                 {/* Left Column: Main Typography */}
                 <div className="lg:col-span-7 space-y-5">
-                  <h1 className="text-4xl sm:text-5xl lg:text-[4.25rem] font-black text-white tracking-tight leading-[1.08]">
-                    Innovating <br />
-                    Technology. <br />
-                    Empowering the <br />
-                    Future.
+                  <h1 className="text-4xl sm:text-5xl lg:text-[4.25rem] font-black text-white tracking-tight leading-[1.08] whitespace-pre-line">
+                    {heroTitle}
                   </h1>
                   <p className="text-white/90 text-sm sm:text-base lg:text-lg font-normal leading-relaxed max-w-xl">
-                    The leading institutional hub for technological transformation, advanced research, and digital excellence.
+                    {heroSubtitle}
                   </p>
                 </div>
 
@@ -403,216 +397,458 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 6. PROJECTS PORTFOLIO: INNOVATION IN ACTION & FEATURED CASE STUDY - FADE LEFT ENTRANCE */}
-      <section className="py-16 sm:py-24 bg-white border-b border-slate-200/80 overflow-hidden">
-        <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8">
-          <ScrollReveal animation="fade-left" duration={850}>
-            {/* Header */}
-            <div className="mb-8 sm:mb-10">
-              <span className="text-xs sm:text-sm font-bold text-[#0875D1] tracking-wider uppercase block mb-1.5">
-                PROJECTS PORTFOLIO
-              </span>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#08245C] tracking-tight">
-                Innovation in Action
-              </h2>
-            </div>
+      {/* 6. PROJECT SHOWCASES: ASYMMETRIC BENTO LAYOUT — TILT UP ENTRANCE */}
+      <section className="py-16 sm:py-24 lg:py-28 bg-gradient-to-b from-white via-[#F5F9FF] to-white border-b border-slate-200/80 overflow-hidden relative isolate">
+        {/* Decorative soft blobs */}
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#0875D1]/[0.05] rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-40 right-0 w-[300px] h-[300px] bg-[#08245C]/[0.05] rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-[60%] left-10 w-[260px] h-[260px] bg-emerald-400/[0.03] rounded-full blur-3xl pointer-events-none" />
+        {/* Fine grid pattern overlay */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.35]"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, rgba(8, 117, 209, 0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(8, 36, 92, 0.03) 1px, transparent 1px)",
+            backgroundSize: "32px 32px",
+            maskImage:
+              "radial-gradient(ellipse 60% 50% at 50% 40%, black 30%, transparent 75%)",
+            WebkitMaskImage:
+              "radial-gradient(ellipse 60% 50% at 50% 40%, black 30%, transparent 75%)",
+          }}
+        />
 
-            {/* 4 Projects Bento Grid (2 Columns) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6 items-stretch">
-              {/* Column 1 (Left): MAAL HUB (Tall) & SAHAL SACCO (Compact) */}
-              <div className="flex flex-col gap-5 lg:gap-6">
-                {/* Card 1: MAAL HUB */}
-                <Link
-                  href="/projects/maal-hub"
-                  className="group relative rounded-[24px] sm:rounded-[28px] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 h-[320px] sm:h-[370px] lg:h-[390px] flex flex-col justify-end p-6 sm:p-8"
-                >
-                  <Image
-                    src="/images/maal-hub.jpg"
-                    alt="MAAL HUB"
-                    fill
-                    className="object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
-                  />
-                  {/* Dark Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent group-hover:via-black/40 transition-colors" />
-
-                  {/* Badge Top Left */}
-                  <div className="absolute top-5 left-5 z-10">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-white/85 backdrop-blur-md text-[10px] sm:text-[11px] font-bold tracking-wider text-slate-800 uppercase shadow-sm">
-                      FINTECH
-                    </span>
-                  </div>
-
-                  {/* Text Bottom Left */}
-                  <div className="relative z-10 space-y-1">
-                    <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-                      MAAL HUB
-                    </h3>
-                    <p className="text-xs sm:text-sm text-white/80 leading-relaxed max-w-md">
-                      Integrated financial management system for micro-enterprises.
-                    </p>
-                  </div>
-                </Link>
-
-                {/* Card 2: SAHAL SACCO */}
-                <Link
-                  href="/projects/sahal-sacco"
-                  className="group relative rounded-[24px] sm:rounded-[28px] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 h-[220px] sm:h-[250px] lg:h-[270px] flex flex-col justify-end p-6 sm:p-8"
-                >
-                  <Image
-                    src="/images/sahal-sacco.jpg"
-                    alt="SAHAL SACCO"
-                    fill
-                    className="object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
-                  />
-                  {/* Dark Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent group-hover:via-black/40 transition-colors" />
-
-                  {/* Badge Top Left */}
-                  <div className="absolute top-5 left-5 z-10">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-white/85 backdrop-blur-md text-[10px] sm:text-[11px] font-bold tracking-wider text-slate-800 uppercase shadow-sm">
-                      SAAS
-                    </span>
-                  </div>
-
-                  {/* Text Bottom Left */}
-                  <div className="relative z-10 space-y-1">
-                    <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-                      SAHAL SACCO
-                    </h3>
-                    <p className="text-xs sm:text-sm text-white/80 leading-relaxed max-w-md">
-                      Automating credit and savings operations.
-                    </p>
-                  </div>
-                </Link>
+        <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <ScrollReveal animation="fade-up" duration={850}>
+            {/* Section Header */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-11 sm:mb-16">
+              <div className="max-w-2xl">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#E9F3FD] to-white border border-[#0875D1]/15 shadow-[0_1px_2px_rgba(8,117,209,0.06),0_8px_24px_-12px_rgba(8,117,209,0.2)] mb-4 hover:shadow-[0_2px_4px_rgba(8,117,209,0.08),0_12px_32px_-12px_rgba(8,117,209,0.3)] transition-shadow duration-300">
+                  <Sparkles className="w-3.5 h-3.5 text-[#0875D1]" />
+                  <span className="text-[11px] font-extrabold text-[#08245C] tracking-[0.18em] uppercase">
+                    PROJECT SHOWCASES
+                  </span>
+                </div>
+                <h2 className="text-3xl sm:text-4xl lg:text-[54px] font-black tracking-tight leading-[1.05] bg-gradient-to-br from-[#08245C] via-[#0A2C6B] to-[#0875D1] bg-clip-text text-transparent">
+                  Innovation in Action
+                </h2>
+                <p className="mt-4 text-sm sm:text-[15px] text-slate-600 leading-relaxed max-w-xl">
+                  From fintech platforms and robotics hardware to AI-driven healthcare coordination systems — explore real-world prototypes engineered by Jazeera University students.
+                </p>
               </div>
 
-              {/* Column 2 (Right): Robot Car Cleaner & BADBAADO Platform */}
-              <div className="flex flex-col gap-5 lg:gap-6">
-                {/* Card 3: Robot Car Cleaner */}
-                <Link
-                  href="/projects/robot-car-cleaner"
-                  className="group relative rounded-[24px] sm:rounded-[28px] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 h-[270px] sm:h-[310px] lg:h-[330px] flex flex-col justify-end p-6 sm:p-7"
-                >
-                  <Image
-                    src="/images/robot-car-cleaner.jpg"
-                    alt="Robot Car Cleaner"
-                    fill
-                    className="object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
-                  />
-                  {/* Dark Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent group-hover:via-black/40 transition-colors" />
-
-                  {/* Badge Top Left */}
-                  <div className="absolute top-5 left-5 z-10">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-white/85 backdrop-blur-md text-[10px] sm:text-[11px] font-bold tracking-wider text-slate-800 uppercase shadow-sm">
-                      ROBOTICS
-                    </span>
-                  </div>
-
-                  {/* Text Bottom Left */}
-                  <div className="relative z-10 space-y-1">
-                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
-                      Robot Car Cleaner
-                    </h3>
-                    <p className="text-xs text-white/80 leading-relaxed max-w-md">
-                      Autonomous cleaning solutions for urban environments.
-                    </p>
-                  </div>
-                </Link>
-
-                {/* Card 4: BADBAADO Platform */}
-                <Link
-                  href="/projects/badbaado"
-                  className="group relative rounded-[24px] sm:rounded-[28px] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 h-[270px] sm:h-[310px] lg:h-[330px] flex flex-col justify-end p-6 sm:p-7"
-                >
-                  <Image
-                    src="/images/badbaado-safety.jpg"
-                    alt="BADBAADO Platform"
-                    fill
-                    className="object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
-                  />
-                  {/* Dark Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent group-hover:via-black/40 transition-colors" />
-
-                  {/* Badge Top Left */}
-                  <div className="absolute top-5 left-5 z-10">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-white/85 backdrop-blur-md text-[10px] sm:text-[11px] font-bold tracking-wider text-slate-800 uppercase shadow-sm">
-                      SAFETY TECH
-                    </span>
-                  </div>
-
-                  {/* Text Bottom Left */}
-                  <div className="relative z-10 space-y-1">
-                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
-                      BADBAADO Platform
-                    </h3>
-                    <p className="text-xs text-white/80 leading-relaxed max-w-md">
-                      Digital coordination for emergency health services.
-                    </p>
-                  </div>
-                </Link>
-              </div>
+              <Link
+                href="/projects"
+                className="group shrink-0 inline-flex items-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-full border-2 border-[#08245C]/10 hover:border-[#08245C] text-[#08245C] hover:bg-[#08245C] hover:text-white text-xs sm:text-sm font-bold transition-all duration-300 shadow-[0_1px_2px_rgba(8,36,92,0.04),0_12px_32px_-16px_rgba(8,36,92,0.2)] hover:shadow-[0_2px_4px_rgba(8,36,92,0.06),0_20px_40px_-12px_rgba(8,36,92,0.35)] hover:-translate-y-0.5"
+              >
+                View Full Portfolio
+                <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </Link>
             </div>
           </ScrollReveal>
 
-          {/* 7. FEATURED CASE STUDY: BADBAADO Healthcare Coordination Platform - ZOOM OUT ENTRANCE */}
-          <ScrollReveal animation="zoom-out" duration={850} className="mt-12 sm:mt-16 lg:mt-20">
-            <div className="bg-[#F0F6FE] rounded-[28px] sm:rounded-[36px] lg:rounded-[40px] p-6 sm:p-8 md:p-10 lg:p-12 border border-blue-100/60 shadow-sm">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-                {/* Left: Clinical Visual */}
-                <div className="lg:col-span-6">
-                  <div className="relative rounded-[20px] sm:rounded-[24px] overflow-hidden aspect-[4/3] w-full shadow-sm border border-white/60">
+          {/* ASYMMETRIC BENTO GRID */}
+          <ScrollReveal animation="tilt-up" duration={900} delay={80}>
+            {featuredProjects && featuredProjects.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4 sm:gap-5 items-stretch">
+                {(() => {
+                  const mainProject = featuredProjects[0];
+                  const restProjects = featuredProjects.slice(1, 5);
+                  const fallbackImg = [
+                    "/images/maal-hub.jpg",
+                    "/images/sahal-sacco.jpg",
+                    "/images/robot-car-cleaner.jpg",
+                    "/images/badbaado-safety.jpg",
+                    "/images/maal-hub.jpg",
+                  ];
+                  const iconsByCategory = [Sparkles, Zap, Target, Award, Users];
+
+                  return (
+                    <>
+                      {/* BIG SPOTLIGHT CARD - xl:col-span-7 */}
+                      <Link
+                        href={`/projects/${mainProject.slug}`}
+                        className="group relative rounded-3xl overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.04),0_20px_40px_-20px_rgba(8,117,209,0.25)] hover:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_35px_70px_-20px_rgba(8,36,92,0.45)] transition-all duration-500 xl:col-span-7 xl:row-span-2 min-h-[340px] sm:min-h-[380px] lg:min-h-[430px] xl:min-h-[540px] flex flex-col justify-between ring-1 ring-black/5 hover:ring-[#0875D1]/20 before:absolute before:inset-0 before:z-20 before:pointer-events-none before:rounded-3xl before:ring-1 before:ring-inset before:ring-white/10 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500"
+                      >
+                        {/* Background */}
+                        <div className="absolute inset-0">
+                          <Image
+                            src={mainProject.heroImage || fallbackImg[0]}
+                            alt={mainProject.title}
+                            fill
+                            priority
+                            className="object-cover object-center group-hover:scale-[1.08] transition-transform duration-[1400ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#050D24]/97 via-[#08245C]/60 to-[#0875D1]/15 group-hover:from-[#050D24]/97 group-hover:via-[#0A2C6B]/70 group-hover:to-[#0875D1]/25 transition-all duration-700" />
+                          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/30 to-transparent" />
+                          {/* Radial glow accent */}
+                          <div className="absolute -top-1/3 -right-1/4 w-[500px] h-[500px] bg-[#0875D1]/25 rounded-full blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                        </div>
+
+                        {/* Top Meta Row */}
+                        <div className="relative z-10 p-6 sm:p-8 lg:p-9 flex items-start justify-between gap-4">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md text-[10px] sm:text-[11px] font-extrabold tracking-[0.14em] text-[#08245C] uppercase shadow-[0_10px_25px_-8px_rgba(0,0,0,0.2)] border border-white/70">
+                              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-0.5 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                              {mainProject.category}
+                            </span>
+                            {mainProject.demoUrl && (
+                              <span className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#0875D1] to-cyan-500 backdrop-blur-md text-[10px] font-bold text-white uppercase tracking-wide shadow-[0_8px_20px_-8px_rgba(8,117,209,0.6)] border border-white/15">
+                                <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_6px_rgba(255,255,255,0.9)]" />
+                                Live Demo
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] group-hover:bg-white group-hover:text-[#0875D1] group-hover:scale-110 group-hover:rotate-[3deg] group-hover:shadow-[0_15px_35px_-10px_rgba(255,255,255,0.25)] transition-all duration-500">
+                            <ArrowUpRight className="w-5 h-5 sm:w-6 sm:h-6" />
+                          </div>
+                        </div>
+
+                        {/* Bottom Content */}
+                        <div className="relative z-10 p-6 sm:p-8 lg:p-9 space-y-4 sm:space-y-5">
+                          {/* Large Title */}
+                          <h3 className="text-2xl sm:text-3xl lg:text-4xl xl:text-[44px] font-black text-white tracking-tight leading-[1.08] max-w-2xl transition-all duration-500 group-hover:drop-shadow-[0_4px_20px_rgba(8,117,209,0.35)]">
+                            {mainProject.title}
+                          </h3>
+                          <p className="text-sm sm:text-[15px] text-white/78 leading-relaxed max-w-xl line-clamp-3 sm:line-clamp-none group-hover:text-white/85 transition-colors duration-300">
+                            {mainProject.summary}
+                          </p>
+
+                          {/* Technology pills */}
+                          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                            {String(mainProject.technology || "")
+                              .split(",")
+                              .slice(0, 5)
+                              .filter((t) => t.trim().length > 0)
+                              .map((tech, i) => (
+                                <span
+                                  key={i}
+                                  className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 text-[11px] font-semibold text-white/92 group-hover:bg-white/15 group-hover:border-white/25 group-hover:shadow-[0_4px_12px_-4px_rgba(8,117,209,0.35)] transition-all duration-300"
+                                >
+                                  {tech.trim()}
+                                </span>
+                              ))}
+                          </div>
+
+                          {/* Bottom action row */}
+                          <div className="flex flex-wrap items-center justify-between gap-4 pt-4 mt-1 border-t border-white/15 group-hover:border-white/25 transition-colors duration-300">
+                            <div className="flex items-center gap-5">
+                              <div className="flex -space-x-2">
+                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-[#0875D1] to-[#08245C] border-2 border-white/40 flex items-center justify-center text-[10px] sm:text-[11px] font-black text-white shadow-[0_4px_12px_-2px_rgba(8,117,209,0.45)]">
+                                  JU
+                                </div>
+                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 border-2 border-white/40 flex items-center justify-center text-[10px] sm:text-[11px] font-black text-white shadow-[0_4px_12px_-2px_rgba(16,185,129,0.45)]">
+                                  CS
+                                </div>
+                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/15 backdrop-blur border-2 border-white/30 flex items-center justify-center text-[10px] sm:text-[11px] font-bold text-white/90 group-hover:bg-white/20 transition-colors duration-300">
+                                  +{String(mainProject.technology || "").split(",").length}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-[11px] font-bold text-white/92 group-hover:text-white transition-colors">JANIC Cohort</div>
+                                <div className="text-[10px] text-white/55 font-medium">Faculty of CS &amp; IT</div>
+                              </div>
+                            </div>
+
+                            <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white text-[#08245C] text-xs sm:text-[13px] font-bold shadow-[0_12px_30px_-8px_rgba(0,0,0,0.2)] group-hover:bg-gradient-to-r group-hover:from-[#0875D1] group-hover:to-cyan-500 group-hover:text-white group-hover:shadow-[0_15px_35px_-8px_rgba(8,117,209,0.65)] transition-all duration-300">
+                              View Project
+                              <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-300 group-hover:translate-x-1.5" />
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+
+                      {/* SECONDARY CARDS — xl:col-span-5 */}
+                      <div className="xl:col-span-5 flex flex-col gap-4 sm:gap-5">
+                        {restProjects.map((project, idx) => {
+                          const IconComp = iconsByCategory[(idx + 1) % iconsByCategory.length];
+                          return (
+                            <Link
+                              key={project.id}
+                              href={`/projects/${project.slug}`}
+                              className="group relative rounded-3xl overflow-hidden bg-white border border-slate-200/70 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_10px_30px_-15px_rgba(8,36,92,0.18)] hover:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_25px_60px_-15px_rgba(8,117,209,0.4)] hover:border-[#0875D1]/30 transition-all duration-500 hover:-translate-y-1 min-h-[150px] sm:min-h-[160px] lg:min-h-[175px] flex ring-1 ring-black/[0.03] hover:ring-[#0875D1]/10"
+                            >
+                              <div className="grid grid-cols-5 w-full">
+                                {/* LEFT: Thumbnail */}
+                                <div className="col-span-2 relative overflow-hidden min-h-[150px] sm:min-h-[160px] lg:min-h-[175px]">
+                                  <Image
+                                    src={project.heroImage || fallbackImg[(idx + 1) % fallbackImg.length]}
+                                    alt={project.title}
+                                    fill
+                                    className="object-cover object-center group-hover:scale-[1.12] transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
+                                  />
+                                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#08245C]/5 to-white/70 group-hover:from-transparent group-hover:via-[#0875D1]/10 group-hover:to-white/60 transition-colors duration-500" />
+                                  <div className="absolute inset-0 ring-1 ring-inset ring-black/5 group-hover:ring-[#0875D1]/10 transition-colors duration-500" />
+                                  {/* Corner accent */}
+                                  <div className="absolute top-2.5 left-2.5 w-2 h-2 rounded-full bg-white/80 shadow-[0_0_10px_rgba(255,255,255,0.8)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                </div>
+                                {/* RIGHT: Content */}
+                                <div className="col-span-3 p-4 sm:p-5 lg:p-6 flex flex-col justify-between gap-3">
+                                  <div>
+                                    <div className="flex items-center justify-between gap-2 mb-2">
+                                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-[#E9F3FD] to-white border border-[#0875D1]/15 text-[10px] sm:text-[11px] font-extrabold tracking-wider text-[#08245C] uppercase shadow-[0_1px_2px_rgba(8,117,209,0.06)]">
+                                        {project.category}
+                                      </span>
+                                      <div className="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-gradient-to-br group-hover:from-[#08245C] group-hover:to-[#0875D1] text-slate-500 group-hover:text-white transition-all duration-400 flex items-center justify-center shadow-[0_1px_2px_rgba(0,0,0,0.04)] group-hover:shadow-[0_6px_16px_-6px_rgba(8,117,209,0.5)]">
+                                        <IconComp className="w-3.5 h-3.5 transition-transform duration-300 group-hover:scale-110" />
+                                      </div>
+                                    </div>
+                                    <h3 className="text-base sm:text-lg lg:text-xl font-extrabold text-[#08245C] tracking-tight leading-tight group-hover:text-[#0875D1] transition-colors duration-300 line-clamp-2 group-hover:drop-shadow-[0_2px_8px_rgba(8,117,209,0.15)]">
+                                      {project.title}
+                                    </h3>
+                                  </div>
+                                  <div className="space-y-2.5">
+                                    <div className="flex flex-wrap gap-1.5">
+                                      {String(project.technology || "")
+                                        .split(",")
+                                        .slice(0, 3)
+                                        .filter((t) => t.trim().length > 0)
+                                        .map((tech, i) => (
+                                          <span
+                                            key={i}
+                                            className="px-2 py-0.5 rounded-lg bg-slate-50 group-hover:bg-blue-50 border border-slate-200/60 group-hover:border-[#0875D1]/20 text-[10px] font-semibold text-slate-600 group-hover:text-[#08245C] transition-all duration-300"
+                                          >
+                                            {tech.trim()}
+                                          </span>
+                                        ))}
+                                    </div>
+                                    <div className="flex items-center justify-between pt-1.5 border-t border-slate-100/80 group-hover:border-[#0875D1]/10 transition-colors duration-300">
+                                      <span className="text-[11px] font-bold text-[#08245C]/50 group-hover:text-[#0875D1] transition-colors duration-300">
+                                        Read Case Study
+                                      </span>
+                                      <div className="w-7 h-7 rounded-full bg-[#08245C]/5 group-hover:bg-gradient-to-r group-hover:from-[#0875D1] group-hover:to-cyan-500 text-[#08245C] group-hover:text-white flex items-center justify-center transition-all duration-400 group-hover:scale-[1.15] group-hover:shadow-[0_6px_16px_-6px_rgba(8,117,209,0.55)]">
+                                        <ArrowRight className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-0.5" />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            ) : (
+              /* HARDCODED FALLBACK BENTO (same layout) */
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4 sm:gap-5 items-stretch">
+                <Link
+                  href="/projects/maal-hub"
+                  className="group relative rounded-3xl overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.04),0_20px_40px_-20px_rgba(8,117,209,0.25)] hover:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_35px_70px_-20px_rgba(8,36,92,0.45)] transition-all duration-500 xl:col-span-7 xl:row-span-2 min-h-[340px] sm:min-h-[380px] lg:min-h-[430px] xl:min-h-[540px] flex flex-col justify-between ring-1 ring-black/5 hover:ring-[#0875D1]/20 before:absolute before:inset-0 before:z-20 before:pointer-events-none before:rounded-3xl before:ring-1 before:ring-inset before:ring-white/10 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500"
+                >
+                  <div className="absolute inset-0">
+                    <Image
+                      src="/images/maal-hub.jpg"
+                      alt="MAAL HUB Fintech Platform"
+                      fill
+                      priority
+                      className="object-cover object-center group-hover:scale-[1.08] transition-transform duration-[1400ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#050D24]/97 via-[#08245C]/60 to-[#0875D1]/15 group-hover:from-[#050D24]/97 group-hover:via-[#0A2C6B]/70 group-hover:to-[#0875D1]/25 transition-all duration-700" />
+                    <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/30 to-transparent" />
+                    <div className="absolute -top-1/3 -right-1/4 w-[500px] h-[500px] bg-[#0875D1]/25 rounded-full blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                  </div>
+                  <div className="relative z-10 p-6 sm:p-8 lg:p-9 flex items-start justify-between gap-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md text-[10px] sm:text-[11px] font-extrabold tracking-[0.14em] text-[#08245C] uppercase shadow-[0_10px_25px_-8px_rgba(0,0,0,0.2)] border border-white/70">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-0.5 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                        FINTECH
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] group-hover:bg-white group-hover:text-[#0875D1] group-hover:scale-110 group-hover:rotate-[3deg] group-hover:shadow-[0_15px_35px_-10px_rgba(255,255,255,0.25)] transition-all duration-500">
+                      <ArrowUpRight className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </div>
+                  </div>
+                  <div className="relative z-10 p-6 sm:p-8 lg:p-9 space-y-4 sm:space-y-5">
+                    <h3 className="text-2xl sm:text-3xl lg:text-4xl xl:text-[44px] font-black text-white tracking-tight leading-[1.08] max-w-2xl transition-all duration-500 group-hover:drop-shadow-[0_4px_20px_rgba(8,117,209,0.35)]">
+                      MAAL HUB: Fintech for Micro-Enterprises
+                    </h3>
+                    <p className="text-sm sm:text-[15px] text-white/78 leading-relaxed max-w-xl group-hover:text-white/85 transition-colors duration-300">
+                      Integrated financial management platform empowering Somali micro-enterprises with bookkeeping, digital payments, and micro-loan orchestration.
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                      {["Next.js", "Prisma", "MySQL", "Stripe API"].map((t) => (
+                        <span key={t} className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 text-[11px] font-semibold text-white/92 group-hover:bg-white/15 group-hover:border-white/25 group-hover:shadow-[0_4px_12px_-4px_rgba(8,117,209,0.35)] transition-all duration-300">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex flex-wrap items-center justify-between gap-4 pt-4 mt-1 border-t border-white/15 group-hover:border-white/25 transition-colors duration-300">
+                      <div className="flex items-center gap-5">
+                        <div className="flex -space-x-2">
+                          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-[#0875D1] to-[#08245C] border-2 border-white/40 flex items-center justify-center text-[11px] font-black text-white shadow-[0_4px_12px_-2px_rgba(8,117,209,0.45)]">JU</div>
+                          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 border-2 border-white/40 flex items-center justify-center text-[11px] font-black text-white shadow-[0_4px_12px_-2px_rgba(16,185,129,0.45)]">CS</div>
+                        </div>
+                        <div>
+                          <div className="text-[11px] font-bold text-white/92 group-hover:text-white transition-colors">JANIC Cohort</div>
+                          <div className="text-[10px] text-white/55 font-medium">Faculty of CS &amp; IT</div>
+                        </div>
+                      </div>
+                      <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white text-[#08245C] text-xs sm:text-[13px] font-bold shadow-[0_12px_30px_-8px_rgba(0,0,0,0.2)] group-hover:bg-gradient-to-r group-hover:from-[#0875D1] group-hover:to-cyan-500 group-hover:text-white group-hover:shadow-[0_15px_35px_-8px_rgba(8,117,209,0.65)] transition-all duration-300">
+                        View Project
+                        <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-300 group-hover:translate-x-1.5" />
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+                <div className="xl:col-span-5 flex flex-col gap-4 sm:gap-5">
+                  {[
+                    { slug: "sahal-sacco", title: "SAHAL SACCO: Credit &amp; Savings Automation", category: "SAAS", img: "/images/sahal-sacco.jpg", icon: Zap, tech: ["React", "Node.js", "Finflux"] },
+                    { slug: "robot-car-cleaner", title: "Autonomous Robot Car Cleaner", category: "ROBOTICS", img: "/images/robot-car-cleaner.jpg", icon: Target, tech: ["Arduino", "IoT", "Python"] },
+                    { slug: "badbaado", title: "BADBAADO Emergency Health Platform", category: "SAFETY TECH", img: "/images/badbaado-safety.jpg", icon: Award, tech: ["Next.js", "AI/ML", "Telehealth"] },
+                  ].map((project) => (
+                    <Link
+                      key={project.slug}
+                      href={`/projects/${project.slug}`}
+                      className="group relative rounded-3xl overflow-hidden bg-white border border-slate-200/70 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_10px_30px_-15px_rgba(8,36,92,0.18)] hover:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_25px_60px_-15px_rgba(8,117,209,0.4)] hover:border-[#0875D1]/30 transition-all duration-500 hover:-translate-y-1 min-h-[150px] sm:min-h-[160px] lg:min-h-[175px] flex ring-1 ring-black/[0.03] hover:ring-[#0875D1]/10"
+                    >
+                      <div className="grid grid-cols-5 w-full">
+                        <div className="col-span-2 relative overflow-hidden min-h-[150px] sm:min-h-[160px] lg:min-h-[175px]">
+                          <Image
+                            src={project.img}
+                            alt={project.title}
+                            fill
+                            className="object-cover object-center group-hover:scale-[1.12] transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#08245C]/5 to-white/70 group-hover:from-transparent group-hover:via-[#0875D1]/10 group-hover:to-white/60 transition-colors duration-500" />
+                          <div className="absolute inset-0 ring-1 ring-inset ring-black/5 group-hover:ring-[#0875D1]/10 transition-colors duration-500" />
+                          <div className="absolute top-2.5 left-2.5 w-2 h-2 rounded-full bg-white/80 shadow-[0_0_10px_rgba(255,255,255,0.8)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        </div>
+                        <div className="col-span-3 p-4 sm:p-5 lg:p-6 flex flex-col justify-between gap-3">
+                          <div>
+                            <div className="flex items-center justify-between gap-2 mb-2">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-[#E9F3FD] to-white border border-[#0875D1]/15 text-[10px] sm:text-[11px] font-extrabold tracking-wider text-[#08245C] uppercase shadow-[0_1px_2px_rgba(8,117,209,0.06)]">
+                                {project.category}
+                              </span>
+                              <div className="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-gradient-to-br group-hover:from-[#08245C] group-hover:to-[#0875D1] text-slate-500 group-hover:text-white transition-all duration-400 flex items-center justify-center shadow-[0_1px_2px_rgba(0,0,0,0.04)] group-hover:shadow-[0_6px_16px_-6px_rgba(8,117,209,0.5)]">
+                                <project.icon className="w-3.5 h-3.5 transition-transform duration-300 group-hover:scale-110" />
+                              </div>
+                            </div>
+                            <h3 className="text-base sm:text-lg lg:text-xl font-extrabold text-[#08245C] tracking-tight leading-tight group-hover:text-[#0875D1] transition-colors duration-300 line-clamp-2 group-hover:drop-shadow-[0_2px_8px_rgba(8,117,209,0.15)]">
+                              {project.title}
+                            </h3>
+                          </div>
+                          <div className="space-y-2.5">
+                            <div className="flex flex-wrap gap-1.5">
+                              {project.tech.map((t) => (
+                                <span key={t} className="px-2 py-0.5 rounded-lg bg-slate-50 group-hover:bg-blue-50 border border-slate-200/60 group-hover:border-[#0875D1]/20 text-[10px] font-semibold text-slate-600 group-hover:text-[#08245C] transition-all duration-300">
+                                  {t}
+                                </span>
+                              ))}
+                            </div>
+                            <div className="flex items-center justify-between pt-1.5 border-t border-slate-100/80 group-hover:border-[#0875D1]/10 transition-colors duration-300">
+                              <span className="text-[11px] font-bold text-[#08245C]/50 group-hover:text-[#0875D1] transition-colors duration-300">Read Case Study</span>
+                              <div className="w-7 h-7 rounded-full bg-[#08245C]/5 group-hover:bg-gradient-to-r group-hover:from-[#0875D1] group-hover:to-cyan-500 text-[#08245C] group-hover:text-white flex items-center justify-center transition-all duration-400 group-hover:scale-[1.15] group-hover:shadow-[0_6px_16px_-6px_rgba(8,117,209,0.55)]">
+                                <ArrowRight className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-0.5" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </ScrollReveal>
+
+          {/* 7. FEATURED CASE STUDY: BADBAADO — ZOOM OUT ENTRANCE */}
+          <ScrollReveal animation="zoom-out" duration={900} className="mt-14 sm:mt-20 lg:mt-24">
+            <div className="relative rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-[#08245C] via-[#0A2C6B] to-[#051740] border border-white/10 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_40px_80px_-30px_rgba(8,36,92,0.55)]">
+              {/* Glow blobs */}
+              <div className="absolute -top-20 -right-20 w-96 h-96 bg-[#0875D1]/30 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-32 -left-16 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.06),_transparent_50%)]" />
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
+                {/* LEFT: Hero visual */}
+                <div className="lg:col-span-6 relative p-6 sm:p-10 lg:p-12 xl:p-14 order-2 lg:order-1">
+                  <div className="relative rounded-[1.5rem] overflow-hidden aspect-[4/3] lg:aspect-auto lg:h-full w-full shadow-[0_20px_60px_-15px_rgba(0,0,0,0.55)] border border-white/10">
                     <Image
                       src="/images/badbaado-healthcare.jpg"
                       alt="BADBAADO Healthcare Coordination Platform"
                       fill
-                      className="object-cover object-center hover:scale-105 transition-transform duration-700"
+                      className="object-cover object-center hover:scale-[1.04] transition-transform duration-[1200ms] ease-out"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#050D24]/40 via-transparent to-transparent" />
+                    {/* Floating metric badge */}
+                    <div className="absolute top-4 left-4 sm:top-5 sm:left-5 p-3.5 sm:p-4 rounded-2xl bg-white/95 backdrop-blur-xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.25)] border border-white/70 flex items-center gap-3 max-w-[220px]">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white shadow-md">
+                        <CheckCircle2 className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="text-[10px] font-extrabold tracking-wider text-emerald-700 uppercase">Live Pilot</div>
+                        <div className="text-sm font-black text-[#08245C] tracking-tight">6 Regional Clinics</div>
+                      </div>
+                    </div>
+                    {/* Floating response-time badge */}
+                    <div className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 p-3.5 sm:p-4 rounded-2xl bg-[#08245C]/95 backdrop-blur-xl text-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.35)] border border-white/10 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0875D1] to-cyan-500 flex items-center justify-center text-white shadow-md">
+                      <Zap className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="text-[10px] font-extrabold tracking-wider text-white/60 uppercase">Saved</div>
+                        <div className="text-sm font-black tracking-tight">35% Faster Response</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Right: Content */}
-                <div className="lg:col-span-6 space-y-4 sm:space-y-5">
-                  <span className="text-xs font-bold text-[#0875D1] tracking-wider uppercase block">
-                    FEATURED PROJECT
-                  </span>
-
-                  <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-extrabold text-[#08245C] tracking-tight leading-snug">
-                    BADBAADO Healthcare Coordination Platform
-                  </h3>
-
-                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed max-w-xl">
-                    A revolutionary platform designed to synchronize medical emergency responses and healthcare data across regional clinics. It streamlines patient data transfer and reduces critical response times by 35%.
-                  </p>
-
-                  {/* Metrics */}
-                  <div className="flex items-center gap-10 sm:gap-14 pt-2">
-                    <div>
-                      <div className="text-2xl sm:text-3xl font-extrabold text-[#08245C] tracking-tight">
-                        35%
-                      </div>
-                      <div className="text-xs text-slate-500 font-medium mt-0.5">
-                        Faster Response Time
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-2xl sm:text-3xl font-extrabold text-[#08245C] tracking-tight">
-                        12k+
-                      </div>
-                      <div className="text-xs text-slate-500 font-medium mt-0.5">
-                        Patients Managed
-                      </div>
-                    </div>
+                {/* RIGHT: Content */}
+                <div className="lg:col-span-6 p-6 sm:p-10 lg:p-12 xl:p-14 flex flex-col justify-center space-y-5 sm:space-y-6 relative z-10 order-1 lg:order-2">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/15 self-start mb-2">
+                    <Award className="w-3.5 h-3.5 text-amber-300" />
+                    <span className="text-[11px] font-extrabold tracking-[0.18em] text-white/85 uppercase">
+                      Featured Case Study
+                    </span>
                   </div>
 
-                  {/* CTA Button */}
-                  <div className="pt-2">
+                  <h3 className="text-2xl sm:text-3xl lg:text-4xl xl:text-[44px] font-black text-white tracking-tight leading-[1.08]">
+                    BADBAADO: Emergency Healthcare Coordination Platform
+                  </h3>
+
+                  <p className="text-sm sm:text-[15px] text-white/70 leading-relaxed max-w-xl">
+                    A revolutionary AI-driven system designed to synchronize medical emergency responses and healthcare data across regional clinics. Streamlines patient triage, real-time ambulance routing, and cross-facility patient record transfer — reducing critical response times by 35%.
+                  </p>
+
+                  {/* Metric cards grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                    {[
+                      { value: "35%", label: "Faster Response", icon: Zap, accent: "from-[#0875D1]" },
+                      { value: "12k+", label: "Patients / Managed", icon: Users, accent: "from-emerald-500" },
+                      { value: "6", label: "Partner Clinics", icon: Target, accent: "from-amber-500" },
+                    ].map((stat) => (
+                      <div
+                        key={stat.label}
+                        className="group p-3.5 sm:p-4 sm:p-5 rounded-2xl bg-white/5 hover:bg-white/[0.08] border border-white/10 hover:border-white/20 transition-all duration-300 hover:-translate-y-0.5"
+                      >
+                        <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${stat.accent} to-transparent flex items-center justify-center text-white shadow-md mb-2.5`}>
+                          <stat.icon className="w-[18px] h-[18px]" />
+                        </div>
+                        <div className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight leading-none">
+                          {stat.value}
+                        </div>
+                        <div className="text-[10px] sm:text-[11px] text-white/55 font-semibold mt-1 leading-tight">
+                          {stat.label}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* CTA Row */}
+                  <div className="flex flex-wrap items-center gap-3 pt-2">
                     <Link
                       href="/projects/badbaado"
-                      className="inline-flex items-center gap-2 px-6 py-3 sm:px-7 sm:py-3.5 rounded-full bg-[#0875D1] hover:bg-[#0660ac] text-white text-xs sm:text-sm font-bold shadow-md shadow-blue-500/20 hover:shadow-lg transition-all group"
-                    >
-                      View Case Study
+                      className="group inline-flex items-center gap-2 px-6 sm:px-7 py-3 sm:py-3.5 rounded-full bg-white hover:bg-[#0875D1] text-[#08245C] hover:text-white text-xs sm:text-sm font-bold shadow-[0_15px_35px_-10px_rgba(255,255,255,0.2)] transition-all duration-300 hover:shadow-[0_18px_40px_-10px_rgba(8,117,209,0.6)]">
+                      View Full Case Study
                       <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    </Link>
+                    <Link
+                      href="/projects"
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/20 hover:border-white/40 text-white/85 hover:text-white text-xs sm:text-sm font-bold backdrop-blur-sm transition-all"
+                    >
+                      Browse All Projects
                     </Link>
                   </div>
                 </div>
@@ -627,7 +863,7 @@ export default async function HomePage() {
         <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal animation="fade-right" duration={850}>
             {/* Dark Navy Rounded Box */}
-            <div className="bg-[#0A224E] text-white rounded-[28px] sm:rounded-[36px] p-8 sm:p-12 lg:p-14 shadow-xl relative overflow-hidden">
+            <div className="bg-[#0A224E] text-white rounded-2xl sm:rounded-2xl p-8 sm:p-12 lg:p-14 shadow-xl relative overflow-hidden">
               {/* Header: Scientific Inquiry / Research & Insights / View Publications */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
                 <div>
@@ -647,61 +883,62 @@ export default async function HomePage() {
                 </Link>
               </div>
 
-              {/* 3 Dark Blue Cards Grid */}
+              {/* 3 Dark Blue Cards Grid — Dynamic from DB */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Paper 1 */}
-                <Link
-                  href="/research/applied-technology"
-                  className="bg-[#122B5D]/85 hover:bg-[#163470] border border-blue-400/15 rounded-[22px] sm:rounded-[24px] p-7 sm:p-8 flex flex-col justify-between transition-all duration-300 group"
-                >
-                  <div>
-                    <h3 className="text-lg font-bold text-white mb-3 tracking-tight leading-snug">
-                      Applied Technological Research
-                    </h3>
-                    <p className="text-xs text-slate-300/90 leading-relaxed mb-6">
-                      Focusing on practical solutions for immediate industrial challenges in the local market.
-                    </p>
-                  </div>
-                  <div className="text-xs font-bold text-white/90 group-hover:text-white transition flex items-center gap-1.5">
-                    Explore →
-                  </div>
-                </Link>
-
-                {/* Paper 2 */}
-                <Link
-                  href="/research/student-innovations"
-                  className="bg-[#122B5D]/85 hover:bg-[#163470] border border-blue-400/15 rounded-[22px] sm:rounded-[24px] p-7 sm:p-8 flex flex-col justify-between transition-all duration-300 group"
-                >
-                  <div>
-                    <h3 className="text-lg font-bold text-white mb-3 tracking-tight leading-snug">
-                      Student-Led Innovations
-                    </h3>
-                    <p className="text-xs text-slate-300/90 leading-relaxed mb-6">
-                      Empowering the next generation of researchers to push academic boundaries into the real world.
-                    </p>
-                  </div>
-                  <div className="text-xs font-bold text-white/90 group-hover:text-white transition flex items-center gap-1.5">
-                    Explore →
-                  </div>
-                </Link>
-
-                {/* Paper 3 */}
-                <Link
-                  href="/research/digital-transformation"
-                  className="bg-[#122B5D]/85 hover:bg-[#163470] border border-blue-400/15 rounded-[22px] sm:rounded-[24px] p-7 sm:p-8 flex flex-col justify-between transition-all duration-300 group"
-                >
-                  <div>
-                    <h3 className="text-lg font-bold text-white mb-3 tracking-tight leading-snug">
-                      Digital Future Transformation
-                    </h3>
-                    <p className="text-xs text-slate-300/90 leading-relaxed mb-6">
-                      Strategic research into AI, Blockchain, and the impact of the 4th Industrial Revolution.
-                    </p>
-                  </div>
-                  <div className="text-xs font-bold text-white/90 group-hover:text-white transition flex items-center gap-1.5">
-                    Explore →
-                  </div>
-                </Link>
+                {researchPapers && researchPapers.length > 0 ? (
+                  researchPapers.slice(0, 3).map((paper) => (
+                    <Link
+                      key={paper.id}
+                      href={`/research/${paper.slug}`}
+                      className="bg-[#122B5D]/85 hover:bg-[#163470] border border-blue-400/15 rounded-2xl sm:rounded-2xl p-7 sm:p-8 flex flex-col justify-between transition-all duration-300 group"
+                    >
+                      <div>
+                        <h3 className="text-lg font-bold text-white mb-3 tracking-tight leading-snug">
+                          {paper.title}
+                        </h3>
+                        <p className="text-xs text-slate-300/90 leading-relaxed mb-6">
+                          {paper.abstract}
+                        </p>
+                      </div>
+                      <div className="text-xs font-bold text-white/90 group-hover:text-white transition flex items-center gap-1.5">
+                        Explore →
+                      </div>
+                    </Link>
+                  ))
+                ) : (
+                  <>
+                    <Link
+                      href="/research/applied-technology"
+                      className="bg-[#122B5D]/85 hover:bg-[#163470] border border-blue-400/15 rounded-2xl sm:rounded-2xl p-7 sm:p-8 flex flex-col justify-between transition-all duration-300 group"
+                    >
+                      <div>
+                        <h3 className="text-lg font-bold text-white mb-3 tracking-tight leading-snug">Applied Technological Research</h3>
+                        <p className="text-xs text-slate-300/90 leading-relaxed mb-6">Focusing on practical solutions for immediate industrial challenges in the local market.</p>
+                      </div>
+                      <div className="text-xs font-bold text-white/90 group-hover:text-white transition flex items-center gap-1.5">Explore →</div>
+                    </Link>
+                    <Link
+                      href="/research/student-innovations"
+                      className="bg-[#122B5D]/85 hover:bg-[#163470] border border-blue-400/15 rounded-2xl sm:rounded-2xl p-7 sm:p-8 flex flex-col justify-between transition-all duration-300 group"
+                    >
+                      <div>
+                        <h3 className="text-lg font-bold text-white mb-3 tracking-tight leading-snug">Student-Led Innovations</h3>
+                        <p className="text-xs text-slate-300/90 leading-relaxed mb-6">Empowering the next generation of researchers to push academic boundaries into the real world.</p>
+                      </div>
+                      <div className="text-xs font-bold text-white/90 group-hover:text-white transition flex items-center gap-1.5">Explore →</div>
+                    </Link>
+                    <Link
+                      href="/research/digital-transformation"
+                      className="bg-[#122B5D]/85 hover:bg-[#163470] border border-blue-400/15 rounded-2xl sm:rounded-2xl p-7 sm:p-8 flex flex-col justify-between transition-all duration-300 group"
+                    >
+                      <div>
+                        <h3 className="text-lg font-bold text-white mb-3 tracking-tight leading-snug">Digital Future Transformation</h3>
+                        <p className="text-xs text-slate-300/90 leading-relaxed mb-6">Strategic research into AI, Blockchain, and the impact of the 4th Industrial Revolution.</p>
+                      </div>
+                      <div className="text-xs font-bold text-white/90 group-hover:text-white transition flex items-center gap-1.5">Explore →</div>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </ScrollReveal>
@@ -731,118 +968,114 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            {/* 3 Events Grid */}
+            {/* 3 Events Grid — Dynamic from DB */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-7">
-              {/* Event 1 */}
-              <Link
-                href="/events/janic-innovation-summit-2024"
-                className="group block"
-              >
-                <div className="relative rounded-[20px] sm:rounded-[24px] overflow-hidden aspect-[16/11] mb-4 shadow-sm bg-slate-100">
-                  <Image
-                    src="/images/event-summit.jpg"
-                    alt="JANIC Innovation Summit 2024"
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  {/* Date Badge */}
-                  <div className="absolute top-3.5 left-3.5 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl text-center shadow-md border border-white/60 min-w-[46px]">
-                    <div className="text-base sm:text-lg font-black text-[#08245C] leading-none">
-                      18
-                    </div>
-                    <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">
-                      OCT
-                    </div>
-                  </div>
-                </div>
+              {upcomingEvents && upcomingEvents.length > 0 ? (
+                upcomingEvents.slice(0, 3).map((event) => {
+                  const d = new Date(event.eventDate);
+                  const day = d.getDate();
+                  const month = d.toLocaleString("en", { month: "short" }).toUpperCase();
+                  const fallbackImages = ["/images/event-summit.jpg", "/images/event-cyber.jpg", "/images/event-workshop.jpg"];
+                  const coverImg =
+                    event.coverImage && event.coverImage.startsWith("/")
+                      ? event.coverImage
+                      : event.coverImage && event.coverImage.startsWith("http")
+                      ? event.coverImage
+                      : null;
+                  return (
+                    <Link
+                      key={event.id}
+                      href={`/events/${event.slug}`}
+                      className="group block"
+                    >
+                      <div className="relative rounded-2xl sm:rounded-2xl overflow-hidden aspect-[16/11] mb-4 shadow-sm bg-slate-100">
+                        {coverImg ? (
+                          <Image
+                            src={coverImg}
+                            alt={event.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <Image
+                            src={fallbackImages[upcomingEvents.indexOf(event) % 3]}
+                            alt={event.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        )}
+                        {/* Date Badge */}
+                        <div className="absolute top-3.5 left-3.5 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl text-center shadow-md border border-white/60 min-w-[46px]">
+                          <div className="text-base sm:text-lg font-black text-[#08245C] leading-none">
+                            {day}
+                          </div>
+                          <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">
+                            {month}
+                          </div>
+                        </div>
+                      </div>
 
-                <div>
-                  <h3 className="text-base sm:text-lg font-bold text-[#08245C] tracking-tight mb-2 group-hover:text-[#0875D1] transition">
-                    JANIC Innovation Summit 2024
-                  </h3>
-                  <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium mb-3">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span>Main Campus Auditorium</span>
-                  </div>
-                  <span className="text-xs font-bold text-[#08245C] group-hover:text-[#0875D1] transition-colors inline-flex items-center gap-1">
-                    Read More →
-                  </span>
-                </div>
-              </Link>
-
-              {/* Event 2 */}
-              <Link
-                href="/events/cybersecurity-challenge-4"
-                className="group block"
-              >
-                <div className="relative rounded-[20px] sm:rounded-[24px] overflow-hidden aspect-[16/11] mb-4 shadow-sm bg-slate-100">
-                  <Image
-                    src="/images/event-cyber.jpg"
-                    alt="Cybersecurity Challenge 4.0"
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  {/* Date Badge */}
-                  <div className="absolute top-3.5 left-3.5 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl text-center shadow-md border border-white/60 min-w-[46px]">
-                    <div className="text-base sm:text-lg font-black text-[#08245C] leading-none">
-                      04
+                      <div>
+                        <h3 className="text-base sm:text-lg font-bold text-[#08245C] tracking-tight mb-2 group-hover:text-[#0875D1] transition">
+                          {event.title}
+                        </h3>
+                        <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium mb-3">
+                          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span>{event.location}</span>
+                        </div>
+                        <span className="text-xs font-bold text-[#08245C] group-hover:text-[#0875D1] transition-colors inline-flex items-center gap-1">
+                          Read More →
+                        </span>
+                      </div>
+                    </Link>
+                  );
+                })
+              ) : (
+                <>
+                  <Link href="/events/janic-innovation-summit-2024" className="group block">
+                    <div className="relative rounded-2xl overflow-hidden aspect-[16/11] mb-4 shadow-sm bg-slate-100">
+                      <Image src="/images/event-summit.jpg" alt="JANIC Innovation Summit 2024" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <div className="absolute top-3.5 left-3.5 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl text-center shadow-md border border-white/60 min-w-[46px]">
+                        <div className="text-base font-black text-[#08245C] leading-none">18</div>
+                        <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">OCT</div>
+                      </div>
                     </div>
-                    <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">
-                      NOV
+                    <div>
+                      <h3 className="text-base sm:text-lg font-bold text-[#08245C] tracking-tight mb-2 group-hover:text-[#0875D1] transition">JANIC Innovation Summit 2024</h3>
+                      <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium mb-3"><MapPin className="w-3.5 h-3.5 shrink-0 text-slate-400" /><span>Main Campus Auditorium</span></div>
+                      <span className="text-xs font-bold text-[#08245C] group-hover:text-[#0875D1] transition-colors inline-flex items-center gap-1">Read More →</span>
                     </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-base sm:text-lg font-bold text-[#08245C] tracking-tight mb-2 group-hover:text-[#0875D1] transition">
-                    Cybersecurity Challenge 4.0
-                  </h3>
-                  <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium mb-3">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span>Tech Lab B-02</span>
-                  </div>
-                  <span className="text-xs font-bold text-[#08245C] group-hover:text-[#0875D1] transition-colors inline-flex items-center gap-1">
-                    Read More →
-                  </span>
-                </div>
-              </Link>
-
-              {/* Event 3 */}
-              <Link
-                href="/events/ai-workshop-for-developers"
-                className="group block"
-              >
-                <div className="relative rounded-[20px] sm:rounded-[24px] overflow-hidden aspect-[16/11] mb-4 shadow-sm bg-slate-100">
-                  <Image
-                    src="/images/event-workshop.jpg"
-                    alt="AI Workshop for Developers"
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  {/* Date Badge */}
-                  <div className="absolute top-3.5 left-3.5 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl text-center shadow-md border border-white/60 min-w-[46px]">
-                    <div className="text-base sm:text-lg font-black text-[#08245C] leading-none">
-                      15
+                  </Link>
+                  <Link href="/events/cybersecurity-challenge-4" className="group block">
+                    <div className="relative rounded-2xl overflow-hidden aspect-[16/11] mb-4 shadow-sm bg-slate-100">
+                      <Image src="/images/event-cyber.jpg" alt="Cybersecurity Challenge 4.0" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <div className="absolute top-3.5 left-3.5 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl text-center shadow-md border border-white/60 min-w-[46px]">
+                        <div className="text-base font-black text-[#08245C] leading-none">04</div>
+                        <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">NOV</div>
+                      </div>
                     </div>
-                    <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">
-                      DEC
+                    <div>
+                      <h3 className="text-base sm:text-lg font-bold text-[#08245C] tracking-tight mb-2 group-hover:text-[#0875D1] transition">Cybersecurity Challenge 4.0</h3>
+                      <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium mb-3"><MapPin className="w-3.5 h-3.5 shrink-0 text-slate-400" /><span>Tech Lab B-02</span></div>
+                      <span className="text-xs font-bold text-[#08245C] group-hover:text-[#0875D1] transition-colors inline-flex items-center gap-1">Read More →</span>
                     </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-base sm:text-lg font-bold text-[#08245C] tracking-tight mb-2 group-hover:text-[#0875D1] transition">
-                    AI Workshop for Developers
-                  </h3>
-                  <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium mb-3">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span>Hybrid / Online</span>
-                  </div>
-                  <span className="text-xs font-bold text-[#08245C] group-hover:text-[#0875D1] transition-colors inline-flex items-center gap-1">
-                    Read More →
-                  </span>
-                </div>
-              </Link>
+                  </Link>
+                  <Link href="/events/ai-workshop-for-developers" className="group block">
+                    <div className="relative rounded-2xl overflow-hidden aspect-[16/11] mb-4 shadow-sm bg-slate-100">
+                      <Image src="/images/event-workshop.jpg" alt="AI Workshop for Developers" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <div className="absolute top-3.5 left-3.5 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl text-center shadow-md border border-white/60 min-w-[46px]">
+                        <div className="text-base font-black text-[#08245C] leading-none">15</div>
+                        <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">DEC</div>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-base sm:text-lg font-bold text-[#08245C] tracking-tight mb-2 group-hover:text-[#0875D1] transition">AI Workshop for Developers</h3>
+                      <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium mb-3"><MapPin className="w-3.5 h-3.5 shrink-0 text-slate-400" /><span>Hybrid / Online</span></div>
+                      <span className="text-xs font-bold text-[#08245C] group-hover:text-[#0875D1] transition-colors inline-flex items-center gap-1">Read More →</span>
+                    </div>
+                  </Link>
+                </>
+              )}
             </div>
           </ScrollReveal>
         </div>
@@ -853,7 +1086,7 @@ export default async function HomePage() {
         <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal animation="blur-in" duration={850}>
             {/* Light Blue Outer Container */}
-            <div className="bg-[#E9F3FD] rounded-[28px] sm:rounded-[36px] lg:rounded-[40px] p-8 sm:p-12 lg:p-14 border border-blue-100/80 shadow-sm relative overflow-hidden">
+            <div className="bg-[#E9F3FD] rounded-2xl sm:rounded-2xl lg:rounded-2xl p-8 sm:p-12 lg:p-14 border border-blue-100/80 shadow-sm relative overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                 {/* Left Side: Content & Actions */}
                 <div className="lg:col-span-6 space-y-4 sm:space-y-6">
@@ -882,7 +1115,7 @@ export default async function HomePage() {
 
                 {/* Right Side: Network Graph Visual */}
                 <div className="lg:col-span-6">
-                  <div className="relative rounded-[22px] sm:rounded-[26px] overflow-hidden aspect-[16/10] w-full shadow-lg border-2 border-white/80">
+                  <div className="relative rounded-2xl sm:rounded-2xl overflow-hidden aspect-[16/10] w-full shadow-lg border-2 border-white/80">
                     <Image
                       src="/images/partnership-network.jpg"
                       alt="Network Nodes Collaboration"

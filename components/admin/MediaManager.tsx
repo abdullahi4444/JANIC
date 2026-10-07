@@ -1,9 +1,10 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { UploadCloud, Copy, Check, Trash2, Loader2, Image as ImageIcon } from "lucide-react";
+import { UploadCloud, Copy, Check, Loader2 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
 interface MediaItem {
@@ -56,16 +57,16 @@ export function MediaManager({ initialMedia }: { initialMedia: MediaItem[] }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Upload Zone */}
-      <div className="bg-white p-8 rounded-3xl border-2 border-dashed border-slate-200 text-center hover:border-blue-400 transition">
+      <div className="bg-white p-8 rounded-3xl border-2 border-dashed border-border text-center hover:border-blue-400 transition">
         <div className="max-w-md mx-auto space-y-3">
           <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto">
             {uploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <UploadCloud className="w-6 h-6" />}
           </div>
           <div>
             <h4 className="text-sm font-bold text-slate-800">Upload Project & Center Media</h4>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               PNG, JPG, SVG, WebP up to 10MB. Stored locally with public serving URLs.
             </p>
           </div>
@@ -84,18 +85,18 @@ export function MediaManager({ initialMedia }: { initialMedia: MediaItem[] }) {
       </div>
 
       {/* Media Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {items.length === 0 ? (
-          <div className="col-span-full py-16 text-center text-slate-400 text-xs">
+          <div className="col-span-full py-16 text-center text-muted-foreground text-xs">
             No media uploaded yet. Use the upload zone above to add images.
           </div>
         ) : (
           items.map((m) => (
             <div
               key={m.id}
-              className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm flex flex-col justify-between group"
+              className="bg-white rounded-xl border border-border overflow-hidden shadow-sm flex flex-col justify-between group"
             >
-              <div className="aspect-[4/3] relative bg-slate-100 overflow-hidden">
+              <div className="aspect-[4/3] relative bg-muted overflow-hidden">
                 <Image src={m.url} alt={m.alt || m.fileName} fill className="object-cover" />
               </div>
 
@@ -103,7 +104,7 @@ export function MediaManager({ initialMedia }: { initialMedia: MediaItem[] }) {
                 <p className="text-xs font-semibold text-slate-800 truncate" title={m.fileName}>
                   {m.fileName}
                 </p>
-                <div className="flex items-center justify-between text-[11px] text-slate-400">
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                   <span>{formatDate(m.createdAt)}</span>
                   <button
                     onClick={() => handleCopy(m.url, m.id)}

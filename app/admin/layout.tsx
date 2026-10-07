@@ -1,7 +1,7 @@
 import React from "react";
 import { getCurrentUser } from "@/lib/auth/jwt";
-import { AdminSidebar } from "@/components/admin/AdminSidebar";
-import { AdminHeader } from "@/components/admin/AdminHeader";
+import { AdminShell } from "@/components/admin/AdminShell";
+import prisma from "@/lib/db/prisma";
 
 export default async function AdminLayout({
   children,
@@ -10,18 +10,16 @@ export default async function AdminLayout({
 }) {
   const user = await getCurrentUser();
 
-  // If unauthenticated or on login page (middleware handles protection, but layout stays flexible)
   if (!user) {
     return <>{children}</>;
   }
 
-  return (
-    <div className="min-h-screen bg-slate-50 flex">
-      <AdminSidebar />
-      <div className="flex-1 flex flex-col min-w-0">
-        <AdminHeader user={user} />
-        <main className="flex-1 p-8 overflow-y-auto">{children}</main>
-      </div>
-    </div>
-  );
+  const [unreadMessages, pendingSubmissions, newPartnerships] = await Promise.all([
+    prisma.contactMessage.count({ where: { status: "UNREAD" } }),
+    prisma.innovationSubmission.count({ where: { status: "PENDING" } }),
+    prisma.partnershipInquiry.count({ where: { status: "NEW" } }),
+  ]);
+  const notifCount = unreadMessages + pendingSubmissions + newPartnerships;
+
+  return <AdminShell user={user} notifCount={notifCount}>{children}</AdminShell>;
 }

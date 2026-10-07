@@ -48,7 +48,7 @@ export default async function ResearchPage() {
                 {papers.map((paper) => (
                   <div
                     key={paper.id}
-                    className="bg-white p-7 sm:p-9 rounded-[26px] border border-blue-100/80 shadow-sm hover:shadow-md transition-all space-y-4"
+                    className="bg-white p-7 sm:p-9 rounded-2xl border border-blue-100/80 shadow-sm hover:shadow-md transition-all space-y-4"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-[#0875D1] uppercase tracking-wide">

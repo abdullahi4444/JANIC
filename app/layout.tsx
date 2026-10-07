@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -34,9 +36,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full antialiased scroll-smooth">
-      <body className="min-h-full flex flex-col bg-white text-slate-900 font-sans selection:bg-blue-600 selection:text-white">
-        {children}
+    <html lang="en" suppressHydrationWarning className="h-full antialiased scroll-smooth">
+      <body className="min-h-full flex flex-col bg-background text-foreground font-sans selection:bg-blue-600 selection:text-white">
+        <ThemeProvider>{children}</ThemeProvider>
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );

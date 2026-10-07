@@ -44,7 +44,7 @@ export default function SubmitInnovationPage() {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
                 {/* Left Column: Guidelines & Benefits (4 cols) */}
                 <div className="lg:col-span-4 space-y-6">
-                  <div className="bg-white p-7 sm:p-8 rounded-[28px] border border-blue-100/80 shadow-sm space-y-5">
+                  <div className="bg-white p-7 sm:p-8 rounded-2xl border border-blue-100/80 shadow-sm space-y-5">
                     <span className="text-xs font-bold uppercase tracking-wider text-[#0875D1] block">
                       Evaluation Criteria
                     </span>
@@ -67,7 +67,7 @@ export default function SubmitInnovationPage() {
                     </div>
                   </div>
 
-                  <div className="bg-[#0A224E] text-white p-7 sm:p-8 rounded-[28px] space-y-4 shadow-xl border border-blue-900/60">
+                  <div className="bg-[#0A224E] text-white p-7 sm:p-8 rounded-2xl space-y-4 shadow-xl border border-blue-900/60">
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-cyan-300 text-xs font-bold uppercase">
                       <Rocket className="w-3.5 h-3.5" />
                       What Accepted Projects Receive
@@ -94,7 +94,7 @@ export default function SubmitInnovationPage() {
                 </div>
 
                 {/* Right Column: Submission Form (8 cols) */}
-                <div className="lg:col-span-8 bg-white p-8 sm:p-10 rounded-[28px] border border-blue-100/80 shadow-md space-y-6">
+                <div className="lg:col-span-8 bg-white p-8 sm:p-10 rounded-2xl border border-blue-100/80 shadow-md space-y-6">
                   <div>
                     <span className="text-xs font-bold uppercase tracking-wider text-[#0875D1] block mb-1">
                       Application Form

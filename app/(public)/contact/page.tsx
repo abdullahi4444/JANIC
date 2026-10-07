@@ -36,7 +36,7 @@ export default async function ContactPage({
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
                 {/* Contact Details (5 cols) */}
                 <div className="lg:col-span-5 space-y-6">
-                  <div className="bg-white p-8 rounded-[28px] border border-blue-100/80 shadow-sm space-y-6">
+                  <div className="bg-white p-8 rounded-2xl border border-blue-100/80 shadow-sm space-y-6">
                     <div>
                       <span className="text-xs font-bold uppercase tracking-wider text-[#0875D1] block mb-1">
                         Campus Location
@@ -101,7 +101,7 @@ export default async function ContactPage({
                   </div>
 
                   {/* Institution Accreditation Card (Dark Navy) */}
-                  <div className="bg-[#0A224E] text-white p-7 sm:p-8 rounded-[28px] space-y-2 shadow-lg border border-blue-900/60">
+                  <div className="bg-[#0A224E] text-white p-7 sm:p-8 rounded-2xl space-y-2 shadow-lg border border-blue-900/60">
                     <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-cyan-300">
                       <ShieldCheck className="w-4 h-4" /> Academic Affiliation
                     </div>
@@ -113,7 +113,7 @@ export default async function ContactPage({
                 </div>
 
                 {/* Contact Form (7 cols) */}
-                <div className="lg:col-span-7 bg-white p-8 sm:p-10 rounded-[28px] border border-blue-100/80 shadow-md space-y-6">
+                <div className="lg:col-span-7 bg-white p-8 sm:p-10 rounded-2xl border border-blue-100/80 shadow-md space-y-6">
                   <div>
                     <span className="text-xs font-bold uppercase tracking-wider text-[#0875D1] block mb-1">
                       Send a Message

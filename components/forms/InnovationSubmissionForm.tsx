@@ -1,7 +1,8 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import React, { useState } from "react";
-import { CheckCircle2, AlertCircle, Loader2, Send, Sparkles, UploadCloud } from "lucide-react";
+import { CheckCircle2, AlertCircle, Loader2, Send, Sparkles } from "lucide-react";
 
 export function InnovationSubmissionForm() {
   const [formData, setFormData] = useState({

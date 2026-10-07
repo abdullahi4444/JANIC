@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 import Link from "next/link";
-import { MapPin, Mail, Phone, Lock } from "lucide-react";
+import { MapPin, Mail, Lock } from "lucide-react";
 
 export function InstitutionalTopBar() {
   return (

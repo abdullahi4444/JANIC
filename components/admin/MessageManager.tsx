@@ -1,8 +1,9 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Eye, Trash2, X, Mail, Phone, Clock, CheckCircle2 } from "lucide-react";
+import { Search, Eye, Trash2, X } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
 interface Message {
@@ -92,61 +93,61 @@ export function MessageManager({ initialMessages }: { initialMessages: Message[]
   );
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
-        <div className="relative w-80">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+    <div className="space-y-4">
+      <div className="bg-card p-4 rounded-xl border border-border shadow-sm flex items-center justify-between">
+        <div className="relative w-full sm:w-80">
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             placeholder="Search contact messages..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none"
+            className="w-full pl-9 pr-4 py-2 bg-muted/50 border border-border rounded-xl text-xs sm:text-sm focus:outline-none"
           />
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+      <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
         <table className="w-full text-left text-xs sm:text-sm">
-          <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold text-xs uppercase tracking-wider">
+          <thead className="bg-muted/50 border-b border-border text-muted-foreground font-semibold text-xs uppercase tracking-wider">
             <tr>
-              <th className="py-3.5 px-6">Sender</th>
-              <th className="py-3.5 px-4">Subject</th>
-              <th className="py-3.5 px-4">Status</th>
-              <th className="py-3.5 px-4">Date</th>
-              <th className="py-3.5 px-6 text-right">Actions</th>
+              <th className="py-2.5 px-4">Sender</th>
+              <th className="py-2.5 px-4">Subject</th>
+              <th className="py-2.5 px-4">Status</th>
+              <th className="py-2.5 px-4">Date</th>
+              <th className="py-2.5 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-border">
             {filtered.map((m) => (
               <tr
                 key={m.id}
-                className={`hover:bg-slate-50/80 transition ${
+                className={`hover:bg-muted/50 transition ${
                   m.status === "UNREAD" ? "bg-blue-50/30 font-semibold" : ""
                 }`}
               >
-                <td className="py-4 px-6 text-slate-900">
+                <td className="py-2.5 px-4 text-foreground">
                   {m.name}
-                  <span className="block text-[11px] text-slate-400 font-mono font-normal">
+                  <span className="block text-[11px] text-muted-foreground font-mono font-normal">
                     {m.email}
                   </span>
                 </td>
-                <td className="py-4 px-4 text-slate-700 max-w-xs truncate">{m.subject}</td>
-                <td className="py-4 px-4">
+                <td className="py-2.5 px-4 text-foreground max-w-xs truncate">{m.subject}</td>
+                <td className="py-2.5 px-4">
                   <span
                     className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase ${
                       m.status === "UNREAD"
                         ? "bg-rose-50 text-rose-700 border border-rose-200"
                         : m.status === "REPLIED"
                         ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                        : "bg-slate-100 text-slate-600"
+                        : "bg-muted text-slate-600"
                     }`}
                   >
                     {m.status}
                   </span>
                 </td>
-                <td className="py-4 px-4 text-slate-500 text-xs">{formatDate(m.createdAt)}</td>
-                <td className="py-4 px-6 text-right">
+                <td className="py-2.5 px-4 text-muted-foreground text-xs">{formatDate(m.createdAt)}</td>
+                <td className="py-2.5 px-4 text-right">
                   <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => handleOpen(m)}
@@ -156,7 +157,7 @@ export function MessageManager({ initialMessages }: { initialMessages: Message[]
                     </button>
                     <button
                       onClick={() => handleDelete(m.id)}
-                      className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition cursor-pointer"
+                      className="p-1.5 text-muted-foreground hover:text-red-600 rounded-lg hover:bg-red-50 transition cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -173,34 +174,34 @@ export function MessageManager({ initialMessages }: { initialMessages: Message[]
           <div className="bg-white rounded-3xl max-w-2xl w-full p-8 shadow-2xl relative">
             <button
               onClick={() => setSelected(null)}
-              className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-600 rounded-lg"
+              className="absolute top-4 right-6 p-2 text-muted-foreground hover:text-slate-600 rounded-lg"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <span className="text-xs font-bold uppercase text-slate-400">Message from</span>
+            <span className="text-xs font-bold uppercase text-muted-foreground">Message from</span>
             <h3 className="text-xl font-extrabold text-[#08245C] mt-0.5 mb-1">
               {selected.name}
             </h3>
-            <p className="text-xs text-slate-500 font-mono mb-4">
+            <p className="text-xs text-muted-foreground font-mono mb-4">
               {selected.email} {selected.phone ? `• ${selected.phone}` : ""}
             </p>
 
-            <div className="p-4 bg-slate-50 rounded-2xl mb-4 space-y-2">
-              <h4 className="text-xs font-bold uppercase text-slate-500">Subject:</h4>
-              <p className="text-sm font-semibold text-slate-900">{selected.subject}</p>
-              <div className="pt-2 border-t border-slate-200 text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+            <div className="p-4 bg-slate-50 rounded-xl mb-4 space-y-2">
+              <h4 className="text-xs font-bold uppercase text-muted-foreground">Subject:</h4>
+              <p className="text-sm font-semibold text-foreground">{selected.subject}</p>
+              <div className="pt-2 border-t border-border text-xs sm:text-sm text-foreground leading-relaxed whitespace-pre-line">
                 {selected.message}
               </div>
             </div>
 
-            <div className="space-y-4 pt-4 border-t border-slate-100">
+            <div className="space-y-4 pt-4 border-t border-border">
               <div className="flex items-center gap-4">
-                <label className="text-xs font-bold text-slate-700">Status:</label>
+                <label className="text-xs font-bold text-foreground">Status:</label>
                 <select
                   value={statusInput}
                   onChange={(e) => setStatusInput(e.target.value as any)}
-                  className="px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold uppercase"
+                  className="px-3 py-1.5 bg-muted/50 border border-slate-300 rounded-xl text-xs font-bold uppercase"
                 >
                   <option value="UNREAD">UNREAD</option>
                   <option value="READ">READ</option>
@@ -210,20 +211,20 @@ export function MessageManager({ initialMessages }: { initialMessages: Message[]
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Admin Notes</label>
+                <label className="block text-xs font-semibold text-foreground mb-1">Admin Notes</label>
                 <textarea
                   rows={2}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Record reply or notes..."
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm"
+                  className="w-full px-3 py-2 bg-muted/50 border border-slate-300 rounded-xl text-xs sm:text-sm"
                 />
               </div>
 
               <div className="flex justify-end gap-2">
                 <button
                   onClick={() => setSelected(null)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-muted rounded-xl"
                 >
                   Close
                 </button>

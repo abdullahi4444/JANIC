@@ -17,99 +17,144 @@ import {
   Image as ImageIcon,
   Settings,
   ExternalLink,
-  ChevronRight,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separatorators";
 
 interface NavItem {
   title: string;
   href: string;
   icon: React.ElementType;
-  badge?: number;
 }
 
-const navItems: NavItem[] = [
-  { title: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-  { title: "Projects", href: "/admin/projects", icon: FolderGit2 },
-  { title: "Training", href: "/admin/training", icon: GraduationCap },
-  { title: "Research", href: "/admin/research", icon: FlaskConical },
-  { title: "Events", href: "/admin/events", icon: Calendar },
-  { title: "Submissions", href: "/admin/submissions", icon: Lightbulb },
-  { title: "Partnerships", href: "/admin/partnerships", icon: Handshake },
-  { title: "Messages", href: "/admin/messages", icon: MessageSquare },
-  { title: "Team", href: "/admin/team", icon: Users },
-  { title: "Media", href: "/admin/media", icon: ImageIcon },
-  { title: "Settings", href: "/admin/settings", icon: Settings },
+const navGroups: { label: string; items: NavItem[] }[] = [
+  {
+    label: "Overview",
+    items: [{ title: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard }],
+  },
+  {
+    label: "Content",
+    items: [
+      { title: "Projects", href: "/admin/projects", icon: FolderGit2 },
+      { title: "Training", href: "/admin/training", icon: GraduationCap },
+      { title: "Research", href: "/admin/research", icon: FlaskConical },
+      { title: "Events", href: "/admin/events", icon: Calendar },
+      { title: "Submissions", href: "/admin/submissions", icon: Lightbulb },
+    ],
+  },
+  {
+    label: "Engagement",
+    items: [
+      { title: "Partnerships", href: "/admin/partnerships", icon: Handshake },
+      { title: "Messages", href: "/admin/messages", icon: MessageSquare },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      { title: "Team", href: "/admin/team", icon: Users },
+      { title: "Media", href: "/admin/media", icon: ImageIcon },
+      { title: "Settings", href: "/admin/settings", icon: Settings },
+    ],
+  },
 ];
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-[#081832] text-slate-300 border-r border-slate-800 flex flex-col shrink-0 h-screen sticky top-0">
-      {/* Brand Logo */}
-      <div className="h-16 px-6 border-b border-slate-800 flex items-center justify-between">
-        <Link href="/admin/dashboard" className="flex items-center gap-2">
-          <div className="relative w-36 h-9">
-            <Image
-              src="/images/janic-logo-white.png"
-              alt="JANIC Admin"
-              fill
-              className="object-contain"
-              priority
-            />
-          </div>
-        </Link>
-      </div>
-
-      {/* Navigation List */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-        <div className="px-3 pb-2 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
-          Management CMS
+    <>
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex h-dvh w-[208px] flex-col overflow-hidden border-r border-border bg-card transition-transform duration-200 lg:translate-x-0",
+          open ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <div className="flex h-14 items-center justify-between border-b border-border px-4 shrink-0">
+          <Link href="/admin/dashboard" className="flex items-center gap-2" onClick={onClose}>
+            <div className="relative w-32 h-8">
+              <Image
+                src="/images/janic-logo-white.png"
+                alt="JANIC Admin"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+          </Link>
+          <button className="lg:hidden p-1 text-muted-foreground" onClick={onClose}>
+            <X className="w-4 h-4" />
+          </button>
         </div>
-        {navItems.map((item) => {
-          const isActive = pathname === item.href || (item.href !== "/admin/dashboard" && pathname.startsWith(item.href));
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all group",
-                isActive
-                  ? "bg-blue-600 text-white shadow-md shadow-blue-600/20 font-semibold"
-                  : "text-slate-300 hover:bg-slate-800/80 hover:text-white"
-              )}
-            >
-              <div className="flex items-center gap-3">
-                <Icon
-                  className={cn(
-                    "w-4 h-4 transition-colors",
-                    isActive ? "text-white" : "text-slate-400 group-hover:text-blue-400"
-                  )}
-                />
-                <span>{item.title}</span>
-              </div>
-              {isActive && <ChevronRight className="w-4 h-4 text-blue-200" />}
-            </Link>
-          );
-        })}
-      </div>
 
-      {/* Bottom Public Link */}
-      <div className="p-4 border-t border-slate-800 bg-[#061328]">
-        <Link
-          href="/"
-          target="_blank"
-          className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition"
-        >
-          <span className="flex items-center gap-2">
-            <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
-            View Public Portal
-          </span>
-          <span className="text-[10px] bg-blue-900/60 text-blue-300 px-1.5 py-0.5 rounded">Live</span>
-        </Link>
-      </div>
-    </aside>
+        <ScrollArea className="min-h-0 flex-1 px-2 py-2.5">
+          <div className="flex min-h-full flex-col justify-between gap-3">
+            <div className="space-y-2">
+              {navGroups.map((group, groupIndex) => (
+                <div key={group.label}>
+                  <div className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    {group.label}
+                  </div>
+                  <nav className="space-y-0.5">
+                    {group.items.map((item) => {
+                      const isActive =
+                        pathname === item.href ||
+                        (item.href !== "/admin/dashboard" && pathname.startsWith(item.href));
+                      const Icon = item.icon;
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={onClose}
+                          className={cn(
+                            "flex h-8 items-center gap-2.5 rounded-lg px-3 text-[13px] font-medium transition-all",
+                            isActive
+                              ? "bg-primary text-primary-foreground shadow-sm"
+                              : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                          )}
+                        >
+                          <Icon className="h-4 w-4 shrink-0" />
+                          <span className="truncate">{item.title}</span>
+                        </Link>
+                      );
+                    })}
+                  </nav>
+                  {groupIndex < navGroups.length - 1 && <Separator className="mt-2" />}
+                </div>
+              ))}
+            </div>
+          </div>
+        </ScrollArea>
+
+        <div className="shrink-0 border-t border-border bg-muted/30 p-3">
+          <Link
+            href="/"
+            target="_blank"
+            className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition"
+          >
+            <span className="flex items-center gap-2">
+              <ExternalLink className="w-3.5 h-3.5" />
+              View Public Portal
+            </span>
+            <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+              Live
+            </span>
+          </Link>
+        </div>
+      </aside>
+    </>
   );
 }

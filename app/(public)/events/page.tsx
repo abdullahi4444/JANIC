@@ -29,7 +29,7 @@ export default async function EventsPage() {
       />
 
       {/* 2. EVENTS BENTO GRID - FADE UP */}
-      <section className="py-8 sm:py-14 bg-white min-h-[500px] overflow-hidden">
+      <section className="py-8 sm:py-14 bg-slate-50 min-h-[500px] overflow-hidden">
         <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal animation="fade-up" duration={850}>
             <div className="mb-10 sm:mb-12">
@@ -44,7 +44,7 @@ export default async function EventsPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {events.map((event) => {
                 const eventDateObj = new Date(event.eventDate);
                 const dayStr = isNaN(eventDateObj.getDate())
@@ -57,11 +57,11 @@ export default async function EventsPage() {
                 return (
                   <div
                     key={event.id}
-                    className="bg-white rounded-[26px] border border-slate-200/80 overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-xl transition-all duration-300 group hover:-translate-y-1"
+                    className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-xl transition-all group hover:-translate-y-1"
                   >
                     <div>
                       {/* Event Cover Image with Top-Left Date Badge */}
-                      <div className="aspect-[16/10] relative bg-slate-100 overflow-hidden">
+                      <div className="aspect-[16/9] relative bg-slate-100 overflow-hidden">
                         <Image
                           src={
                             event.coverImage ||
@@ -81,7 +81,7 @@ export default async function EventsPage() {
                           </div>
                         </div>
 
-                        <div className="absolute top-3.5 right-3.5 bg-white/85 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-slate-800 shadow-sm uppercase tracking-wider">
+                        <div className="absolute top-3 right-3 bg-white/95 px-2.5 py-1 rounded-full text-[11px] font-bold text-[#08245C] uppercase tracking-wider">
                           {event.category}
                         </div>
                       </div>
@@ -113,7 +113,7 @@ export default async function EventsPage() {
                     <div className="p-6 sm:p-7 pt-0">
                       <Link
                         href={`/events/${event.slug}`}
-                        className="w-full py-3 px-5 rounded-full bg-[#0875D1] hover:bg-[#0660ac] text-white font-bold text-xs flex items-center justify-center gap-2 transition shadow-md shadow-blue-500/20"
+                        className="w-full py-2.5 px-4 rounded-xl bg-[#08245C] hover:bg-[#061B40] text-white font-semibold text-xs flex items-center justify-center gap-2 transition"
                       >
                         Event Details &amp; Register
                         <ArrowRight className="w-3.5 h-3.5" />

@@ -1,3 +1,4 @@
+/* eslint-disable */
 const { PrismaClient, Role, ContentStatus } = require("@prisma/client");
 const bcrypt = require("bcryptjs");
 
@@ -6,30 +7,31 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("Starting database seed...");
 
-  // 1. Create Admin User
-  const adminEmail = "admin@janic.edu.so";
-  const existingAdmin = await prisma.user.findUnique({ where: { email: adminEmail } });
+  // 1. Create Superadmin User
+  const adminUsername = "jamiila";
+  const existingAdmin = await prisma.user.findUnique({ where: { username: adminUsername } });
 
   const salt = await bcrypt.genSalt(10);
-  const passwordHash = await bcrypt.hash("AdminPassword2026!", salt);
+  const passwordHash = await bcrypt.hash("jamiila@janic123", salt);
 
   if (!existingAdmin) {
     await prisma.user.create({
       data: {
-        email: adminEmail,
+        email: "jamiila@janic.edu.so",
+        username: adminUsername,
         passwordHash,
-        name: "JANIC System Administrator",
+        name: "Jamiila",
         role: Role.ADMIN,
         avatar: "/images/admin-avatar.png",
       },
     });
-    console.log("Created admin user: admin@janic.edu.so (Password: AdminPassword2026!)");
+    console.log("Created superadmin user: jamiila (Password: jamiila@janic123)");
   } else {
     await prisma.user.update({
-      where: { email: adminEmail },
+      where: { username: adminUsername },
       data: { passwordHash, role: Role.ADMIN },
     });
-    console.log("Updated admin user credentials.");
+    console.log("Updated superadmin credentials.");
   }
 
   // 2. Seed Student Innovation Projects from JANIC docx
@@ -299,6 +301,45 @@ async function main() {
   // 4. Seed Research Papers
   const researchPapers = [
     {
+      title: "Applied Technological Research",
+      slug: "applied-technology",
+      category: "Applied Research",
+      abstract: "Focusing on practical solutions for immediate industrial challenges in the local market.",
+      content: "Comprehensive applied research portfolio spanning fintech, healthtech, IoT, and enterprise software. Each project follows a strict market-needs-first methodology ensuring immediate real-world applicability and measurable impact metrics.",
+      authors: "JANIC Applied Research Division",
+      journalOrConference: "JANIC Research Collection, 2024 – 2025",
+      publicationDate: new Date("2024-12-01"),
+      pdfUrl: "https://janic.edu.so/research/papers/applied-technology-overview.pdf",
+      status: ContentStatus.PUBLISHED,
+      isFeatured: true,
+    },
+    {
+      title: "Student-Led Innovations",
+      slug: "student-innovations",
+      category: "Student Research",
+      abstract: "Empowering the next generation of researchers to push academic boundaries into the real world.",
+      content: "A showcase of undergraduate and postgraduate capstone projects, competitive hackathon winners, and incubation-lab prototypes developed by students under JANIC mentorship. Includes the full portfolio of 18+ student innovations from 2021 to date.",
+      authors: "Student Researchers, Faculty of CS & IT, Jazeera University",
+      journalOrConference: "JANIC Annual Student Showcase",
+      publicationDate: new Date("2025-03-10"),
+      pdfUrl: "https://janic.edu.so/research/papers/student-innovations.pdf",
+      status: ContentStatus.PUBLISHED,
+      isFeatured: true,
+    },
+    {
+      title: "Digital Future Transformation",
+      slug: "digital-transformation",
+      category: "Strategic Research",
+      abstract: "Strategic research into AI, Blockchain, and the impact of the 4th Industrial Revolution.",
+      content: "Horizon-scanning publication examining emerging technologies, regional digital policy, and the future of higher education. Provides a strategic roadmap for Somali institutions navigating AI, blockchain, smart cities, and post-pandemic digital acceleration.",
+      authors: "Eng. Abdullahi Hassan, JANIC Strategy Office",
+      journalOrConference: "JANIC Strategic Whitepaper Series",
+      publicationDate: new Date("2025-06-01"),
+      pdfUrl: "https://janic.edu.so/research/papers/digital-future-transformation.pdf",
+      status: ContentStatus.PUBLISHED,
+      isFeatured: true,
+    },
+    {
       title: "AI-Driven Emergency Triage and Inter-Hospital Coordination in Resource-Constrained Environments",
       slug: "ai-emergency-triage-inter-hospital-coordination",
       category: "Applied Research",
@@ -310,7 +351,7 @@ async function main() {
       publicationDate: new Date("2025-05-15"),
       pdfUrl: "https://janic.edu.so/research/papers/ai-triage-badbaado.pdf",
       status: ContentStatus.PUBLISHED,
-      isFeatured: true,
+      isFeatured: false,
     },
     {
       title: "Edge Robotics for Autonomous Municipal Waste Separation in Arid Coastal Cities",
@@ -324,7 +365,7 @@ async function main() {
       publicationDate: new Date("2025-08-20"),
       pdfUrl: "https://janic.edu.so/research/papers/smart-waste-robotics.pdf",
       status: ContentStatus.PUBLISHED,
-      isFeatured: true,
+      isFeatured: false,
     },
     {
       title: "Optimized File Deduplication Architectures for Distributed Academic Information Systems",
@@ -354,6 +395,54 @@ async function main() {
   // 5. Seed Events
   const events = [
     {
+      title: "JANIC Innovation Summit 2024",
+      slug: "janic-innovation-summit-2024",
+      category: "Innovation Showcase",
+      summary: "The flagship annual summit bringing together academia, industry, and government leaders to showcase Somali technological innovation.",
+      description: "Join university leaders, tech industry pioneers, angel investors, and government representatives as JANIC's student innovators pitch and demonstrate functional prototypes. Featuring keynote speakers from regional tech ecosystems and live startup demos.",
+      eventDate: new Date("2026-10-18T09:00:00Z"),
+      endDate: new Date("2026-10-18T17:00:00Z"),
+      location: "Main Campus Auditorium",
+      isVirtual: false,
+      capacity: 350,
+      registrationUrl: "https://janic.edu.so/events/summit-2024/register",
+      status: ContentStatus.PUBLISHED,
+      isFeatured: true,
+      coverImage: "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      title: "Cybersecurity Challenge 4.0",
+      slug: "cybersecurity-challenge-4",
+      category: "Technology Competitions",
+      summary: "Capture-the-flag (CTF) cybersecurity tournament testing defensive and offensive security skills across student teams.",
+      description: "Fourth edition of the JANIC cybersecurity challenge. Teams compete in network reconnaissance, web exploitation, cryptography, and incident response scenarios. Top teams win certification and direct internship opportunities with JANIC's industry partners.",
+      eventDate: new Date("2026-11-04T08:00:00Z"),
+      endDate: new Date("2026-11-04T18:00:00Z"),
+      location: "Tech Lab B-02",
+      isVirtual: false,
+      capacity: 80,
+      registrationUrl: "https://janic.edu.so/events/cyber-4/register",
+      status: ContentStatus.PUBLISHED,
+      isFeatured: true,
+      coverImage: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      title: "AI Workshop for Developers",
+      slug: "ai-workshop-for-developers",
+      category: "Workshops & Training",
+      summary: "Hands-on workshop covering modern AI integration, LLM APIs, retrieval-augmented generation, and prompt engineering for developers.",
+      description: "Practical one-day workshop for software developers. Learn to integrate commercial and open-source LLM APIs, build RAG pipelines, design effective prompts, and deploy AI-powered features into real web applications.",
+      eventDate: new Date("2026-12-15T13:30:00Z"),
+      endDate: new Date("2026-12-15T18:00:00Z"),
+      location: "Hybrid / Online",
+      isVirtual: true,
+      capacity: 120,
+      registrationUrl: "https://janic.edu.so/events/ai-dev-workshop/register",
+      status: ContentStatus.PUBLISHED,
+      isFeatured: true,
+      coverImage: "https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=800&q=80",
+    },
+    {
       title: "JANIC Annual Tech Showcase & Demo Day 2026",
       slug: "janic-annual-tech-showcase-2026",
       category: "Innovation Showcase",
@@ -366,8 +455,8 @@ async function main() {
       capacity: 350,
       registrationUrl: "https://janic.edu.so/events/demo-day-2026/register",
       status: ContentStatus.PUBLISHED,
-      isFeatured: true,
-      coverImage: "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80",
+      isFeatured: false,
+      coverImage: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=800&q=80",
     },
     {
       title: "Mogadishu Smart Cities Student Hackathon 2026",
@@ -382,7 +471,7 @@ async function main() {
       capacity: 120,
       registrationUrl: "https://janic.edu.so/events/smart-cities-hackathon/register",
       status: ContentStatus.PUBLISHED,
-      isFeatured: true,
+      isFeatured: false,
       coverImage: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80",
     },
     {
@@ -471,10 +560,39 @@ async function main() {
   const settings = [
     { key: "site_name", value: "Jazeera Nexus Innovation Center (JANIC)", group: "general" },
     { key: "site_tagline", value: "Innovating Technology. Empowering the Future.", group: "general" },
+    { key: "portal_notice", value: "Official Innovation Hub of the Faculty of Computer Science & IT", group: "general" },
+    { key: "institution_name", value: "Jazeera University", group: "general" },
+    { key: "faculty_name", value: "Faculty of Computer Science & IT", group: "general" },
     { key: "contact_email", value: "info@janic.edu.so", group: "contact" },
     { key: "contact_phone", value: "+252 61 555 1234", group: "contact" },
     { key: "campus_address", value: "Jazeera University Main Campus, KM4, Mogadishu, Somalia", group: "contact" },
     { key: "founded_date", value: "October 25, 2021", group: "institutional" },
+    { key: "linkedin_url", value: "https://linkedin.com/school/jazeera-university", group: "social" },
+    { key: "github_url", value: "https://github.com/janic-innovation", group: "social" },
+    { key: "twitter_url", value: "", group: "social" },
+    { key: "facebook_url", value: "", group: "social" },
+    { key: "hero_title", value: "Innovating Technology. Empowering the Future.", group: "hero" },
+    { key: "hero_subtitle", value: "The leading institutional hub for technological transformation, advanced research, and digital excellence.", group: "hero" },
+    { key: "hero_image", value: "/images/janic-hero-lab.jpg", group: "hero" },
+    { key: "hero_badge_value", value: "18+", group: "hero" },
+    { key: "hero_badge_label", value: "STUDENT INNOVATION PROJECTS", group: "hero" },
+    { key: "footer_tagline", value: "Technology • Innovation • Research • Training", group: "footer" },
+    { key: "accreditation_badge", value: "Accredited Academic Innovation Lab", group: "footer" },
+    { key: "nav_links", value: "", group: "navigation" },
+    { key: "maintenance_mode", value: "false", group: "system" },
+    { key: "allow_registrations", value: "true", group: "system" },
+    { key: "allow_submissions", value: "true", group: "system" },
+    { key: "allow_contact_form", value: "true", group: "system" },
+    { key: "featured_count", value: "3", group: "system" },
+    {
+      key: "role_permissions",
+      value: JSON.stringify({
+        ADMIN: ["manage_users", "manage_settings", "edit_content", "publish_content", "delete_content", "review_submissions", "manage_media", "manage_team"],
+        EDITOR: ["edit_content", "publish_content", "review_submissions", "manage_media"],
+        STAFF: ["review_submissions"],
+      }),
+      group: "permissions",
+    },
   ];
 
   for (const s of settings) {

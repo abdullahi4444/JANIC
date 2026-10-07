@@ -8,6 +8,12 @@ export class UserRepository {
     });
   }
 
+  static async findByUsername(username: string) {
+    return prisma.user.findUnique({
+      where: { username: username.trim() },
+    });
+  }
+
   static async findById(id: string) {
     return prisma.user.findUnique({
       where: { id },
@@ -36,10 +42,11 @@ export class UserRepository {
     });
   }
 
-  static async create(data: { email: string; passwordHash: string; name: string; role?: Role; avatar?: string }) {
+  static async create(data: { email: string; username: string; passwordHash: string; name: string; role?: Role; avatar?: string }) {
     return prisma.user.create({
       data: {
         email: data.email.toLowerCase().trim(),
+        username: data.username.trim(),
         passwordHash: data.passwordHash,
         name: data.name,
         role: data.role || Role.STAFF,

@@ -115,7 +115,7 @@ export default function InnovationHubPage() {
               {steps.map((s) => (
                 <div
                   key={s.num}
-                  className="bg-white rounded-[24px] border border-slate-200/90 p-7 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group"
+                  className="bg-white rounded-2xl border border-slate-200/90 p-7 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group"
                 >
                   <div>
                     <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#0875D1] flex items-center justify-center font-black text-sm mb-5 group-hover:scale-105 transition-transform">
@@ -207,7 +207,7 @@ export default function InnovationHubPage() {
                 </div>
 
                 {/* Right Column: Dark Navy CTA Bento Card */}
-                <div className="lg:col-span-5 bg-[#0A224E] text-white rounded-[28px] sm:rounded-[36px] p-8 sm:p-10 shadow-xl border border-blue-900/60 space-y-6">
+                <div className="lg:col-span-5 bg-[#0A224E] text-white rounded-2xl sm:rounded-2xl p-8 sm:p-10 shadow-xl border border-blue-900/60 space-y-6">
                   <span className="text-xs font-bold text-cyan-300 uppercase tracking-wider block">
                     INCUBATION ADMISSIONS
                   </span>

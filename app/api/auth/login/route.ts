@@ -4,7 +4,7 @@ import { AuthService } from "@/services/auth/auth.service";
 import { SESSION_COOKIE_NAME } from "@/lib/auth/jwt";
 
 const loginSchema = z.object({
-  email: z.string().email("Please provide a valid email address"),
+  username: z.string().min(2, "Username is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
@@ -20,8 +20,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { email, password } = parsed.data;
-    const { user, token } = await AuthService.login(email, password);
+    const { username, password } = parsed.data;
+    const { user, token } = await AuthService.login(username, password);
 
     const response = NextResponse.json({
       success: true,

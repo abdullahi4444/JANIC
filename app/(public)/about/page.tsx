@@ -134,7 +134,7 @@ export default async function AboutPage() {
           <ScrollReveal animation="zoom-in" duration={850}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-stretch">
               {/* Vision (Light Card) */}
-              <div className="bg-[#F0F6FE] rounded-[28px] sm:rounded-[36px] p-8 sm:p-12 border border-blue-100/70 shadow-sm flex flex-col justify-between">
+              <div className="bg-[#F0F6FE] rounded-2xl sm:rounded-2xl p-8 sm:p-12 border border-blue-100/70 shadow-sm flex flex-col justify-between">
                 <div>
                   <div className="w-12 h-12 rounded-2xl bg-white text-[#0875D1] flex items-center justify-center font-bold mb-6 shadow-sm">
                     <Compass className="w-6 h-6" />
@@ -152,7 +152,7 @@ export default async function AboutPage() {
               </div>
 
               {/* Mission (Dark Navy Card) */}
-              <div className="bg-[#0A224E] text-white rounded-[28px] sm:rounded-[36px] p-8 sm:p-12 border border-blue-900/60 shadow-xl flex flex-col justify-between">
+              <div className="bg-[#0A224E] text-white rounded-2xl sm:rounded-2xl p-8 sm:p-12 border border-blue-900/60 shadow-xl flex flex-col justify-between">
                 <div>
                   <div className="w-12 h-12 rounded-2xl bg-white/10 text-cyan-300 flex items-center justify-center font-bold mb-6">
                     <Target className="w-6 h-6" />
@@ -212,7 +212,7 @@ export default async function AboutPage() {
                 return (
                   <div
                     key={v.title}
-                    className="bg-white rounded-[24px] border border-slate-200/90 p-7 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group"
+                    className="bg-white rounded-2xl border border-slate-200/90 p-7 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group"
                   >
                     <div>
                       <div className="w-11 h-11 rounded-2xl bg-blue-50 text-[#0875D1] flex items-center justify-center font-bold mb-5 group-hover:scale-105 transition-transform">
@@ -255,7 +255,7 @@ export default async function AboutPage() {
                   {teamMembers.map((member) => (
                     <div
                       key={member.id}
-                      className="bg-white rounded-[24px] border border-slate-200/80 p-6 text-center shadow-sm hover:shadow-md transition-all flex flex-col items-center justify-between"
+                      className="bg-white rounded-2xl border border-slate-200/80 p-6 text-center shadow-sm hover:shadow-md transition-all flex flex-col items-center justify-between"
                     >
                       <div>
                         <div className="w-24 h-24 rounded-full mx-auto mb-4 relative bg-slate-100 border-2 border-blue-100 overflow-hidden shadow-sm">

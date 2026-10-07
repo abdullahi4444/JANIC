@@ -1,8 +1,9 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Eye, Trash2, X, CheckCircle2, Clock, XCircle, AlertCircle, ExternalLink } from "lucide-react";
+import { Search, Eye, Trash2, X, ExternalLink } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
 interface Submission {
@@ -93,23 +94,23 @@ export function SubmissionManager({ initialSubmissions }: { initialSubmissions: 
   });
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+    <div className="space-y-4">
+      <div className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="relative w-full sm:w-full sm:w-80">
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             placeholder="Search proposals by title or student..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none"
+            className="w-full pl-9 pr-4 py-2 bg-muted/50 border border-border rounded-xl text-xs sm:text-sm focus:outline-none"
           />
         </div>
 
         <select
           value={selectedStatus}
           onChange={(e) => setSelectedStatus(e.target.value)}
-          className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700"
+          className="px-3 py-2 bg-muted/50 border border-border rounded-xl text-xs font-semibold text-foreground"
         >
           <option value="all">All Review States</option>
           <option value="PENDING">Pending</option>
@@ -119,35 +120,35 @@ export function SubmissionManager({ initialSubmissions }: { initialSubmissions: 
         </select>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+      <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
         <table className="w-full text-left text-xs sm:text-sm">
-          <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold text-xs uppercase tracking-wider">
+          <thead className="bg-muted/50 border-b border-border text-muted-foreground font-semibold text-xs uppercase tracking-wider">
             <tr>
-              <th className="py-3.5 px-6">Project Title</th>
-              <th className="py-3.5 px-4">Student Submitter</th>
-              <th className="py-3.5 px-4">Category</th>
-              <th className="py-3.5 px-4">Status</th>
-              <th className="py-3.5 px-4">Submitted</th>
-              <th className="py-3.5 px-6 text-right">Review</th>
+              <th className="py-2.5 px-4">Project Title</th>
+              <th className="py-2.5 px-4">Student Submitter</th>
+              <th className="py-2.5 px-4">Category</th>
+              <th className="py-2.5 px-4">Status</th>
+              <th className="py-2.5 px-4">Submitted</th>
+              <th className="py-2.5 px-4 text-right">Review</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-border">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-12 text-center text-slate-400">
+                <td colSpan={6} className="py-12 text-center text-muted-foreground">
                   No submissions found.
                 </td>
               </tr>
             ) : (
               filtered.map((s) => (
-                <tr key={s.id} className="hover:bg-slate-50/80 transition">
-                  <td className="py-4 px-6 font-bold text-slate-900 max-w-xs truncate">{s.title}</td>
-                  <td className="py-4 px-4 text-slate-700 font-medium">
+                <tr key={s.id} className="hover:bg-muted/50 transition">
+                  <td className="py-2.5 px-4 font-bold text-foreground max-w-xs truncate">{s.title}</td>
+                  <td className="py-2.5 px-4 text-foreground font-medium">
                     {s.submitterName}
-                    <span className="block text-[11px] text-slate-400 font-mono">{s.submitterEmail}</span>
+                    <span className="block text-[11px] text-muted-foreground font-mono">{s.submitterEmail}</span>
                   </td>
-                  <td className="py-4 px-4 text-slate-600">{s.category}</td>
-                  <td className="py-4 px-4">
+                  <td className="py-2.5 px-4 text-slate-600">{s.category}</td>
+                  <td className="py-2.5 px-4">
                     <span
                       className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase ${
                         s.status === "APPROVED"
@@ -162,8 +163,8 @@ export function SubmissionManager({ initialSubmissions }: { initialSubmissions: 
                       {s.status.replace("_", " ")}
                     </span>
                   </td>
-                  <td className="py-4 px-4 text-slate-500 text-xs">{formatDate(s.createdAt)}</td>
-                  <td className="py-4 px-6 text-right">
+                  <td className="py-2.5 px-4 text-muted-foreground text-xs">{formatDate(s.createdAt)}</td>
+                  <td className="py-2.5 px-4 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => handleOpenReview(s)}
@@ -173,7 +174,7 @@ export function SubmissionManager({ initialSubmissions }: { initialSubmissions: 
                       </button>
                       <button
                         onClick={() => handleDelete(s.id)}
-                        className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition cursor-pointer"
+                        className="p-1.5 text-muted-foreground hover:text-red-600 rounded-lg hover:bg-red-50 transition cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -191,7 +192,7 @@ export function SubmissionManager({ initialSubmissions }: { initialSubmissions: 
           <div className="bg-white rounded-3xl max-w-3xl w-full p-8 shadow-2xl relative my-8 max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setSelectedSub(null)}
-              className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-600 rounded-lg"
+              className="absolute top-4 right-6 p-2 text-muted-foreground hover:text-slate-600 rounded-lg"
             >
               <X className="w-5 h-5" />
             </button>
@@ -203,7 +204,7 @@ export function SubmissionManager({ initialSubmissions }: { initialSubmissions: 
               {selectedSub.title}
             </h3>
 
-            <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-2xl mb-6 text-xs text-slate-700">
+            <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-xl mb-6 text-xs text-foreground">
               <div>
                 <strong>Submitter:</strong> {selectedSub.submitterName} ({selectedSub.submitterEmail})
               </div>
@@ -220,29 +221,29 @@ export function SubmissionManager({ initialSubmissions }: { initialSubmissions: 
 
             <div className="space-y-4 mb-6">
               <div>
-                <h4 className="text-xs font-bold uppercase text-slate-500 mb-1">Problem Statement</h4>
-                <p className="text-sm text-slate-700 bg-slate-50 p-4 rounded-xl leading-relaxed">
+                <h4 className="text-xs font-bold uppercase text-muted-foreground mb-1">Problem Statement</h4>
+                <p className="text-sm text-foreground bg-slate-50 p-4 rounded-xl leading-relaxed">
                   {selectedSub.problemStatement}
                 </p>
               </div>
 
               <div>
-                <h4 className="text-xs font-bold uppercase text-slate-500 mb-1">Proposed Solution</h4>
-                <p className="text-sm text-slate-700 bg-slate-50 p-4 rounded-xl leading-relaxed">
+                <h4 className="text-xs font-bold uppercase text-muted-foreground mb-1">Proposed Solution</h4>
+                <p className="text-sm text-foreground bg-slate-50 p-4 rounded-xl leading-relaxed">
                   {selectedSub.solutionDescription}
                 </p>
               </div>
 
               {selectedSub.technologyStack && (
                 <div>
-                  <h4 className="text-xs font-bold uppercase text-slate-500 mb-1">Tech Stack</h4>
+                  <h4 className="text-xs font-bold uppercase text-muted-foreground mb-1">Tech Stack</h4>
                   <p className="text-xs text-slate-600">{selectedSub.technologyStack}</p>
                 </div>
               )}
 
               {selectedSub.teamMembers && (
                 <div>
-                  <h4 className="text-xs font-bold uppercase text-slate-500 mb-1">Team Members</h4>
+                  <h4 className="text-xs font-bold uppercase text-muted-foreground mb-1">Team Members</h4>
                   <p className="text-xs text-slate-600">{selectedSub.teamMembers}</p>
                 </div>
               )}
@@ -272,11 +273,11 @@ export function SubmissionManager({ initialSubmissions }: { initialSubmissions: 
             </div>
 
             {/* Review Decision Form */}
-            <div className="p-6 bg-slate-100/70 rounded-2xl space-y-4">
+            <div className="p-4 bg-muted/70 rounded-xl space-y-4">
               <h4 className="text-sm font-bold text-slate-800">Faculty Review Decision</h4>
 
               <div className="flex items-center gap-4">
-                <label className="text-xs font-bold text-slate-700">Set Status:</label>
+                <label className="text-xs font-bold text-foreground">Set Status:</label>
                 <select
                   value={statusInput}
                   onChange={(e) => setStatusInput(e.target.value as any)}
@@ -290,7 +291,7 @@ export function SubmissionManager({ initialSubmissions }: { initialSubmissions: 
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-foreground mb-1">
                   Internal Faculty Notes / Feedback
                 </label>
                 <textarea

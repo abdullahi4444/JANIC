@@ -1,9 +1,19 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, MapPin, Phone, ArrowRight, ShieldCheck, Heart } from "lucide-react";
+import { Mail, MapPin, Phone, ShieldCheck } from "lucide-react";
+import { getSettingsMap } from "@/lib/settings";
 
-export function PublicFooter() {
+export async function PublicFooter() {
+  const settings = await getSettingsMap();
+  const tagline = settings["footer_tagline"] || "Technology • Innovation • Research • Training";
+  const founded = settings["founded_date"] || "October 25, 2021";
+  const address = settings["campus_address"] || "Jazeera University Main Campus, KM4, Mogadishu, Somalia";
+  const email = settings["contact_email"] || "info@janic.edu.so";
+  const phone = settings["contact_phone"] || "+252 61 555 1234";
+  const siteName = settings["site_name"] || "Jazeera Nexus Innovation Center (JANIC)";
+  const accreditation = settings["accreditation_badge"] || "Accredited Academic Innovation Lab";
+
   return (
     <footer className="bg-[#051532] text-slate-300 border-t border-blue-900/40 relative overflow-hidden">
       {/* Decorative background glow */}
@@ -24,16 +34,14 @@ export function PublicFooter() {
                 />
               </div>
             </Link>
-            <p className="text-sm text-slate-400 font-medium">
-              Technology • Innovation • Research • Training
-            </p>
+            <p className="text-sm text-slate-400 font-medium">{tagline}</p>
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              A technology and innovation initiative of the Faculty of Computer Science & IT, Jazeera University in Mogadishu, Somalia. Founded October 25, 2021.
+              A technology and innovation initiative of the Faculty of Computer Science & IT, Jazeera University in Mogadishu, Somalia. Founded {founded}.
             </p>
 
             <div className="pt-2 flex items-center gap-2 text-xs text-emerald-400">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>Accredited Academic Innovation Lab</span>
+              <span>{accreditation}</span>
             </div>
           </div>
 
@@ -98,17 +106,17 @@ export function PublicFooter() {
             <ul className="space-y-3 text-xs text-slate-400">
               <li className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-                <span>Jazeera University Main Campus, KM4, Mogadishu, Somalia</span>
+                <span>{address}</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-blue-400 shrink-0" />
-                <a href="mailto:info@janic.edu.so" className="hover:text-white transition">
-                  info@janic.edu.so
+                <a href={`mailto:${email}`} className="hover:text-white transition">
+                  {email}
                 </a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-blue-400 shrink-0" />
-                <span>+252 61 555 1234</span>
+                <span>{phone}</span>
               </li>
             </ul>
           </div>
@@ -117,7 +125,7 @@ export function PublicFooter() {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <p>
-            © 2026 Jazeera Nexus Innovation Center (JANIC). All Rights Reserved.
+            © {new Date().getFullYear()} {siteName}. All Rights Reserved.
           </p>
           <p className="flex items-center gap-1 text-[11px]">
             Designed for University & Technological Excellence

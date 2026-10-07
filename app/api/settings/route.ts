@@ -26,7 +26,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    await requireAuth([Role.ADMIN]);
+    await requireAuth([Role.ADMIN], "manage_settings");
     const body = await req.json();
     const parsed = settingsUpdateSchema.safeParse(body);
 

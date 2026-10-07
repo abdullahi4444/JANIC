@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import React from "react";
+import { KpiRow } from "@/components/admin/KpiRow";
 import { ProjectService } from "@/services/projects/project.service";
 import { ProjectManager } from "@/components/admin/ProjectManager";
 
@@ -11,15 +13,22 @@ export default async function AdminProjectsPage() {
   ]);
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-2xl font-extrabold text-foreground tracking-tight">
           Project Showcases
         </h1>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1">
+        <p className="text-xs sm:text-sm text-muted-foreground mt-1">
           Create, edit, publish, and manage student innovation projects and laboratory prototypes.
         </p>
       </div>
+
+      <KpiRow items={[
+      { title: "Total Projects", value: projects.length, sub: "all time" },
+      { title: "Published", value: projects.filter((p) => p.status === "PUBLISHED").length, sub: "live on portal" },
+      { title: "Drafts", value: projects.filter((p) => p.status === "DRAFT").length, sub: "in progress" },
+      { title: "Archived", value: projects.filter((p) => p.status === "ARCHIVED").length, sub: "retired" },
+    ]} />
 
       <ProjectManager
         initialProjects={projects as any}

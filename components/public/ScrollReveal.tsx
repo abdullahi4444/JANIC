@@ -41,16 +41,15 @@ export function ScrollReveal({
   className = "",
   as: Component = "div",
 }: ScrollRevealProps) {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return !("IntersectionObserver" in window);
+  });
   const domRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-
-    if (!("IntersectionObserver" in window)) {
-      setIsVisible(true);
-      return;
-    }
+    if (!("IntersectionObserver" in window)) return;
 
     const observer = new IntersectionObserver(
       (entries) => {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { MessageService } from "@/services/messages/message.service";
+import { isEnabled } from "@/lib/settings";
 
 const messageSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -22,6 +23,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!(await isEnabled("allow_contact_form", true))) {
+      return NextResponse.json({ success: false, error: "Contact form is currently disabled" }, { status: 403 });
+    }
     const message = await MessageService.submitMessage(parsed.data);
 
     return NextResponse.json({

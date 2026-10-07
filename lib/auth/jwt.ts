@@ -13,6 +13,7 @@ export async function signAuthToken(user: AuthUser): Promise<string> {
   return await new SignJWT({
     id: user.id,
     email: user.email,
+    username: user.username,
     name: user.name,
     role: user.role,
     avatar: user.avatar,
@@ -29,6 +30,7 @@ export async function verifyAuthToken(token: string): Promise<AuthUser | null> {
     return {
       id: payload.id as string,
       email: payload.email as string,
+      username: (payload.username as string) || undefined,
       name: payload.name as string,
       role: payload.role as AuthUser["role"],
       avatar: (payload.avatar as string) || null,

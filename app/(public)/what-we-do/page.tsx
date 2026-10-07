@@ -112,7 +112,7 @@ export default function WhatWeDoPage() {
               {/* Top Row: 1 Spotlight Wide Card + 1 Dark Navy Card */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* 01: Platform Development (Spotlight 8 Cols) */}
-                <div className="lg:col-span-8 bg-white rounded-[28px] sm:rounded-[32px] p-8 sm:p-10 border border-slate-200/90 shadow-sm flex flex-col justify-between group hover:shadow-md transition-all">
+                <div className="lg:col-span-8 bg-white rounded-2xl sm:rounded-2xl p-8 sm:p-10 border border-slate-200/90 shadow-sm flex flex-col justify-between group hover:shadow-md transition-all">
                   <div>
                     <div className="flex items-center justify-between mb-6">
                       <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#0875D1] flex items-center justify-center font-bold">
@@ -172,7 +172,7 @@ export default function WhatWeDoPage() {
                 </div>
 
                 {/* 02: Cybersecurity & Defense (Dark Navy 4 Cols) */}
-                <div className="lg:col-span-4 bg-[#08245C] text-white rounded-[28px] sm:rounded-[32px] p-8 sm:p-10 shadow-md flex flex-col justify-between group">
+                <div className="lg:col-span-4 bg-[#08245C] text-white rounded-2xl sm:rounded-2xl p-8 sm:p-10 shadow-md flex flex-col justify-between group">
                   <div>
                     <div className="flex items-center justify-between mb-6">
                       <div className="w-12 h-12 rounded-2xl bg-white/10 text-white flex items-center justify-center">
@@ -219,7 +219,7 @@ export default function WhatWeDoPage() {
               {/* Bottom Row: 4 Equal Bento Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* 03: Training & Certification */}
-                <div className="bg-white rounded-[24px] border border-slate-200/90 p-7 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group">
+                <div className="bg-white rounded-2xl border border-slate-200/90 p-7 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group">
                   <div>
                     <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0875D1] flex items-center justify-center font-bold mb-5">
                       <GraduationCap className="w-5 h-5" />
@@ -245,7 +245,7 @@ export default function WhatWeDoPage() {
                 </div>
 
                 {/* 04: Innovation & Incubation */}
-                <div className="bg-white rounded-[24px] border border-slate-200/90 p-7 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group">
+                <div className="bg-white rounded-2xl border border-slate-200/90 p-7 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group">
                   <div>
                     <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0875D1] flex items-center justify-center font-bold mb-5">
                       <Rocket className="w-5 h-5" />
@@ -271,7 +271,7 @@ export default function WhatWeDoPage() {
                 </div>
 
                 {/* 05: Applied Research */}
-                <div className="bg-white rounded-[24px] border border-slate-200/90 p-7 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group">
+                <div className="bg-white rounded-2xl border border-slate-200/90 p-7 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group">
                   <div>
                     <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0875D1] flex items-center justify-center font-bold mb-5">
                       <FlaskConical className="w-5 h-5" />
@@ -297,7 +297,7 @@ export default function WhatWeDoPage() {
                 </div>
 
                 {/* 06: Career & Ecosystem */}
-                <div className="bg-white rounded-[24px] border border-slate-200/90 p-7 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group">
+                <div className="bg-white rounded-2xl border border-slate-200/90 p-7 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group">
                   <div>
                     <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0875D1] flex items-center justify-center font-bold mb-5">
                       <Briefcase className="w-5 h-5" />

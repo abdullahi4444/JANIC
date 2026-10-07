@@ -3,7 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProjectService } from "@/services/projects/project.service";
+import { TeamRepository } from "@/repositories/team.repository";
 import { SectionHero } from "@/components/layout/SectionHero";
+import { enrichProjectTeam, parseProjectTeam } from "@/lib/project-team";
+import { ProjectTeamGrid } from "@/components/public/ProjectTeamGrid";
 import {
   ExternalLink,
   Code2,
@@ -53,6 +56,12 @@ export default async function ProjectDetailPage({
 
   const techList = project.technology.split(",").map((t) => t.trim());
 
+  const profiles = await TeamRepository.findActive();
+  const projectTeam = enrichProjectTeam(
+    parseProjectTeam(project.teamMembers),
+    profiles
+  );
+
   return (
     <div>
       <SectionHero
@@ -101,7 +110,7 @@ export default async function ProjectDetailPage({
         </div>
       </SectionHero>
 
-      <div className="py-16 bg-slate-50">
+      <div className="py-16 bg-slate-50 dark:bg-slate-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             {/* Main Content (8 cols) */}
@@ -176,6 +185,36 @@ export default async function ProjectDetailPage({
                 </div>
               )}
 
+              {/* Engineering Team */}
+              {projectTeam.length > 0 && (
+                <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-sm space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950 text-[#0875D1] dark:text-sky-400 text-xs font-bold uppercase tracking-wider">
+                        <Users className="w-3.5 h-3.5" />
+                        Engineering Team
+                      </div>
+                      <h2 className="text-2xl font-extrabold text-[#08245C] dark:text-white mt-3">
+                        Built by {projectTeam.length}{" "}
+                        {projectTeam.length === 1 ? "Engineer" : "Engineers"}
+                      </h2>
+                    </div>
+                  </div>
+
+                  <ProjectTeamGrid
+                    members={projectTeam.map((m) => ({
+                      name: m.name,
+                      role: m.role,
+                      department: m.profile?.department ?? null,
+                      bio: m.profile?.bio ?? null,
+                      avatar: m.profile?.avatar ?? null,
+                      email: m.profile?.email ?? null,
+                      linkedin: m.profile?.linkedin ?? null,
+                    }))}
+                  />
+                </div>
+              )}
+
               {/* Gallery */}
               {project.gallery && project.gallery.length > 0 && (
                 <div className="space-y-4">
@@ -225,16 +264,22 @@ export default async function ProjectDetailPage({
               </div>
 
               {/* Student Team Card */}
-              {project.teamMembers && (
-                <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+              {projectTeam.length > 0 && (
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-sm space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                     <Users className="w-4 h-4 text-emerald-600" />
                     Engineering Team
                   </div>
-                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium">
+                  <p className="text-5xl font-black text-[#08245C] dark:text-white leading-none">
+                    {projectTeam.length}
+                  </p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {projectTeam.length === 1 ? "engineer" : "engineers"} built this project
+                  </p>
+                  <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium pt-1">
                     {project.teamMembers}
                   </p>
-                  <p className="text-[11px] text-slate-400 pt-1">
+                  <p className="text-[11px] text-slate-400 dark:text-slate-500 pt-1">
                     Faculty of Computer Science & IT, Jazeera University
                   </p>
                 </div>

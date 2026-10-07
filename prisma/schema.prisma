@@ -43,6 +43,7 @@ enum MessageStatus {
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
+  username     String   @unique
   passwordHash String
   name         String
   role         Role     @default(ADMIN)
