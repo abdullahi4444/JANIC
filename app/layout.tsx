@@ -25,9 +25,9 @@ export const metadata: Metadata = {
   authors: [{ name: "Jazeera University - Faculty of Computer Science & IT" }],
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
   icons: {
-    icon: "/images/logo-icon.png",
-    shortcut: "/images/logo-icon.png",
-    apple: "/images/logo-icon.png",
+    icon: "/images/janic-logo-white.png",
+    shortcut: "/images/janic-logo-white.png",
+    apple: "/images/janic-logo-white.png",
   },
 };
 

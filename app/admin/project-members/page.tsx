@@ -17,9 +17,9 @@ export default async function AdminProjectMembersPage() {
     ProjectService.getPublishedProjects(),
   ]);
 
-  const projects = rawProjects
-    .sort((a, b) => a.order - b.order)
-    .map((p) => ({
+  const projects = (rawProjects as any[])
+    .sort((a: any, b: any) => a.order - b.order)
+    .map((p: any) => ({
       id: p.id,
       title: p.title,
       slug: p.slug,
@@ -27,8 +27,8 @@ export default async function AdminProjectMembersPage() {
       order: p.order,
     }));
 
-  const withSocials = members.filter(
-    (m) =>
+  const withSocials = (members as any[]).filter(
+    (m: any) =>
       Boolean(m.github) ||
       Boolean(m.linkedin) ||
       Boolean(m.twitter) ||
@@ -38,8 +38,8 @@ export default async function AdminProjectMembersPage() {
       Boolean(m.email)
   ).length;
 
-  const activeCount = members.filter((m) => m.isActive).length;
-  const projectCount = new Set(members.map((m) => m.projectId).filter(Boolean)).size;
+  const activeCount = (members as any[]).filter((m: any) => m.isActive).length;
+  const projectCount = new Set((members as any[]).map((m: any) => m.projectId).filter(Boolean)).size;
 
   return (
     <div className="space-y-5">

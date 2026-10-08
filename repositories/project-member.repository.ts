@@ -1,13 +1,48 @@
 import prisma from "@/lib/db/prisma";
-import { Prisma } from "@prisma/client";
+
+export interface ProjectMemberRecord {
+  id: string;
+  name: string;
+  role: string;
+  department: string;
+  bio?: string | null;
+  avatar?: string | null;
+  projectId?: string | null;
+  project?: {
+    id: string;
+    title: string;
+    slug: string;
+    category: string;
+    order: number;
+    heroImage?: string | null;
+    summary?: string | null;
+  } | null;
+  github?: string | null;
+  linkedin?: string | null;
+  twitter?: string | null;
+  instagram?: string | null;
+  facebook?: string | null;
+  website?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  tags?: string | null;
+  order: number;
+  isActive: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 export class ProjectMemberRepository {
+  private static get model() {
+    return (prisma as any).projectMember;
+  }
+
   static async findAll(options?: {
     projectId?: string;
     search?: string;
     isActive?: boolean;
-  }) {
-    const where: Prisma.ProjectMemberWhereInput = {};
+  }): Promise<ProjectMemberRecord[]> {
+    const where: Record<string, any> = {};
 
     if (options?.projectId && options.projectId !== "all") {
       where.projectId = options.projectId;
@@ -26,7 +61,7 @@ export class ProjectMemberRepository {
       ];
     }
 
-    return prisma.projectMember.findMany({
+    return this.model.findMany({
       where,
       orderBy: [{ order: "asc" }, { createdAt: "asc" }],
       include: {
@@ -45,15 +80,15 @@ export class ProjectMemberRepository {
     });
   }
 
-  static async findById(id: string) {
-    return prisma.projectMember.findUnique({
+  static async findById(id: string): Promise<ProjectMemberRecord | null> {
+    return this.model.findUnique({
       where: { id },
       include: { project: true },
     });
   }
 
-  static async create(data: Prisma.ProjectMemberCreateInput) {
-    const created = await prisma.projectMember.create({
+  static async create(data: any): Promise<ProjectMemberRecord> {
+    const created = await this.model.create({
       data,
       include: { project: true },
     });
@@ -65,8 +100,8 @@ export class ProjectMemberRepository {
     return created;
   }
 
-  static async update(id: string, data: Prisma.ProjectMemberUpdateInput) {
-    const updated = await prisma.projectMember.update({
+  static async update(id: string, data: any): Promise<ProjectMemberRecord> {
+    const updated = await this.model.update({
       where: { id },
       data,
       include: { project: true },
@@ -79,9 +114,9 @@ export class ProjectMemberRepository {
     return updated;
   }
 
-  static async delete(id: string) {
-    const existing = await prisma.projectMember.findUnique({ where: { id } });
-    const deleted = await prisma.projectMember.delete({ where: { id } });
+  static async delete(id: string): Promise<ProjectMemberRecord> {
+    const existing = await this.model.findUnique({ where: { id } });
+    const deleted = await this.model.delete({ where: { id } });
 
     if (existing?.projectId) {
       await this.syncProjectTeamMembersString(existing.projectId);
@@ -91,14 +126,14 @@ export class ProjectMemberRepository {
   }
 
   // Keep Project.teamMembers string in sync with ProjectMember table
-  static async syncProjectTeamMembersString(projectId: string) {
+  static async syncProjectTeamMembersString(projectId: string): Promise<void> {
     try {
-      const members = await prisma.projectMember.findMany({
+      const members: ProjectMemberRecord[] = await this.model.findMany({
         where: { projectId, isActive: true },
         orderBy: { order: "asc" },
       });
 
-      const memberNames = members.map((m) => m.name).join(", ");
+      const memberNames = members.map((m: { name: string }) => m.name).join(", ");
       await prisma.project.update({
         where: { id: projectId },
         data: { teamMembers: memberNames },

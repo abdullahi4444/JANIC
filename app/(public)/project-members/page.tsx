@@ -21,9 +21,9 @@ export default async function ProjectMembersPage() {
   ]);
 
   // Sort projects in canonical order 1 to 15
-  const projects = rawProjects
-    .sort((a, b) => a.order - b.order)
-    .map((p) => ({
+  const projects = (rawProjects as any[])
+    .sort((a: any, b: any) => a.order - b.order)
+    .map((p: any) => ({
       id: p.id,
       title: p.title,
       slug: p.slug,
@@ -36,7 +36,7 @@ export default async function ProjectMembersPage() {
     }));
 
   // Map member records for directory presentation (only Facebook, GitHub, Gmail, LinkedIn)
-  const memberRecords = members.map((m) => ({
+  const memberRecords = members.map((m: any) => ({
     id: m.id,
     name: m.name,
     role: m.role,

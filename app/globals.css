@@ -116,12 +116,14 @@ body {
 .text-gradient-blue {
   background: linear-gradient(135deg, #0875D1 0%, #00B4D8 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .text-gradient-navy {
   background: linear-gradient(135deg, #08245C 0%, #0875D1 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
