@@ -42,9 +42,9 @@ export default async function HomePage() {
   const heroBadgeLabel = await getSetting("hero_badge_label", "STUDENT INNOVATION PROJECTS");
 
   return (
-    <div className="flex flex-col min-h-screen overflow-x-clip">
+    <div className="flex flex-col min-h-screen bg-white dark:bg-slate-950 overflow-x-clip">
       {/* 1. HERO SECTION (MATCHING DESIGN MOCKUP) - FADE DOWN ENTRANCE */}
-      <section className="bg-white pt-6 pb-10 sm:pt-8 sm:pb-12 overflow-hidden">
+      <section className="bg-white dark:bg-slate-950 pt-6 pb-10 sm:pt-8 sm:pb-12 overflow-hidden">
         <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal animation="fade-down" duration={850} rootMargin="0px">
             {/* Main Hero Card with Futuristic Lab Backdrop */}
@@ -93,22 +93,22 @@ export default async function HomePage() {
 
                 {/* Right Column: Floating White Innovation Hub Card */}
                 <div className="lg:col-span-5 flex justify-start lg:justify-end">
-                  <div className="w-full max-w-md bg-white rounded-3xl p-7 sm:p-8 shadow-2xl border border-slate-100/90">
+                  <div className="w-full max-w-md bg-white dark:bg-slate-900/95 rounded-3xl p-7 sm:p-8 shadow-2xl border border-slate-100/90 dark:border-slate-800">
                     <div className="flex items-center gap-2 mb-3">
                       <span className="w-6 h-1 bg-[#0875D1] rounded-full inline-block" />
-                      <span className="text-xs font-black tracking-wider uppercase text-[#0875D1]">
+                      <span className="text-xs font-black tracking-wider uppercase text-[#0875D1] dark:text-sky-400">
                         Innovation Hub
                       </span>
                     </div>
-                    <h2 className="text-xl sm:text-2xl font-black text-[#08245C] tracking-tight leading-snug">
+                    <h2 className="text-xl sm:text-2xl font-black text-[#08245C] dark:text-white tracking-tight leading-snug">
                       Ideas <span className="text-[#0875D1] mx-1">→</span> Prototypes <span className="text-[#0875D1] mx-1">→</span> Solutions
                     </h2>
-                    <p className="text-slate-600 text-xs sm:text-sm mt-3 leading-relaxed">
+                    <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm mt-3 leading-relaxed">
                       Bridging the gap between academic theory and real-world industrial impact through cutting-edge technology development.
                     </p>
                     <Link
                       href="/innovation-hub"
-                      className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#08245C] hover:text-[#0875D1] transition-colors mt-5 group"
+                      className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#08245C] dark:text-slate-200 hover:text-[#0875D1] dark:hover:text-sky-400 transition-colors mt-5 group"
                     >
                       <span>Explore the Hub</span>
                       <ArrowRight className="w-4 h-4 text-[#0875D1] transition-transform group-hover:translate-x-1" />
@@ -122,26 +122,26 @@ export default async function HomePage() {
           {/* 2. IMPACT STATS BAR (MATCHING MOCKUP STRIP) - ZOOM IN ENTRANCE */}
           <ScrollReveal animation="zoom-in" duration={750} delay={150}>
             <div className="mt-10 sm:mt-14 pb-2">
-              <div className="flex flex-wrap items-center justify-between gap-y-6 max-w-6xl mx-auto px-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-200">
+              <div className="flex flex-wrap items-center justify-between gap-y-6 max-w-6xl mx-auto px-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-200 dark:divide-slate-800">
                 <div className="flex-1 min-w-[140px] flex items-baseline justify-center gap-2.5 px-3 py-1">
-                  <span className="text-2xl sm:text-3xl font-black text-[#08245C]">2021</span>
-                  <span className="text-xs sm:text-sm font-bold text-slate-400 tracking-wider uppercase">FOUNDED</span>
+                  <span className="text-2xl sm:text-3xl font-black text-[#08245C] dark:text-white">2021</span>
+                  <span className="text-xs sm:text-sm font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase">FOUNDED</span>
                 </div>
                 <div className="flex-1 min-w-[140px] flex items-baseline justify-center gap-2.5 px-3 py-1">
-                  <span className="text-2xl sm:text-3xl font-black text-[#08245C]">18+</span>
-                  <span className="text-xs sm:text-sm font-bold text-slate-400 tracking-wider uppercase">PROJECTS</span>
+                  <span className="text-2xl sm:text-3xl font-black text-[#08245C] dark:text-white">18+</span>
+                  <span className="text-xs sm:text-sm font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase">PROJECTS</span>
                 </div>
                 <div className="flex-1 min-w-[140px] flex items-baseline justify-center gap-2.5 px-3 py-1">
-                  <span className="text-2xl sm:text-3xl font-black text-[#08245C]">6</span>
-                  <span className="text-xs sm:text-sm font-bold text-slate-400 tracking-wider uppercase">FUNCTIONS</span>
+                  <span className="text-2xl sm:text-3xl font-black text-[#08245C] dark:text-white">6</span>
+                  <span className="text-xs sm:text-sm font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase">FUNCTIONS</span>
                 </div>
                 <div className="flex-1 min-w-[140px] flex items-baseline justify-center gap-2.5 px-3 py-1">
-                  <span className="text-2xl sm:text-3xl font-black text-[#08245C]">1</span>
-                  <span className="text-xs sm:text-sm font-bold text-slate-400 tracking-wider uppercase">HUB</span>
+                  <span className="text-2xl sm:text-3xl font-black text-[#08245C] dark:text-white">1</span>
+                  <span className="text-xs sm:text-sm font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase">HUB</span>
                 </div>
                 <div className="flex-1 min-w-[140px] flex items-baseline justify-center gap-2.5 px-3 py-1">
-                  <span className="text-2xl sm:text-3xl font-black text-[#08245C]">∞</span>
-                  <span className="text-xs sm:text-sm font-bold text-slate-400 tracking-wider uppercase">IDEAS</span>
+                  <span className="text-2xl sm:text-3xl font-black text-[#08245C] dark:text-white">∞</span>
+                  <span className="text-xs sm:text-sm font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase">IDEAS</span>
                 </div>
               </div>
             </div>
@@ -237,22 +237,22 @@ export default async function HomePage() {
       </section>
 
       {/* 4. OUR FUNCTIONS — COMPREHENSIVE TECH SOLUTIONS (MATCHING DESIGN MOCKUP) - BLUR IN ENTRANCE */}
-      <section className="py-12 sm:py-16 bg-white overflow-hidden">
+      <section className="py-12 sm:py-16 bg-white dark:bg-slate-950 overflow-hidden">
         <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal animation="blur-in" duration={850}>
             {/* Light ice-blue outer canvas card with rounded-[2.5rem] */}
-            <div className="bg-[#F0F6FE] rounded-[2.5rem] sm:rounded-[3rem] p-8 sm:p-12 lg:p-16">
+            <div className="bg-[#F0F6FE] dark:bg-slate-900/80 rounded-[2.5rem] sm:rounded-[3rem] p-8 sm:p-12 lg:p-16 border border-transparent dark:border-slate-800">
               {/* Header: Title on Left, Subtext on Right */}
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 sm:mb-12">
                 <div>
-                  <span className="text-xs font-bold text-[#0875D1] uppercase tracking-wider block mb-2">
+                  <span className="text-xs font-bold text-[#0875D1] dark:text-sky-400 uppercase tracking-wider block mb-2">
                     OUR FUNCTIONS
                   </span>
-                  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#08245C] tracking-tight">
+                  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#08245C] dark:text-white tracking-tight">
                     Comprehensive Tech Solutions
                   </h2>
                 </div>
-                <p className="text-slate-500 text-xs sm:text-sm max-w-sm leading-relaxed">
+                <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm max-w-sm leading-relaxed">
                   We provide a full spectrum of services from fundamental development to advanced AI implementations.
                 </p>
               </div>
@@ -262,33 +262,33 @@ export default async function HomePage() {
                 {/* Top Row: 1 Wide White Card + 1 Dark Navy Card */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                   {/* 01 Technology & Platform Development */}
-                  <div className="lg:col-span-8 bg-white rounded-3xl p-8 sm:p-10 shadow-sm border border-slate-100/80 flex flex-col justify-between relative overflow-hidden group">
+                  <div className="lg:col-span-8 bg-white dark:bg-slate-900 rounded-3xl p-8 sm:p-10 shadow-sm border border-slate-100/80 dark:border-slate-800 flex flex-col justify-between relative overflow-hidden group">
                     <div className="flex items-start justify-between mb-8">
                       <div className="w-12 h-12 rounded-2xl bg-[#0875D1] text-white flex items-center justify-center font-bold text-lg shadow-sm">
                         <Code2 className="w-6 h-6" />
                       </div>
-                      <span className="text-3xl sm:text-4xl font-black text-slate-100/90 select-none">
+                      <span className="text-3xl sm:text-4xl font-black text-slate-100/90 dark:text-slate-800 select-none">
                         01
                       </span>
                     </div>
 
                     <div className="space-y-3 mb-8">
-                      <h3 className="text-xl sm:text-2xl font-bold text-[#08245C] tracking-tight">
+                      <h3 className="text-xl sm:text-2xl font-bold text-[#08245C] dark:text-white tracking-tight">
                         Technology & Platform Development
                       </h3>
-                      <p className="text-slate-500 text-xs sm:text-sm leading-relaxed max-w-xl">
+                      <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm leading-relaxed max-w-xl">
                         Building scalable web applications, mobile platforms, and enterprise software solutions tailored for local and international markets.
                       </p>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2.5">
-                      <span className="px-3.5 py-1.5 rounded-full bg-blue-50 text-[#0875D1] text-xs font-bold">
+                      <span className="px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-[#0875D1] dark:text-sky-300 text-xs font-bold border border-transparent dark:border-blue-900/50">
                         Full Stack
                       </span>
-                      <span className="px-3.5 py-1.5 rounded-full bg-blue-50 text-[#0875D1] text-xs font-bold">
+                      <span className="px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-[#0875D1] dark:text-sky-300 text-xs font-bold border border-transparent dark:border-blue-900/50">
                         Mobile App
                       </span>
-                      <span className="px-3.5 py-1.5 rounded-full bg-blue-50 text-[#0875D1] text-xs font-bold">
+                      <span className="px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-[#0875D1] dark:text-sky-300 text-xs font-bold border border-transparent dark:border-blue-900/50">
                         Cloud Native
                       </span>
                     </div>
@@ -323,45 +323,45 @@ export default async function HomePage() {
                 {/* Bottom Row: 3 Equal White Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Cloud Infrastructure */}
-                  <div className="bg-white rounded-3xl p-7 sm:p-8 shadow-sm border border-slate-100/80 flex flex-col justify-between group">
+                  <div className="bg-white dark:bg-slate-900 rounded-3xl p-7 sm:p-8 shadow-sm border border-slate-100/80 dark:border-slate-800 flex flex-col justify-between group">
                     <div>
-                      <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0875D1] flex items-center justify-center mb-5">
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#0875D1] dark:text-sky-400 flex items-center justify-center mb-5">
                         <Cloud className="w-5 h-5" />
                       </div>
-                      <h3 className="text-base sm:text-lg font-bold text-[#08245C] mb-2 tracking-tight">
+                      <h3 className="text-base sm:text-lg font-bold text-[#08245C] dark:text-white mb-2 tracking-tight">
                         Cloud Infrastructure
                       </h3>
-                      <p className="text-slate-500 text-xs leading-relaxed">
+                      <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
                         Optimizing deployments for scalability and performance across multi-cloud environments.
                       </p>
                     </div>
                   </div>
 
                   {/* AI & Machine Learning */}
-                  <div className="bg-white rounded-3xl p-7 sm:p-8 shadow-sm border border-slate-100/80 flex flex-col justify-between group">
+                  <div className="bg-white dark:bg-slate-900 rounded-3xl p-7 sm:p-8 shadow-sm border border-slate-100/80 dark:border-slate-800 flex flex-col justify-between group">
                     <div>
-                      <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0875D1] flex items-center justify-center mb-5">
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#0875D1] dark:text-sky-400 flex items-center justify-center mb-5">
                         <Binary className="w-5 h-5" />
                       </div>
-                      <h3 className="text-base sm:text-lg font-bold text-[#08245C] mb-2 tracking-tight">
+                      <h3 className="text-base sm:text-lg font-bold text-[#08245C] dark:text-white mb-2 tracking-tight">
                         AI & Machine Learning
                       </h3>
-                      <p className="text-slate-500 text-xs leading-relaxed">
+                      <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
                         Implementing intelligent automation and predictive analytics to drive business insights.
                       </p>
                     </div>
                   </div>
 
                   {/* Embedded Systems */}
-                  <div className="bg-white rounded-3xl p-7 sm:p-8 shadow-sm border border-slate-100/80 flex flex-col justify-between group">
+                  <div className="bg-white dark:bg-slate-900 rounded-3xl p-7 sm:p-8 shadow-sm border border-slate-100/80 dark:border-slate-800 flex flex-col justify-between group">
                     <div>
-                      <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0875D1] flex items-center justify-center mb-5">
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#0875D1] dark:text-sky-400 flex items-center justify-center mb-5">
                         <Cpu className="w-5 h-5" />
                       </div>
-                      <h3 className="text-base sm:text-lg font-bold text-[#08245C] mb-2 tracking-tight">
+                      <h3 className="text-base sm:text-lg font-bold text-[#08245C] dark:text-white mb-2 tracking-tight">
                         Embedded Systems
                       </h3>
-                      <p className="text-slate-500 text-xs leading-relaxed">
+                      <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
                         Developing hardware-software integrations for smart city and IoT applications.
                       </p>
                     </div>
@@ -399,14 +399,14 @@ export default async function HomePage() {
       </section>
 
       {/* 6. PROJECT SHOWCASES: ASYMMETRIC BENTO LAYOUT — TILT UP ENTRANCE */}
-      <section className="py-16 sm:py-24 lg:py-28 bg-gradient-to-b from-white via-[#F5F9FF] to-white border-b border-slate-200/80 overflow-hidden relative isolate">
+      <section className="py-16 sm:py-24 lg:py-28 bg-gradient-to-b from-white via-[#F5F9FF] to-white dark:from-slate-950 dark:via-[#030d22] dark:to-slate-950 border-b border-slate-200/80 dark:border-slate-800/80 overflow-hidden relative isolate">
         {/* Decorative soft blobs */}
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#0875D1]/[0.05] rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-40 right-0 w-[300px] h-[300px] bg-[#08245C]/[0.05] rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-[60%] left-10 w-[260px] h-[260px] bg-emerald-400/[0.03] rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#0875D1]/[0.05] dark:bg-[#0875D1]/[0.15] rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-40 right-0 w-[300px] h-[300px] bg-[#08245C]/[0.05] dark:bg-sky-500/[0.08] rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-[60%] left-10 w-[260px] h-[260px] bg-emerald-400/[0.03] dark:bg-emerald-400/[0.06] rounded-full blur-3xl pointer-events-none" />
         {/* Fine grid pattern overlay */}
         <div
-          className="absolute inset-0 pointer-events-none opacity-[0.35]"
+          className="absolute inset-0 pointer-events-none opacity-[0.35] dark:opacity-[0.12]"
           style={{
             backgroundImage:
               "linear-gradient(to right, rgba(8, 117, 209, 0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(8, 36, 92, 0.03) 1px, transparent 1px)",
@@ -423,17 +423,17 @@ export default async function HomePage() {
             {/* Section Header matching Screenshot 3 */}
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 sm:mb-10">
               <div>
-                <p className="text-xs sm:text-[13px] font-extrabold uppercase tracking-[0.18em] text-[#0875D1] mb-2">
+                <p className="text-xs sm:text-[13px] font-extrabold uppercase tracking-[0.18em] text-[#0875D1] dark:text-sky-400 mb-2">
                   PROJECTS PORTFOLIO
                 </p>
-                <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-black text-[#08245C] tracking-tight leading-[1.1]">
+                <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-black text-[#08245C] dark:text-white tracking-tight leading-[1.1]">
                   Innovation in Action
                 </h2>
               </div>
 
               <Link
                 href="/projects"
-                className="group shrink-0 inline-flex items-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-full border-2 border-[#08245C]/10 hover:border-[#08245C] text-[#08245C] hover:bg-[#08245C] hover:text-white text-xs sm:text-sm font-bold transition-all duration-300 shadow-[0_1px_2px_rgba(8,36,92,0.04),0_12px_32px_-16px_rgba(8,36,92,0.2)] hover:shadow-[0_2px_4px_rgba(8,36,92,0.06),0_20px_40px_-12px_rgba(8,36,92,0.35)] hover:-translate-y-0.5"
+                className="group shrink-0 inline-flex items-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-full border-2 border-[#08245C]/10 dark:border-slate-700 hover:border-[#08245C] dark:hover:border-sky-400 text-[#08245C] dark:text-slate-100 hover:bg-[#08245C] dark:hover:bg-[#0875D1] hover:text-white text-xs sm:text-sm font-bold transition-all duration-300 shadow-[0_1px_2px_rgba(8,36,92,0.04),0_12px_32px_-16px_rgba(8,36,92,0.2)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:-translate-y-0.5"
               >
                 View Full Portfolio
                 <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -602,7 +602,7 @@ export default async function HomePage() {
 
                         {/* Top Category Badge */}
                         <div className="absolute top-5 left-5 sm:top-6 sm:left-6 z-10">
-                          <span className="inline-block px-3 py-1 rounded-full bg-white/95 backdrop-blur-md text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-[#08245C] shadow-sm">
+                          <span className="inline-block px-3 py-1 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-[#08245C] dark:text-sky-300 shadow-sm border border-transparent dark:border-slate-700/60">
                             {card.category}
                           </span>
                         </div>
@@ -623,10 +623,10 @@ export default async function HomePage() {
 
                 {/* 2. BOTTOM FEATURED SPOTLIGHT CARD (MATCHING SCREENSHOT 3) */}
                 <ScrollReveal animation="zoom-out" duration={900} delay={100}>
-                  <div className="bg-white rounded-3xl p-6 sm:p-8 lg:p-10 shadow-[0_4px_30px_rgba(0,0,0,0.04)] border border-slate-100 ring-1 ring-slate-900/[0.04]">
+                  <div className="bg-white dark:bg-slate-900/90 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-[0_4px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.4)] border border-slate-100 dark:border-slate-800 ring-1 ring-slate-900/[0.04] dark:ring-white/[0.05]">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
                       {/* Left: Project Media (Video Priority or Hero Image) */}
-                      <div className="lg:col-span-6 relative aspect-[4/3] rounded-2xl overflow-hidden shadow-sm bg-slate-950">
+                      <div className="lg:col-span-6 relative aspect-[4/3] rounded-2xl overflow-hidden shadow-sm bg-slate-950 border border-transparent dark:border-slate-800">
                         <ProjectMediaCover
                           videoUrl={spotlight.videoUrl}
                           imageUrl={spotlight.heroImage}
@@ -638,15 +638,15 @@ export default async function HomePage() {
                       {/* Right: Content & Stats */}
                       <div className="lg:col-span-6 flex flex-col justify-center space-y-5 sm:space-y-6">
                         <div>
-                          <span className="inline-block text-xs font-black text-[#0875D1] uppercase tracking-[0.18em] mb-2.5">
+                          <span className="inline-block text-xs font-black text-[#0875D1] dark:text-sky-400 uppercase tracking-[0.18em] mb-2.5">
                             FEATURED PROJECT
                           </span>
-                          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#08245C] tracking-tight leading-tight">
+                          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#08245C] dark:text-white tracking-tight leading-tight">
                             {spotlight.title}
                           </h3>
                         </div>
 
-                        <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+                        <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
                           {spotlight.summary}
                         </p>
 
@@ -654,10 +654,10 @@ export default async function HomePage() {
                         <div className="flex items-center gap-10 sm:gap-14 pt-1">
                           {spotlight.stats.map((stat, idx) => (
                             <div key={idx}>
-                              <div className="text-3xl sm:text-4xl font-black text-[#08245C] tracking-tight leading-none mb-1">
+                              <div className="text-3xl sm:text-4xl font-black text-[#08245C] dark:text-white tracking-tight leading-none mb-1">
                                 {stat.value}
                               </div>
-                              <div className="text-xs sm:text-sm text-slate-500 font-medium">
+                              <div className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
                                 {stat.label}
                               </div>
                             </div>
@@ -668,7 +668,7 @@ export default async function HomePage() {
                         <div className="pt-2">
                           <Link
                             href={`/projects/${spotlight.slug}`}
-                            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#0875D1] hover:bg-[#0663B3] text-white font-bold text-sm shadow-md shadow-[#0875D1]/25 hover:shadow-lg hover:shadow-[#0875D1]/35 transition-all hover:gap-3"
+                            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#0875D1] hover:bg-[#0663B3] text-white font-bold text-sm shadow-md shadow-[#0875D1]/25 dark:shadow-sky-500/20 hover:shadow-lg hover:shadow-[#0875D1]/35 transition-all hover:gap-3"
                           >
                             View Case Study
                             <ArrowRight className="w-4 h-4" />
@@ -685,11 +685,11 @@ export default async function HomePage() {
       </section>
 
       {/* 8. SCIENTIFIC INQUIRY ("Research & Insights") - FADE RIGHT ENTRANCE */}
-      <section className="py-12 sm:py-16 bg-white border-b border-slate-200/80 overflow-hidden">
+      <section className="py-12 sm:py-16 bg-white dark:bg-slate-950 border-b border-slate-200/80 dark:border-slate-800/80 overflow-hidden">
         <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal animation="fade-right" duration={850}>
             {/* Dark Navy Rounded Box */}
-            <div className="bg-[#0A224E] text-white rounded-2xl sm:rounded-2xl p-8 sm:p-12 lg:p-14 shadow-xl relative overflow-hidden">
+            <div className="bg-[#0A224E] dark:bg-[#061739] text-white rounded-2xl sm:rounded-2xl p-8 sm:p-12 lg:p-14 shadow-xl border border-blue-900/40 dark:border-slate-800 relative overflow-hidden">
               {/* Header: Scientific Inquiry / Research & Insights / View Publications */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
                 <div>
@@ -703,7 +703,7 @@ export default async function HomePage() {
 
                 <Link
                   href="/research"
-                  className="px-6 py-2.5 rounded-full bg-white text-[#0A224E] hover:bg-slate-100 text-xs sm:text-sm font-bold shadow-sm transition self-start sm:self-auto shrink-0"
+                  className="px-6 py-2.5 rounded-full bg-white dark:bg-slate-800 text-[#0A224E] dark:text-white hover:bg-slate-100 dark:hover:bg-slate-700 text-xs sm:text-sm font-bold shadow-sm transition self-start sm:self-auto shrink-0"
                 >
                   View Publications
                 </Link>

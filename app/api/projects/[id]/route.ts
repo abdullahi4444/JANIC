@@ -6,6 +6,19 @@ import { requireAuth } from "@/lib/permissions/roles";
 import { Role, ContentStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
+const memberItemSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1, "Member name is required"),
+  role: z.string().optional().default("Team Member"),
+  department: z.string().optional().default("Faculty of Computer Science & IT"),
+  bio: z.string().optional().nullable(),
+  avatar: z.string().optional().nullable(),
+  github: z.string().optional().nullable(),
+  linkedin: z.string().optional().nullable(),
+  facebook: z.string().optional().nullable(),
+  email: z.string().optional().nullable(),
+});
+
 const projectUpdateSchema = z.object({
   title: z.string().min(2).optional(),
   category: z.string().min(2).optional(),
@@ -24,6 +37,7 @@ const projectUpdateSchema = z.object({
   teamMembers: z.string().optional().nullable(),
   order: z.number().optional(),
   galleryImages: z.array(z.string()).optional(),
+  members: z.array(memberItemSchema).optional(),
 });
 
 export async function PUT(

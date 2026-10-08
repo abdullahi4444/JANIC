@@ -40,7 +40,6 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     label: "Content",
     items: [
       { title: "Projects", href: "/admin/projects", icon: FolderGit2 },
-      { title: "Project Members", href: "/admin/project-members", icon: Users },
       { title: "Training", href: "/admin/training", icon: GraduationCap },
       { title: "Research", href: "/admin/research", icon: FlaskConical },
       { title: "Events", href: "/admin/events", icon: Calendar },

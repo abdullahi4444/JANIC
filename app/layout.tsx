@@ -25,9 +25,11 @@ export const metadata: Metadata = {
   authors: [{ name: "Jazeera University - Faculty of Computer Science & IT" }],
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
   icons: {
-    icon: "/images/janic-logo-white.png",
-    shortcut: "/images/janic-logo-white.png",
-    apple: "/images/janic-logo-white.png",
+    icon: [
+      { url: "/images/janic-logo-white-badge.png", type: "image/png" },
+    ],
+    shortcut: "/images/janic-logo-white-badge.png",
+    apple: "/images/janic-logo-white-badge.png",
   },
 };
 
@@ -38,6 +40,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning className="h-full antialiased scroll-smooth">
+      <head>
+        <link rel="icon" href="/images/janic-logo-white-badge.png" type="image/png" sizes="any" />
+        <link rel="shortcut icon" href="/images/janic-logo-white-badge.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/images/janic-logo-white-badge.png" />
+      </head>
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans selection:bg-blue-600 selection:text-white">
         <ThemeProvider>{children}</ThemeProvider>
         <Toaster position="top-center" richColors />

@@ -32,7 +32,10 @@ export class ProjectRepository {
       where,
       orderBy: [{ isFeatured: "desc" }, { order: "asc" }, { createdAt: "desc" }],
       take: options?.limit,
-      include: { gallery: { orderBy: { order: "asc" } } },
+      include: {
+        gallery: { orderBy: { order: "asc" } },
+        members: { orderBy: { order: "asc" } },
+      } as any,
     });
   }
 
@@ -55,7 +58,10 @@ export class ProjectRepository {
           { title: decoded },
         ],
       },
-      include: { gallery: { orderBy: { order: "asc" } } },
+      include: {
+        gallery: { orderBy: { order: "asc" } },
+        members: { orderBy: { order: "asc" } },
+      } as any,
     });
   }
 
@@ -89,7 +95,10 @@ export class ProjectRepository {
         orderBy: { updatedAt: "desc" },
         skip: options?.skip,
         take: options?.take,
-        include: { gallery: true },
+        include: {
+          gallery: true,
+          members: { orderBy: { order: "asc" } },
+        } as any,
       }),
       prisma.project.count({ where }),
     ]);
@@ -100,7 +109,10 @@ export class ProjectRepository {
   static async findById(id: string) {
     return prisma.project.findUnique({
       where: { id },
-      include: { gallery: { orderBy: { order: "asc" } } },
+      include: {
+        gallery: { orderBy: { order: "asc" } },
+        members: { orderBy: { order: "asc" } },
+      } as any,
     });
   }
 

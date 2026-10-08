@@ -20,15 +20,71 @@ import {
 } from 'lucide-react';
 import { Input } from './input';
 
+interface RegisterErrors {
+	name?: string;
+	username?: string;
+	email?: string;
+	password?: string;
+}
+
 export function AuthPage() {
 	const router = useRouter();
 	const [formData, setFormData] = useState({ name: '', username: '', email: '', password: '' });
+	const [errors, setErrors] = useState<RegisterErrors>({});
 	const [loading, setLoading] = useState(false);
 	const [success, setSuccess] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
+	const validate = (): boolean => {
+		const newErrors: RegisterErrors = {};
+
+		const trimmedName = formData.name.trim();
+		if (!trimmedName) {
+			newErrors.name = 'Full name is required';
+		} else if (trimmedName.length < 2) {
+			newErrors.name = 'Name must be at least 2 characters';
+		}
+
+		const trimmedUsername = formData.username.trim();
+		if (!trimmedUsername) {
+			newErrors.username = 'Username is required';
+		} else if (trimmedUsername.length < 3) {
+			newErrors.username = 'Username must be at least 3 characters';
+		}
+
+		const trimmedEmail = formData.email.trim();
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!trimmedEmail) {
+			newErrors.email = 'Email address is required';
+		} else if (!emailRegex.test(trimmedEmail)) {
+			newErrors.email = 'Please enter a valid email address';
+		}
+
+		if (!formData.password) {
+			newErrors.password = 'Password is required';
+		} else if (formData.password.length < 6) {
+			newErrors.password = 'Password must be at least 6 characters';
+		}
+
+		setErrors(newErrors);
+		return Object.keys(newErrors).length === 0;
+	};
+
+	const handleInputChange = (field: keyof typeof formData, value: string) => {
+		setFormData((prev) => ({ ...prev, [field]: value }));
+		if (errors[field]) {
+			setErrors((prev) => ({ ...prev, [field]: undefined }));
+		}
+	};
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+
+		if (!validate()) {
+			setError('Please fill in all registration fields correctly.');
+			return;
+		}
+
 		setLoading(true);
 		setError(null);
 
@@ -36,7 +92,12 @@ export function AuthPage() {
 			const res = await fetch('/api/auth/register', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(formData),
+				body: JSON.stringify({
+					name: formData.name.trim(),
+					username: formData.username.trim(),
+					email: formData.email.trim(),
+					password: formData.password,
+				}),
 			});
 
 			const data = await res.json();
@@ -152,7 +213,7 @@ export function AuthPage() {
 								<p className="text-sm text-emerald-700">Your account has been created. Redirecting to sign in...</p>
 							</div>
 						) : (
-							<form className="space-y-2" onSubmit={handleSubmit}>
+							<form className="space-y-3" onSubmit={handleSubmit} noValidate>
 								{error && (
 									<div role="alert" className="flex items-start gap-2 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-600">
 										<AlertCircle className="size-4 mt-0.5 shrink-0" />
@@ -162,65 +223,95 @@ export function AuthPage() {
 								<p className="text-muted-foreground text-start text-xs">
 									Enter your details to create your account
 								</p>
-								<div className="relative h-max">
-									<Input
-										placeholder="Your full name"
-										aria-label="Full name"
-										className="peer ps-9"
-										type="text"
-										required
-										value={formData.name}
-										onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-									/>
-									<div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
-										<User className="size-4" aria-hidden="true" />
+								<div>
+									<div className="relative h-max">
+										<Input
+											placeholder="Your full name"
+											aria-label="Full name"
+											className={`peer ps-9 ${errors.name ? 'border-red-500 focus-visible:ring-red-400' : ''}`}
+											type="text"
+											value={formData.name}
+											onChange={(e) => handleInputChange('name', e.target.value)}
+										/>
+										<div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
+											<User className="size-4" aria-hidden="true" />
+										</div>
 									</div>
-								</div>
-								<div className="relative h-max">
-									<Input
-										placeholder="Choose a username"
-										aria-label="Username"
-										className="peer ps-9"
-										type="text"
-										required
-										value={formData.username}
-										onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-									/>
-									<div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
-										<UserPlus className="size-4" aria-hidden="true" />
-									</div>
-								</div>
-								<div className="relative h-max">
-									<Input
-										placeholder="your.email@example.com"
-										aria-label="Email address"
-										className="peer ps-9"
-										type="email"
-										required
-										value={formData.email}
-										onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-									/>
-									<div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
-										<AtSignIcon className="size-4" aria-hidden="true" />
-									</div>
-								</div>
-								<div className="relative h-max">
-									<Input
-										placeholder="At least 6 characters"
-										aria-label="Password"
-										className="peer ps-9"
-										type="password"
-										required
-										minLength={6}
-										value={formData.password}
-										onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-									/>
-									<div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
-										<Lock className="size-4" aria-hidden="true" />
-									</div>
+									{errors.name && (
+										<p className="mt-1 text-xs text-red-500 font-medium flex items-center gap-1 animate-in fade-in duration-200">
+											<AlertCircle className="size-3.5 shrink-0" />
+											<span>{errors.name}</span>
+										</p>
+									)}
 								</div>
 
-								<Button type="submit" className="w-full transition-colors duration-150" disabled={loading}>
+								<div>
+									<div className="relative h-max">
+										<Input
+											placeholder="Choose a username"
+											aria-label="Username"
+											className={`peer ps-9 ${errors.username ? 'border-red-500 focus-visible:ring-red-400' : ''}`}
+											type="text"
+											value={formData.username}
+											onChange={(e) => handleInputChange('username', e.target.value)}
+										/>
+										<div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
+											<UserPlus className="size-4" aria-hidden="true" />
+										</div>
+									</div>
+									{errors.username && (
+										<p className="mt-1 text-xs text-red-500 font-medium flex items-center gap-1 animate-in fade-in duration-200">
+											<AlertCircle className="size-3.5 shrink-0" />
+											<span>{errors.username}</span>
+										</p>
+									)}
+								</div>
+
+								<div>
+									<div className="relative h-max">
+										<Input
+											placeholder="your.email@example.com"
+											aria-label="Email address"
+											className={`peer ps-9 ${errors.email ? 'border-red-500 focus-visible:ring-red-400' : ''}`}
+											type="email"
+											value={formData.email}
+											onChange={(e) => handleInputChange('email', e.target.value)}
+										/>
+										<div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
+											<AtSignIcon className="size-4" aria-hidden="true" />
+										</div>
+									</div>
+									{errors.email && (
+										<p className="mt-1 text-xs text-red-500 font-medium flex items-center gap-1 animate-in fade-in duration-200">
+											<AlertCircle className="size-3.5 shrink-0" />
+											<span>{errors.email}</span>
+										</p>
+									)}
+								</div>
+
+								<div>
+									<div className="relative h-max">
+										<Input
+											placeholder="At least 6 characters"
+											aria-label="Password"
+											className={`peer ps-9 ${errors.password ? 'border-red-500 focus-visible:ring-red-400' : ''}`}
+											type="password"
+											value={formData.password}
+											onChange={(e) => handleInputChange('password', e.target.value)}
+										/>
+										<div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
+											<Lock className="size-4" aria-hidden="true" />
+										</div>
+									</div>
+									{errors.password && (
+										<p className="mt-1 text-xs text-red-500 font-medium flex items-center gap-1 animate-in fade-in duration-200">
+											<AlertCircle className="size-3.5 shrink-0" />
+											<span>{errors.password}</span>
+										</p>
+									)}
+								</div>
+
+								<Button type="submit" className="w-full transition-colors duration-150 cursor-pointer" disabled={loading}>
 									{loading ? (
 										<>
 											<Loader2 className="size-4 me-2 animate-spin" />
