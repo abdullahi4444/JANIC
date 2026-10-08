@@ -526,3 +526,16 @@ body {
 :where(.dark) .ring-blue-500\/20 {
   --tw-ring-color: rgb(56 189 248 / 0.2);
 }
+
+/* Hide Next.js dev indicator badge in bottom-left */
+nextjs-portal,
+[data-nextjs-dev-indicator],
+[data-nextjs-toast],
+#nextjs-dev-indicator,
+[data-next-badge],
+button[aria-label*="Next.js"] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}

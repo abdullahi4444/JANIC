@@ -22,6 +22,7 @@ import {
 import { SystemToggles } from "./SystemToggles";
 import { PermissionsMatrix } from "./PermissionsMatrix";
 import { UserManager } from "./UserManager";
+import { ImageUploadChoice } from "./ImageUploadChoice";
 
 interface SettingItem {
   id: string;
@@ -264,7 +265,13 @@ export function SettingsManager({ initialSettings }: SettingsManagerProps) {
                 <label className="text-xs font-semibold text-foreground">Hero Subtitle</label>
                 <textarea rows={2} value={form.hero_subtitle} onChange={(e) => handleChange("hero_subtitle", e.target.value)} className={`${inputCls} resize-none`} />
               </div>
-              {field("Hero Image Path", "hero_image")}
+              <ImageUploadChoice
+                label="Hero Background Image"
+                value={form.hero_image}
+                onChange={(val) => handleChange("hero_image", val)}
+                folder="hero"
+                placeholder="/images/janic-hero-lab.jpg or https://..."
+              />
               {field("Badge Value", "hero_badge_value")}
               {field("Badge Label", "hero_badge_label")}
             </div>

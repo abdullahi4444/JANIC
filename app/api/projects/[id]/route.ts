@@ -4,6 +4,7 @@ import { z } from "zod";
 import { ProjectService } from "@/services/projects/project.service";
 import { requireAuth } from "@/lib/permissions/roles";
 import { Role, ContentStatus } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 const projectUpdateSchema = z.object({
   title: z.string().min(2).optional(),
@@ -22,6 +23,7 @@ const projectUpdateSchema = z.object({
   githubUrl: z.string().optional().nullable(),
   teamMembers: z.string().optional().nullable(),
   order: z.number().optional(),
+  galleryImages: z.array(z.string()).optional(),
 });
 
 export async function PUT(
@@ -42,6 +44,12 @@ export async function PUT(
     }
 
     const updated = await ProjectService.updateProject(id, parsed.data as any);
+
+    revalidatePath("/projects");
+    revalidatePath("/");
+    if (updated?.slug) {
+      revalidatePath(`/projects/${updated.slug}`);
+    }
 
     return NextResponse.json({
       success: true,
@@ -64,6 +72,9 @@ export async function DELETE(
     const { id } = await params;
 
     await ProjectService.deleteProject(id);
+
+    revalidatePath("/projects");
+    revalidatePath("/");
 
     return NextResponse.json({
       success: true,

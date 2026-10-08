@@ -4,7 +4,10 @@ import Link from "next/link";
 import { SectionHero } from "@/components/layout/SectionHero";
 import { ScrollReveal } from "@/components/public/ScrollReveal";
 import { ProjectService } from "@/services/projects/project.service";
-import { ArrowRight, Search, Tag, Sparkles } from "lucide-react";
+import { ProjectsFilterControls } from "@/components/public/ProjectsFilterControls";
+import { ComingSoonCohort } from "@/components/public/ComingSoonCohort";
+import { ProjectMediaCover } from "@/components/public/ProjectMediaCover";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 export const metadata = {
   title: "Student Innovation Projects",
@@ -17,19 +20,32 @@ export const dynamic = "force-dynamic";
 export default async function ProjectsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; q?: string }>;
+  searchParams: Promise<{ category?: string; q?: string; year?: string }>;
 }) {
   const resolvedParams = await searchParams;
   const currentCategory = resolvedParams.category || "all";
   const searchQuery = resolvedParams.q || "";
+  const currentYear = resolvedParams.year || "all";
 
-  const [projects, categories] = await Promise.all([
+  const [rawProjects, categories] = await Promise.all([
     ProjectService.getPublishedProjects({
       category: currentCategory === "all" ? undefined : currentCategory,
       search: searchQuery || undefined,
     }),
     ProjectService.getCategories(),
   ]);
+
+  const isFutureCohort = currentYear === "2027" || currentYear === "2028";
+
+  // Filter projects by year when a specific active year like 2026 is chosen
+  const projects = isFutureCohort
+    ? []
+    : currentYear !== "all"
+    ? rawProjects.filter((p) => {
+        const d = new Date(p.publishedAt || p.createdAt);
+        return d.getFullYear() === parseInt(currentYear, 10);
+      })
+    : rawProjects;
 
   return (
     <div className="flex flex-col min-h-screen bg-white overflow-x-clip">
@@ -45,71 +61,24 @@ export default async function ProjectsPage({
       <section className="py-8 sm:py-14 bg-slate-50 min-h-[600px] overflow-hidden">
         <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal animation="fade-up" duration={850}>
-            {/* Controls Bento Card: Search & Filter Tabs */}
-            <div className="bg-[#F0F6FE] p-6 sm:p-8 rounded-2xl sm:rounded-2xl border border-blue-100/70 shadow-sm mb-12 space-y-5">
-              {/* Search Input */}
-              <form method="GET" action="/projects" className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                  <Search className="w-4 h-4 text-[#0875D1]" />
-                </div>
-                <input
-                  type="text"
-                  name="q"
-                  defaultValue={searchQuery}
-                  placeholder="Search projects by title, problem, or technology (e.g. Arduino, Next.js, AI)..."
-                  className="w-full pl-11 pr-28 py-3.5 bg-white border border-blue-200/60 rounded-full text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0875D1] shadow-sm transition"
-                />
-                {currentCategory !== "all" && (
-                  <input type="hidden" name="category" value={currentCategory} />
-                )}
-                <button
-                  type="submit"
-                  className="absolute inset-y-1.5 right-1.5 px-6 bg-[#0875D1] hover:bg-[#0660ac] text-white font-bold text-xs rounded-full transition shadow-sm"
-                >
-                  Search
-                </button>
-              </form>
+            {/* Custom Category Dropdown & Year Filter Bar */}
+            <ProjectsFilterControls
+              categories={categories}
+              currentCategory={currentCategory}
+              currentYear={currentYear}
+              searchQuery={searchQuery}
+              totalProjectsCount={isFutureCohort ? 0 : projects.length}
+            />
 
-              {/* Category Filter Pills */}
-              <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-blue-100/80">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-2 flex items-center gap-1">
-                  <Tag className="w-3.5 h-3.5 text-[#0875D1]" /> Category:
-                </span>
-                <Link
-                  href={`/projects${searchQuery ? `?q=${searchQuery}` : ""}`}
-                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm ${
-                    currentCategory === "all"
-                      ? "bg-[#08245C] text-white"
-                      : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/60"
-                  }`}
-                >
-                  All Categories
-                </Link>
-                {categories.map((cat) => (
-                  <Link
-                    key={cat}
-                    href={`/projects?category=${encodeURIComponent(cat)}${
-                      searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ""
-                    }`}
-                    className={`px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm ${
-                      currentCategory === cat
-                        ? "bg-[#0875D1] text-white"
-                        : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/60"
-                    }`}
-                  >
-                    {cat}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            {/* Projects Grid */}
-            {projects.length === 0 ? (
+            {/* If 2027 or 2028 is selected, display the animated Coming Soon component */}
+            {isFutureCohort ? (
+              <ComingSoonCohort year={currentYear} />
+            ) : projects.length === 0 ? (
               <div className="bg-[#F0F6FE] rounded-2xl border border-blue-100/70 p-16 text-center max-w-lg mx-auto shadow-sm">
                 <Sparkles className="w-10 h-10 text-slate-300 mx-auto mb-4" />
                 <h3 className="text-lg font-bold text-[#08245C]">No projects found</h3>
                 <p className="text-xs text-slate-500 mt-1">
-                  Try adjusting your search query or select another category filter.
+                  Try adjusting your search query, selecting another category, or viewing another cohort year.
                 </p>
                 <Link
                   href="/projects"
@@ -126,18 +95,16 @@ export default async function ProjectsPage({
                     href={`/projects/${project.slug}`}
                     className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-xl transition-all group flex flex-col hover:-translate-y-1"
                   >
-                    {/* Image with frosted category pill */}
-                    <div className="aspect-[16/9] relative bg-slate-100 overflow-hidden">
-                      <Image
-                        src={
-                          project.heroImage ||
-                          "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80"
-                        }
+                    {/* Media with frosted category pill (Video prioritized if uploaded) */}
+                    <div className="aspect-[16/9] relative bg-slate-900 overflow-hidden">
+                      <ProjectMediaCover
+                        videoUrl={project.videoUrl}
+                        imageUrl={project.heroImage}
                         alt={project.title}
-                        fill
+                        fallbackImage="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80"
                         className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                       />
-                      <div className="absolute top-3 left-3 bg-white/95 px-2.5 py-1 rounded-full text-[11px] font-bold text-[#08245C] uppercase tracking-wider">
+                      <div className="absolute top-3 left-3 bg-white/95 px-2.5 py-1 rounded-full text-[11px] font-bold text-[#08245C] uppercase tracking-wider z-10 shadow-xs">
                         {project.category}
                       </div>
                     </div>
@@ -167,13 +134,12 @@ export default async function ProjectsPage({
                         </div>
                       </div>
 
-                      <Link
-                        href={`/projects/${project.slug}`}
-                        className="w-full py-2.5 px-4 rounded-xl bg-[#08245C] hover:bg-[#061B40] text-white font-semibold text-xs flex items-center justify-center gap-2 transition"
+                      <div
+                        className="w-full py-2.5 px-4 rounded-xl bg-[#08245C] group-hover:bg-[#061B40] text-white font-semibold text-xs flex items-center justify-center gap-2 transition"
                       >
                         View Solution
                         <ArrowRight className="w-3.5 h-3.5" />
-                      </Link>
+                      </div>
                     </div>
                   </Link>
                 ))}

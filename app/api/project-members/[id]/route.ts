@@ -1,26 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db/prisma";
+import { ProjectMemberRepository } from "@/repositories/project-member.repository";
 import { requireAuth } from "@/lib/permissions/roles";
 import { Role } from "@prisma/client";
-import fs from "fs";
-import path from "path";
 
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAuth([Role.ADMIN, Role.EDITOR]);
+    await requireAuth([Role.ADMIN]);
     const { id } = await params;
     const body = await req.json();
 
-    const updated = await prisma.media.update({
-      where: { id },
-      data: {
-        alt: body.alt ?? undefined,
-        folder: body.folder ?? undefined,
-      },
-    });
+    const { projectId, ...rest } = body;
+
+    const updateData: Parameters<typeof ProjectMemberRepository.update>[1] = {
+      ...rest,
+      project: projectId
+        ? { connect: { id: projectId } }
+        : projectId === null
+        ? { disconnect: true }
+        : undefined,
+    };
+
+    const updated = await ProjectMemberRepository.update(id, updateData);
     return NextResponse.json({ success: true, item: updated });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Error";
@@ -34,27 +37,10 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAuth([Role.ADMIN, Role.EDITOR]);
+    await requireAuth([Role.ADMIN]);
     const { id } = await params;
 
-    const media = await prisma.media.findUnique({ where: { id } });
-    if (!media) {
-      return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
-    }
-
-    await prisma.media.delete({ where: { id } });
-
-    if (media.url.startsWith("/uploads/")) {
-      const filePath = path.join(process.cwd(), "public", media.url);
-      if (fs.existsSync(filePath)) {
-        try {
-          fs.unlinkSync(filePath);
-        } catch {
-          // file already gone
-        }
-      }
-    }
-
+    await ProjectMemberRepository.delete(id);
     return NextResponse.json({ success: true });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Error";

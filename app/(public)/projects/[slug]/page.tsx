@@ -19,6 +19,9 @@ import {
   Calendar,
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
+import { getCurrentUser } from "@/lib/auth/jwt";
+import { ProjectMediaCover } from "@/components/public/ProjectMediaCover";
+import { ProjectSidebarGallery } from "@/components/public/ProjectSidebarGallery";
 
 export const dynamic = "force-dynamic";
 
@@ -29,10 +32,10 @@ export async function generateMetadata({
 }) {
   const { slug } = await params;
   const project = await ProjectService.getProjectBySlug(slug);
-  if (!project) return { title: "Project Not Found | JANIC" };
+  if (!project) return { title: "Project Not Found" };
 
   return {
-    title: `${project.title} | JANIC`,
+    title: project.title,
     description: project.summary,
     openGraph: {
       title: `${project.title} | JANIC`,
@@ -50,7 +53,11 @@ export default async function ProjectDetailPage({
   const { slug } = await params;
   const project = await ProjectService.getProjectBySlug(slug);
 
-  if (!project || project.status !== "PUBLISHED") {
+  const currentUser = await getCurrentUser();
+  const isAdminOrEditor =
+    currentUser?.role === "ADMIN" || currentUser?.role === "EDITOR";
+
+  if (!project || (project.status !== "PUBLISHED" && !isAdminOrEditor)) {
     notFound();
   }
 
@@ -64,6 +71,11 @@ export default async function ProjectDetailPage({
 
   return (
     <div>
+      {project.status !== "PUBLISHED" && (
+        <div className="bg-amber-500 text-white text-xs font-bold py-2.5 px-4 text-center sticky top-0 z-50 shadow-sm flex items-center justify-center gap-2">
+          <span>⚠️ Preview Mode: This project is currently saved as {project.status} (Visible only to Admin/Editor staff)</span>
+        </div>
+      )}
       <SectionHero
         badge={project.category}
         title={project.title}
@@ -74,37 +86,37 @@ export default async function ProjectDetailPage({
         ]}
       >
         <div className="flex flex-wrap items-center gap-3 pt-2">
-          {project.demoUrl && (
+          {project.demoUrl && project.demoUrl.trim().length > 0 && !project.demoUrl.includes("example.com") && (
             <a
               href={project.demoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0875D1] hover:bg-[#065ea8] text-white font-semibold text-xs shadow-md transition"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0875D1] hover:bg-[#065ea8] text-white font-semibold text-xs shadow-md shadow-[#0875D1]/20 transition"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               Live Demo / Website
             </a>
           )}
-          {project.videoUrl && (
+          {project.videoUrl && project.videoUrl.trim().length > 0 && (
             <a
-              href={project.videoUrl}
-              target="_blank"
+              href={project.videoUrl.startsWith("http") ? project.videoUrl : "#video-player"}
+              target={project.videoUrl.startsWith("http") ? "_blank" : undefined}
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs border border-white/20 transition"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-[#08245C] dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white font-semibold text-xs border border-slate-300 dark:border-slate-700 shadow-xs transition"
             >
-              <Video className="w-3.5 h-3.5" />
+              <Video className="w-3.5 h-3.5 text-[#0875D1]" />
               Watch Video Demo
             </a>
           )}
-          {project.githubUrl && (
+          {project.githubUrl && project.githubUrl.trim().length > 0 && (
             <a
               href={project.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs border border-white/20 transition"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-black text-white font-semibold text-xs border border-slate-900 shadow-md shadow-slate-900/15 transition"
             >
-              <Code2 className="w-3.5 h-3.5" />
-              Source Code
+              <Code2 className="w-3.5 h-3.5 text-emerald-400" />
+              GitHub Repository
             </a>
           )}
         </div>
@@ -115,15 +127,15 @@ export default async function ProjectDetailPage({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             {/* Main Content (8 cols) */}
             <div className="lg:col-span-8 space-y-10">
-              {/* Hero Image */}
-              {project.heroImage && (
-                <div className="aspect-[16/9] relative rounded-3xl overflow-hidden border border-slate-200 shadow-xl bg-slate-100">
-                  <Image
-                    src={project.heroImage}
+              {/* Hero Media (Video with Voice Volume Control & Timeline Scroll, Hero Image as Fallback) */}
+              {(project.videoUrl || project.heroImage) && (
+                <div id="video-player" className="aspect-[16/9] relative rounded-3xl overflow-hidden border border-slate-200/80 dark:border-slate-800 shadow-xl bg-slate-950">
+                  <ProjectMediaCover
+                    videoUrl={project.videoUrl}
+                    imageUrl={project.heroImage}
                     alt={project.title}
-                    fill
-                    className="object-cover"
                     priority
+                    showControls={true}
                   />
                 </div>
               )}
@@ -215,32 +227,6 @@ export default async function ProjectDetailPage({
                 </div>
               )}
 
-              {/* Gallery */}
-              {project.gallery && project.gallery.length > 0 && (
-                <div className="space-y-4">
-                  <h3 className="text-xl font-bold text-[#08245C]">Project Gallery</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {project.gallery.map((img) => (
-                      <div
-                        key={img.id}
-                        className="aspect-[4/3] relative rounded-xl overflow-hidden border border-slate-200 bg-slate-100"
-                      >
-                        <Image
-                          src={img.imageUrl}
-                          alt={img.alt || project.title}
-                          fill
-                          className="object-cover"
-                        />
-                        {img.caption && (
-                          <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-xs p-2">
-                            {img.caption}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Sidebar (4 cols) */}
@@ -306,11 +292,19 @@ export default async function ProjectDetailPage({
               {/* Back to list button */}
               <Link
                 href="/projects"
-                className="w-full py-3 px-4 rounded-xl bg-slate-200/80 hover:bg-slate-300 text-slate-800 font-semibold text-xs flex items-center justify-center gap-2 transition"
+                className="w-full py-3 px-4 rounded-xl bg-slate-200/80 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold text-xs flex items-center justify-center gap-2 transition"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back to All Projects
               </Link>
+
+              {/* Project Gallery in the Sidebar Empty Space */}
+              {project.gallery && project.gallery.length > 0 && (
+                <ProjectSidebarGallery
+                  gallery={project.gallery}
+                  projectTitle={project.title}
+                />
+              )}
             </div>
           </div>
         </div>

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { ProjectService } from "@/services/projects/project.service";
 import { requireAuth } from "@/lib/permissions/roles";
 import { Role, ContentStatus } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 const projectSchema = z.object({
   title: z.string().min(2, "Title is required"),
@@ -21,6 +22,7 @@ const projectSchema = z.object({
   githubUrl: z.string().optional(),
   teamMembers: z.string().optional(),
   order: z.number().default(0),
+  galleryImages: z.array(z.string()).optional(),
 });
 
 export async function GET(req: NextRequest) {
@@ -66,6 +68,12 @@ export async function POST(req: NextRequest) {
 
     // 3. Service execution
     const project = await ProjectService.createProject(parsed.data);
+
+    revalidatePath("/projects");
+    revalidatePath("/");
+    if (project?.slug) {
+      revalidatePath(`/projects/${project.slug}`);
+    }
 
     return NextResponse.json({
       success: true,

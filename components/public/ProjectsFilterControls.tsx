@@ -1,0 +1,266 @@
+"use client";
+
+import React, { useState, useRef, useEffect } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import {
+  Search,
+  Filter,
+  ChevronDown,
+  Check,
+  Calendar,
+  Sparkles,
+  X,
+} from "lucide-react";
+
+interface ProjectsFilterControlsProps {
+  categories: string[];
+  currentCategory: string;
+  currentYear: string;
+  searchQuery: string;
+  totalProjectsCount: number;
+}
+
+export function ProjectsFilterControls({
+  categories,
+  currentCategory,
+  currentYear,
+  searchQuery,
+  totalProjectsCount,
+}: ProjectsFilterControlsProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(searchQuery);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setCategoryOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const updateFilters = (updates: {
+    category?: string;
+    year?: string;
+    q?: string;
+  }) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (updates.category !== undefined) {
+      if (updates.category === "all") {
+        params.delete("category");
+      } else {
+        params.set("category", updates.category);
+      }
+    }
+
+    if (updates.year !== undefined) {
+      if (updates.year === "all") {
+        params.delete("year");
+      } else {
+        params.set("year", updates.year);
+      }
+    }
+
+    if (updates.q !== undefined) {
+      if (!updates.q.trim()) {
+        params.delete("q");
+      } else {
+        params.set("q", updates.q.trim());
+      }
+    }
+
+    const newQuery = params.toString();
+    router.push(newQuery ? `${pathname}?${newQuery}` : pathname);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateFilters({ q: searchTerm });
+  };
+
+  const years = [
+    { id: "all", label: "All Years" },
+    { id: "2026", label: "2026", isCurrent: true },
+    { id: "2027", label: "2027" },
+    { id: "2028", label: "2028" },
+  ];
+
+  const selectedCategoryLabel =
+    currentCategory === "all" ? "All Categories" : currentCategory;
+
+  const hasActiveFilters =
+    currentCategory !== "all" || currentYear !== "all" || !!searchQuery;
+
+  return (
+    <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6 mb-12">
+      {/* Top Search & Category Dropdown Bar */}
+      <div className="flex flex-col md:flex-row items-center gap-3.5">
+        {/* Search Bar */}
+        <form
+          onSubmit={handleSearchSubmit}
+          className="relative flex-1 w-full"
+        >
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+            <Search className="w-4 h-4 text-[#0875D1]" />
+          </div>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search projects by title, problem, or technology (e.g. Next.js, Arduino, AI)..."
+            className="w-full pl-11 pr-24 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0875D1] focus:bg-white transition"
+          />
+          {searchTerm && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchTerm("");
+                updateFilters({ q: "" });
+              }}
+              className="absolute inset-y-0 right-20 pr-2 flex items-center text-slate-400 hover:text-slate-600"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+          <button
+            type="submit"
+            className="absolute inset-y-1.5 right-1.5 px-5 bg-[#0875D1] hover:bg-[#0660ac] text-white font-bold text-xs rounded-xl transition shadow-xs cursor-pointer"
+          >
+            Search
+          </button>
+        </form>
+
+        {/* Custom Category Dropdown */}
+        <div className="relative w-full md:w-72 shrink-0" ref={dropdownRef}>
+          <button
+            type="button"
+            onClick={() => setCategoryOpen(!categoryOpen)}
+            className="w-full flex items-center justify-between gap-3 px-4 py-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl text-xs sm:text-sm font-semibold text-[#08245C] transition cursor-pointer"
+          >
+            <div className="flex items-center gap-2 truncate">
+              <Filter className="w-4 h-4 text-[#0875D1] shrink-0" />
+              <span className="truncate">{selectedCategoryLabel}</span>
+            </div>
+            <ChevronDown
+              className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${
+                categoryOpen ? "rotate-180 text-[#0875D1]" : ""
+              }`}
+            />
+          </button>
+
+          {/* Animated Dropdown Menu */}
+          {categoryOpen && (
+            <div className="absolute right-0 top-full mt-2 w-full sm:w-80 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 animate-in fade-in zoom-in-95 duration-150 max-h-80 overflow-y-auto">
+              <div className="p-2 border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                Select Innovation Field
+              </div>
+
+              {/* All Categories Option */}
+              <button
+                type="button"
+                onClick={() => {
+                  updateFilters({ category: "all" });
+                  setCategoryOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                  currentCategory === "all"
+                    ? "bg-[#08245C] text-white font-bold"
+                    : "text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                <span>All Categories</span>
+                {currentCategory === "all" && <Check className="w-3.5 h-3.5" />}
+              </button>
+
+              {/* Individual Categories */}
+              {categories.map((cat) => {
+                const isSelected = currentCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => {
+                      updateFilters({ category: cat });
+                      setCategoryOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                      isSelected
+                        ? "bg-[#0875D1] text-white font-bold"
+                        : "text-slate-700 hover:bg-blue-50/60"
+                    }`}
+                  >
+                    <span className="truncate pr-2">{cat}</span>
+                    {isSelected && <Check className="w-3.5 h-3.5 shrink-0" />}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Year Filter Bar with 2026 (green dot), 2027, 2028 */}
+      <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1 flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-[#0875D1]" /> Cohort Year:
+          </span>
+
+          {years.map((y) => {
+            const isSelected = currentYear === y.id;
+            return (
+              <button
+                key={y.id}
+                type="button"
+                onClick={() => updateFilters({ year: y.id })}
+                className={`relative inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  isSelected
+                    ? "bg-[#08245C] text-white shadow-md shadow-slate-900/10"
+                    : "bg-slate-100/80 text-slate-600 hover:bg-slate-200/70 border border-slate-200/60"
+                }`}
+              >
+                <span>{y.label}</span>
+
+                {/* Current year green dot */}
+                {y.isCurrent && (
+                  <span
+                    className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.9)] animate-pulse"
+                    title="Current Cohort"
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Reset Filters / Project Count Pill */}
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-slate-500 font-medium">
+            Showing <strong className="text-[#08245C]">{totalProjectsCount}</strong> {totalProjectsCount === 1 ? "project" : "projects"}
+          </span>
+
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchTerm("");
+                router.push(pathname);
+              }}
+              className="text-xs font-bold text-[#0875D1] hover:underline cursor-pointer"
+            >
+              Reset all
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

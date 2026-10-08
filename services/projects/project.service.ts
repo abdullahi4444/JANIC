@@ -1,10 +1,20 @@
 import { ProjectRepository } from "@/repositories/project.repository";
 import { slugify } from "@/lib/utils";
 import { ContentStatus, Prisma } from "@prisma/client";
+import prisma from "@/lib/db/prisma";
 
 export class ProjectService {
   static async getFeaturedProjects(limit = 6) {
-    return ProjectRepository.findPublished({ isFeatured: true, limit });
+    const featured = await ProjectRepository.findPublished({ isFeatured: true, limit });
+    if (featured.length < limit) {
+      const allPublished = await ProjectRepository.findPublished({ limit: limit * 2 });
+      const featuredIds = new Set(featured.map((p) => p.id));
+      const rest = allPublished
+        .filter((p) => !featuredIds.has(p.id))
+        .slice(0, limit - featured.length);
+      return [...featured, ...rest];
+    }
+    return featured;
   }
 
   static async getPublishedProjects(options?: {
@@ -46,6 +56,7 @@ export class ProjectService {
     githubUrl?: string;
     teamMembers?: string;
     order?: number;
+    galleryImages?: string[];
   }) {
     let slug = slugify(data.title);
     const existing = await ProjectRepository.findBySlug(slug);
@@ -60,21 +71,36 @@ export class ProjectService {
       problem: data.problem,
       solution: data.solution,
       technology: data.technology,
-      innovation: data.innovation,
-      outcomes: data.outcomes,
+      innovation: data.innovation || null,
+      outcomes: data.outcomes || null,
       category: data.category,
-      status: data.status || ContentStatus.DRAFT,
+      status: data.status || ContentStatus.PUBLISHED,
       isFeatured: !!data.isFeatured,
-      heroImage: data.heroImage,
-      demoUrl: data.demoUrl,
-      videoUrl: data.videoUrl,
-      githubUrl: data.githubUrl,
-      teamMembers: data.teamMembers,
+      heroImage: data.heroImage || null,
+      demoUrl: data.demoUrl || null,
+      videoUrl: data.videoUrl || null,
+      githubUrl: data.githubUrl || null,
+      teamMembers: data.teamMembers || null,
       order: data.order || 0,
       publishedAt: data.status === ContentStatus.PUBLISHED ? new Date() : null,
     };
 
-    return ProjectRepository.create(createInput);
+    const project = await ProjectRepository.create(createInput);
+
+    if (data.galleryImages && Array.isArray(data.galleryImages)) {
+      const valid = data.galleryImages.filter((u) => typeof u === "string" && u.trim().length > 0);
+      if (valid.length > 0) {
+        await prisma.projectGalleryItem.createMany({
+          data: valid.map((url, idx) => ({
+            projectId: project.id,
+            imageUrl: url.trim(),
+            order: idx,
+          })),
+        });
+      }
+    }
+
+    return ProjectRepository.findById(project.id);
   }
 
   static async updateProject(
@@ -85,26 +111,54 @@ export class ProjectService {
       problem?: string;
       solution?: string;
       technology?: string;
-      innovation?: string;
-      outcomes?: string;
+      innovation?: string | null;
+      outcomes?: string | null;
       category?: string;
       status?: ContentStatus;
       isFeatured?: boolean;
-      heroImage?: string;
-      demoUrl?: string;
-      videoUrl?: string;
-      githubUrl?: string;
-      teamMembers?: string;
+      heroImage?: string | null;
+      demoUrl?: string | null;
+      videoUrl?: string | null;
+      githubUrl?: string | null;
+      teamMembers?: string | null;
       order?: number;
+      galleryImages?: string[];
     }
   ) {
-    const updateInput: Prisma.ProjectUpdateInput = { ...data };
+    const { galleryImages, ...scalarData } = data;
 
-    if (data.status === ContentStatus.PUBLISHED) {
+    const updateInput: Prisma.ProjectUpdateInput = {
+      ...scalarData,
+      heroImage: scalarData.heroImage !== undefined ? (scalarData.heroImage || null) : undefined,
+      demoUrl: scalarData.demoUrl !== undefined ? (scalarData.demoUrl || null) : undefined,
+      videoUrl: scalarData.videoUrl !== undefined ? (scalarData.videoUrl || null) : undefined,
+      githubUrl: scalarData.githubUrl !== undefined ? (scalarData.githubUrl || null) : undefined,
+      teamMembers: scalarData.teamMembers !== undefined ? (scalarData.teamMembers || null) : undefined,
+      innovation: scalarData.innovation !== undefined ? (scalarData.innovation || null) : undefined,
+      outcomes: scalarData.outcomes !== undefined ? (scalarData.outcomes || null) : undefined,
+    };
+
+    if (scalarData.status === ContentStatus.PUBLISHED) {
       updateInput.publishedAt = new Date();
     }
 
-    return ProjectRepository.update(id, updateInput);
+    await ProjectRepository.update(id, updateInput);
+
+    if (galleryImages !== undefined && Array.isArray(galleryImages)) {
+      await prisma.projectGalleryItem.deleteMany({ where: { projectId: id } });
+      const valid = galleryImages.filter((u) => typeof u === "string" && u.trim().length > 0);
+      if (valid.length > 0) {
+        await prisma.projectGalleryItem.createMany({
+          data: valid.map((url, idx) => ({
+            projectId: id,
+            imageUrl: url.trim(),
+            order: idx,
+          })),
+        });
+      }
+    }
+
+    return ProjectRepository.findById(id);
   }
 
   static async deleteProject(id: string) {

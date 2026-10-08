@@ -4,6 +4,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Search, Edit2, Trash2, X, Loader2, ExternalLink } from "lucide-react";
+import { FileUploadChoice } from "./FileUploadChoice";
 
 interface ResearchPaper {
   id: string;
@@ -285,14 +286,16 @@ export function ResearchManager({ initialPapers }: { initialPapers: ResearchPape
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-foreground mb-1">PDF Document URL</label>
-                <input
-                  type="url"
+              {/* PDF Document (Two Choices: Link URL or Upload PDF File) */}
+              <div className="bg-slate-50/70 dark:bg-muted/30 p-3.5 rounded-xl border border-border">
+                <FileUploadChoice
+                  label="PDF Document"
+                  fileType="pdf"
                   value={formData.pdfUrl}
-                  onChange={(e) => setFormData({ ...formData, pdfUrl: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full px-3 py-2 bg-muted/50 border border-border rounded-xl text-xs sm:text-sm"
+                  onChange={(url) => setFormData({ ...formData, pdfUrl: url })}
+                  folder="research"
+                  placeholder="https://... or /uploads/..."
+                  helperText="Provide an external paper link or upload a PDF directly"
                 />
               </div>
 

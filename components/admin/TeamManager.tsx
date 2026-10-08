@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Plus, Search, Edit2, Trash2, X, Loader2, User } from "lucide-react";
+import { FileUploadChoice } from "./FileUploadChoice";
 
 interface Member {
   id: string;
@@ -229,13 +230,13 @@ export function TeamManager({ initialTeam }: { initialTeam: Member[] }) {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-foreground mb-1">Avatar Image URL</label>
-                <input
-                  type="url"
+                <FileUploadChoice
+                  label="Avatar Image"
+                  fileType="image"
                   value={formData.avatar}
-                  onChange={(e) => setFormData({ ...formData, avatar: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full px-3 py-2 bg-muted/50 border border-border rounded-xl text-xs sm:text-sm"
+                  onChange={(url) => setFormData({ ...formData, avatar: url })}
+                  folder="team"
+                  placeholder="https://... or /uploads/..."
                 />
               </div>
 

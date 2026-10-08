@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, X, LogIn, UserPlus, LayoutDashboard, LogOut } from "lucide-react";
+import { Menu, X, LogIn, UserPlus, LayoutDashboard, LogOut, ChevronDown, FolderKanban, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeModeDropdown } from "@/components/theme/ThemeModeDropdown";
 import type { AuthUser } from "@/types/user";
@@ -19,7 +19,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const defaultNavLinks = [
-  { name: "ABOUT JANIC", href: "/about" },
+  { name: "ABOUT", href: "/about" },
   { name: "WHAT WE DO", href: "/what-we-do" },
   { name: "INNOVATION HUB", href: "/innovation-hub" },
   { name: "PROJECTS", href: "/projects" },
@@ -143,6 +143,7 @@ export function PublicHeader({ navLinks, currentUser }: PublicHeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [projectsDropdownOpen, setProjectsDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const isLoggedIn = Boolean(currentUser);
@@ -208,7 +209,109 @@ export function PublicHeader({ navLinks, currentUser }: PublicHeaderProps) {
         {/* Desktop Navigation Links */}
         <nav className="hidden lg:flex items-center gap-2.5 xl:gap-4 2xl:gap-6">
           {links.map((link) => {
-            const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+            const isProjects = link.name === "PROJECTS";
+            const isProjectsActive =
+              pathname === "/projects" ||
+              (pathname.startsWith("/projects/") && !pathname.includes("/members")) ||
+              pathname === "/project-members" ||
+              pathname.startsWith("/project-members") ||
+              pathname === "/projects/members";
+            const isActive = isProjects
+              ? isProjectsActive
+              : pathname === link.href || pathname.startsWith(link.href + "/");
+
+            if (isProjects) {
+              return (
+                <div
+                  key={link.name}
+                  className="relative group py-2"
+                  onMouseEnter={() => setProjectsDropdownOpen(true)}
+                  onMouseLeave={() => setProjectsDropdownOpen(false)}
+                >
+                  <Link
+                    href="/projects"
+                    className={cn(
+                      "inline-flex items-center gap-1 text-[10px] xl:text-[11px] font-bold tracking-wide transition-colors uppercase whitespace-nowrap",
+                      isActive
+                        ? "text-[#0875D1]"
+                        : "text-slate-700 hover:text-[#0875D1] dark:text-slate-300"
+                    )}
+                  >
+                    <span>{link.name}</span>
+                    <ChevronDown
+                      className={cn(
+                        "w-3 h-3 transition-transform duration-200",
+                        projectsDropdownOpen ? "rotate-180 text-[#0875D1]" : "text-slate-400 group-hover:text-[#0875D1]"
+                      )}
+                    />
+                  </Link>
+
+                  {/* Dropdown Menu Card */}
+                  <div
+                    className={cn(
+                      "absolute top-full left-1/2 -translate-x-1/2 pt-2 w-64 transition-all duration-200 z-50",
+                      projectsDropdownOpen
+                        ? "opacity-100 visible translate-y-0"
+                        : "opacity-0 invisible -translate-y-1 pointer-events-none"
+                    )}
+                  >
+                    <div className="bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl rounded-2xl border border-slate-200/90 dark:border-slate-800 p-2 shadow-[0_12px_36px_-10px_rgba(8,36,92,0.22)] dark:shadow-[0_12px_36px_-10px_rgba(0,0,0,0.6)] space-y-1">
+                      <Link
+                        href="/projects"
+                        onClick={() => setProjectsDropdownOpen(false)}
+                        className={cn(
+                          "flex items-start gap-3 p-2.5 rounded-xl transition-all group/item",
+                          pathname === "/projects" || (pathname.startsWith("/projects/") && !pathname.includes("/members"))
+                            ? "bg-blue-50/80 dark:bg-blue-950/60 text-[#0875D1]"
+                            : "hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200"
+                        )}
+                      >
+                        <div className="p-2 rounded-lg bg-blue-100/70 dark:bg-blue-900/40 text-[#0875D1] shrink-0 mt-0.5 group-hover/item:scale-105 transition-transform">
+                          <FolderKanban className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold leading-tight flex items-center gap-1.5">
+                            <span>All Projects</span>
+                            <span className="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-blue-100 text-[#0875D1] dark:bg-blue-900/60 dark:text-sky-300">
+                              15
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                            Explore 15 innovation prototypes
+                          </div>
+                        </div>
+                      </Link>
+
+                      <Link
+                        href="/project-members"
+                        onClick={() => setProjectsDropdownOpen(false)}
+                        className={cn(
+                          "flex items-start gap-3 p-2.5 rounded-xl transition-all group/item",
+                          pathname === "/project-members" || pathname.startsWith("/project-members") || pathname === "/projects/members"
+                            ? "bg-blue-50/80 dark:bg-blue-950/60 text-[#0875D1]"
+                            : "hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200"
+                        )}
+                      >
+                        <div className="p-2 rounded-lg bg-emerald-100/70 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 group-hover/item:scale-105 transition-transform">
+                          <Users className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold leading-tight flex items-center gap-1.5">
+                            <span>Project Members</span>
+                            <span className="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300">
+                              Teams
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                            Meet student engineers & leads
+                          </div>
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
 
             return (
               <Link
@@ -223,7 +326,6 @@ export function PublicHeader({ navLinks, currentUser }: PublicHeaderProps) {
               >
                 {link.name}
               </Link>
-              
             );
           })}
         </nav>
@@ -322,12 +424,58 @@ export function PublicHeader({ navLinks, currentUser }: PublicHeaderProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 mb-4">
             {links.map((link) => {
+              if (link.name === "PROJECTS") {
+                const isProjectsActive =
+                  pathname === "/projects" ||
+                  (pathname.startsWith("/projects/") && !pathname.includes("/members"));
+                const isMembersActive =
+                  pathname === "/project-members" ||
+                  pathname.startsWith("/project-members") ||
+                  pathname === "/projects/members";
+
+                return (
+                  <React.Fragment key={link.name}>
+                    <Link
+                      href="/projects"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={cn(
+                        "px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition dark:hover:bg-slate-900 flex items-center justify-between",
+                        isProjectsActive
+                          ? "text-[#0875D1] bg-blue-50/80 dark:bg-blue-950/50"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 hover:text-[#0875D1]"
+                      )}
+                    >
+                      <span>PROJECTS</span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-[#0875D1] font-black">
+                        15
+                      </span>
+                    </Link>
+                    <Link
+                      href="/project-members"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={cn(
+                        "px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition dark:hover:bg-slate-900 flex items-center justify-between",
+                        isMembersActive
+                          ? "text-[#0875D1] bg-blue-50/80 dark:bg-blue-950/50"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 hover:text-[#0875D1]"
+                      )}
+                    >
+                      <span>PROJECT MEMBERS</span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 font-black">
+                        TEAMS
+                      </span>
+                    </Link>
+                  </React.Fragment>
+                );
+              }
+
               const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
 
               return (
                 <Link
                   key={link.name}
                   href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
                   className={cn(
                     "px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition dark:hover:bg-slate-900",
                     isActive

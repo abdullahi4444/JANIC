@@ -16,6 +16,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
+import { ImageUploadChoice } from "./ImageUploadChoice";
+import { FileUploadChoice } from "./FileUploadChoice";
 
 interface Project {
   id: string;
@@ -35,6 +37,7 @@ interface Project {
   videoUrl?: string | null;
   githubUrl?: string | null;
   teamMembers?: string | null;
+  gallery?: { id?: string; imageUrl: string; caption?: string | null; order?: number }[];
   updatedAt: string | Date;
 }
 
@@ -66,13 +69,14 @@ export function ProjectManager({ initialProjects, categories }: ProjectManagerPr
     technology: "",
     innovation: "",
     outcomes: "",
-    status: "DRAFT",
+    status: "PUBLISHED",
     isFeatured: false,
     heroImage: "",
     demoUrl: "",
     videoUrl: "",
     githubUrl: "",
     teamMembers: "",
+    galleryImages: [] as string[],
   });
 
   const handleOpenAdd = () => {
@@ -86,13 +90,14 @@ export function ProjectManager({ initialProjects, categories }: ProjectManagerPr
       technology: "",
       innovation: "",
       outcomes: "",
-      status: "DRAFT",
+      status: "PUBLISHED",
       isFeatured: false,
       heroImage: "",
       demoUrl: "",
       videoUrl: "",
       githubUrl: "",
       teamMembers: "",
+      galleryImages: [],
     });
     setFormError(null);
     setModalOpen(true);
@@ -100,6 +105,11 @@ export function ProjectManager({ initialProjects, categories }: ProjectManagerPr
 
   const handleOpenEdit = (p: Project) => {
     setEditingProject(p);
+    const existingGallery =
+      p.gallery && Array.isArray(p.gallery)
+        ? p.gallery.map((g: any) => g.imageUrl || "").filter(Boolean)
+        : [];
+
     setFormData({
       title: p.title,
       category: p.category,
@@ -116,6 +126,7 @@ export function ProjectManager({ initialProjects, categories }: ProjectManagerPr
       videoUrl: p.videoUrl || "",
       githubUrl: p.githubUrl || "",
       teamMembers: p.teamMembers || "",
+      galleryImages: existingGallery,
     });
     setFormError(null);
     setModalOpen(true);
@@ -130,10 +141,22 @@ export function ProjectManager({ initialProjects, categories }: ProjectManagerPr
       const url = editingProject ? `/api/projects/${editingProject.id}` : "/api/projects";
       const method = editingProject ? "PUT" : "POST";
 
+      const payload = {
+        ...formData,
+        heroImage: formData.heroImage.trim() ? formData.heroImage.trim() : null,
+        demoUrl: formData.demoUrl.trim() ? formData.demoUrl.trim() : null,
+        videoUrl: formData.videoUrl.trim() ? formData.videoUrl.trim() : null,
+        githubUrl: formData.githubUrl.trim() ? formData.githubUrl.trim() : null,
+        innovation: formData.innovation.trim() ? formData.innovation.trim() : null,
+        outcomes: formData.outcomes.trim() ? formData.outcomes.trim() : null,
+        teamMembers: formData.teamMembers.trim() ? formData.teamMembers.trim() : null,
+        galleryImages: formData.galleryImages.filter((img) => img && img.trim().length > 0),
+      };
+
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -512,41 +535,109 @@ export function ProjectManager({ initialProjects, categories }: ProjectManagerPr
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-foreground mb-1">
-                    Hero Image URL
-                  </label>
-                  <input
-                    type="url"
-                    value={formData.heroImage}
-                    onChange={(e) => setFormData({ ...formData, heroImage: e.target.value })}
-                    placeholder="https://images.unsplash.com/... or /uploads/..."
-                    className="w-full px-3 py-2 bg-muted/50 border border-border rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-foreground mb-1">
-                    Team Members
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.teamMembers}
-                    onChange={(e) => setFormData({ ...formData, teamMembers: e.target.value })}
-                    placeholder="Ahmed Nur (Lead), Hafsa Ali (Firmware)"
-                    className="w-full px-3 py-2 bg-muted/50 border border-border rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
+              {/* Hero Image Selection (Two Choices: Link URL or Upload File) */}
+              <div className="bg-slate-50/70 dark:bg-muted/30 p-3.5 rounded-xl border border-border">
+                <ImageUploadChoice
+                  label="Hero Image"
+                  value={formData.heroImage}
+                  onChange={(url) => setFormData({ ...formData, heroImage: url })}
+                  folder="projects"
+                  placeholder="https://images.unsplash.com/... or /uploads/..."
+                />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Project Gallery Images (Upload / Link with Add Gallery Image Button) */}
+              <div className="bg-slate-50/70 dark:bg-muted/30 p-3.5 rounded-xl border border-border space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <label className="text-xs font-semibold text-foreground">
+                        Project Gallery Photos ({formData.galleryImages.length})
+                      </label>
+                      <span className="text-[10px] bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-bold px-2 py-0.5 rounded-full">
+                        Optional
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      Upload multiple screenshots &amp; photos to display in the project gallery
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFormData({
+                        ...formData,
+                        galleryImages: [...formData.galleryImages, ""],
+                      })
+                    }
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0875D1] hover:bg-[#0663B3] text-white text-xs font-bold transition-all shadow-xs"
+                    title="Add another photo to this project gallery"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Gallery</span>
+                  </button>
+                </div>
+
+                {formData.galleryImages.length > 0 && (
+                  <div className="space-y-3 pt-2">
+                    {formData.galleryImages.map((imgUrl, index) => (
+                      <div
+                        key={index}
+                        className="relative p-3 rounded-xl bg-white dark:bg-card border border-border flex items-start gap-3 shadow-xs"
+                      >
+                        <div className="flex-1">
+                          <ImageUploadChoice
+                            label={`Gallery Photo #${index + 1}`}
+                            value={imgUrl}
+                            onChange={(newUrl) => {
+                              const next = [...formData.galleryImages];
+                              next[index] = newUrl;
+                              setFormData({ ...formData, galleryImages: next });
+                            }}
+                            folder="projects/gallery"
+                            placeholder="https://... or upload photo"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = formData.galleryImages.filter((_, i) => i !== index);
+                            setFormData({ ...formData, galleryImages: next });
+                          }}
+                          className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors mt-6 shrink-0"
+                          title="Remove this gallery photo"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-foreground mb-1">
+                  Team Members
+                </label>
+                <input
+                  type="text"
+                  value={formData.teamMembers}
+                  onChange={(e) => setFormData({ ...formData, teamMembers: e.target.value })}
+                  placeholder="Ahmed Nur (Lead), Hafsa Ali (Firmware)"
+                  className="w-full px-3 py-2 bg-muted/50 border border-border rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Format: &quot;Member Name (Role), Next Member (Role)&quot;
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-foreground mb-1">
                     Live Demo URL
                   </label>
                   <input
-                    type="url"
+                    type="text"
                     value={formData.demoUrl}
                     onChange={(e) => setFormData({ ...formData, demoUrl: e.target.value })}
                     placeholder="https://..."
@@ -556,29 +647,29 @@ export function ProjectManager({ initialProjects, categories }: ProjectManagerPr
 
                 <div>
                   <label className="block text-xs font-semibold text-foreground mb-1">
-                    Video Demo URL
-                  </label>
-                  <input
-                    type="url"
-                    value={formData.videoUrl}
-                    onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
-                    placeholder="https://youtube.com/..."
-                    className="w-full px-3 py-2 bg-muted/50 border border-border rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-foreground mb-1">
                     GitHub URL
                   </label>
                   <input
-                    type="url"
+                    type="text"
                     value={formData.githubUrl}
                     onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
                     placeholder="https://github.com/..."
                     className="w-full px-3 py-2 bg-muted/50 border border-border rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
+              </div>
+
+              {/* Video Demo (Two Choices: Video Link or Upload Video File) */}
+              <div className="bg-slate-50/70 dark:bg-muted/30 p-3.5 rounded-xl border border-border">
+                <FileUploadChoice
+                  label="Video Demo"
+                  fileType="video"
+                  value={formData.videoUrl}
+                  onChange={(url) => setFormData({ ...formData, videoUrl: url })}
+                  folder="videos"
+                  placeholder="https://youtube.com/... or /uploads/..."
+                  helperText="Provide a YouTube/Vimeo link or upload an MP4/WebM video file"
+                />
               </div>
 
               {/* Status & Featured */}

@@ -23,6 +23,7 @@ import { EventService } from "@/services/events/event.service";
 import { ProjectService } from "@/services/projects/project.service";
 import { InnovationPipelineNodes } from "@/components/public/InnovationPipelineNodes";
 import { ScrollReveal } from "@/components/public/ScrollReveal";
+import { ProjectMediaCover } from "@/components/public/ProjectMediaCover";
 import { getSetting } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +32,7 @@ export default async function HomePage() {
   const [researchPapers, upcomingEvents, featuredProjects] = await Promise.all([
     ResearchService.getFeaturedPapers(3),
     EventService.getUpcomingEvents(3),
-    ProjectService.getFeaturedProjects(5),
+    ProjectService.getFeaturedProjects(8),
   ]);
 
   const heroTitle = await getSetting("hero_title", "Innovating Technology. Empowering the Future.");
@@ -419,21 +420,15 @@ export default async function HomePage() {
 
         <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 relative">
           <ScrollReveal animation="fade-up" duration={850}>
-            {/* Section Header */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-11 sm:mb-16">
-              <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#E9F3FD] to-white border border-[#0875D1]/15 shadow-[0_1px_2px_rgba(8,117,209,0.06),0_8px_24px_-12px_rgba(8,117,209,0.2)] mb-4 hover:shadow-[0_2px_4px_rgba(8,117,209,0.08),0_12px_32px_-12px_rgba(8,117,209,0.3)] transition-shadow duration-300">
-                  <Sparkles className="w-3.5 h-3.5 text-[#0875D1]" />
-                  <span className="text-[11px] font-extrabold text-[#08245C] tracking-[0.18em] uppercase">
-                    PROJECT SHOWCASES
-                  </span>
-                </div>
-                <h2 className="text-3xl sm:text-4xl lg:text-[54px] font-black tracking-tight leading-[1.05] bg-gradient-to-br from-[#08245C] via-[#0A2C6B] to-[#0875D1] bg-clip-text text-transparent">
+            {/* Section Header matching Screenshot 3 */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 sm:mb-10">
+              <div>
+                <p className="text-xs sm:text-[13px] font-extrabold uppercase tracking-[0.18em] text-[#0875D1] mb-2">
+                  PROJECTS PORTFOLIO
+                </p>
+                <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-black text-[#08245C] tracking-tight leading-[1.1]">
                   Innovation in Action
                 </h2>
-                <p className="mt-4 text-sm sm:text-[15px] text-slate-600 leading-relaxed max-w-xl">
-                  From fintech platforms and robotics hardware to AI-driven healthcare coordination systems — explore real-world prototypes engineered by Jazeera University students.
-                </p>
               </div>
 
               <Link
@@ -446,415 +441,246 @@ export default async function HomePage() {
             </div>
           </ScrollReveal>
 
-          {/* ASYMMETRIC BENTO GRID */}
-          <ScrollReveal animation="tilt-up" duration={900} delay={80}>
-            {featuredProjects && featuredProjects.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4 sm:gap-5 items-stretch">
-                {(() => {
-                  const mainProject = featuredProjects[0];
-                  const restProjects = featuredProjects.slice(1, 5);
-                  const fallbackImg = [
-                    "/images/maal-hub.jpg",
-                    "/images/sahal-sacco.jpg",
-                    "/images/robot-car-cleaner.jpg",
-                    "/images/badbaado-safety.jpg",
-                    "/images/maal-hub.jpg",
-                  ];
-                  const iconsByCategory = [Sparkles, Zap, Target, Award, Users];
+          {/* 2x2 PROJECT SHOWCASE GRID & BOTTOM SPOTLIGHT */}
+          {(() => {
+            const fallbackGrid: {
+              title: string;
+              summary: string;
+              category: string;
+              heroImage: string;
+              slug: string;
+              videoUrl?: string | null;
+            }[] = [
+              {
+                title: "MAAL HUB",
+                summary: "Integrated financial management system for micro enterprises.",
+                category: "FINTECH",
+                heroImage: "/images/maal-hub.jpg",
+                slug: "maal-hub",
+                videoUrl: null,
+              },
+              {
+                title: "Robot Car Cleaner",
+                summary: "Autonomous cleaning solutions for urban environments.",
+                category: "ROBOTICS",
+                heroImage: "/images/robot-car-cleaner.jpg",
+                slug: "robot-car-cleaner",
+                videoUrl: null,
+              },
+              {
+                title: "SAHAL SACCO",
+                summary: "Automating credit and savings operations.",
+                category: "SAAS",
+                heroImage: "/images/sahal-sacco.jpg",
+                slug: "sahal-sacco",
+                videoUrl: null,
+              },
+              {
+                title: "BADBAADO Platform",
+                summary: "Digital coordination for emergency health services.",
+                category: "SAFETY TECH",
+                heroImage: "/images/badbaado-safety.jpg",
+                slug: "badbaado",
+                videoUrl: null,
+              },
+            ];
 
-                  return (
-                    <>
-                      {/* BIG SPOTLIGHT CARD - xl:col-span-7 */}
+            const defaultSpotlight = {
+              title: "BADBAADO Healthcare Coordination Platform",
+              summary:
+                "A revolutionary platform designed to synchronize medical emergency responses and healthcare data across regional clinics. It streamlines patient data transfer and reduces critical response times by 35%.",
+              heroImage: "/images/badbaado-healthcare.jpg",
+              slug: "badbaado",
+              stats: [
+                { value: "35%", label: "Faster Response Time" },
+                { value: "12k+", label: "Patients Managed" },
+              ],
+            };
+
+            const allProjects = featuredProjects || [];
+
+            // Match stored DB projects
+            const findProject = (matchSlug: string, matchTitle: string) =>
+              allProjects.find(
+                (p) =>
+                  p.slug.toLowerCase().includes(matchSlug) ||
+                  p.title.toLowerCase().includes(matchTitle)
+              );
+
+            const p1 = findProject("maal", "maal") || allProjects[0] || fallbackGrid[0];
+            const p2 = findProject("robot", "robot") || allProjects[1] || fallbackGrid[1];
+            const p3 = findProject("sahal", "sahal") || allProjects[2] || fallbackGrid[2];
+            const p4 =
+              allProjects.find(
+                (p) =>
+                  p.id !== p1?.id &&
+                  p.id !== p2?.id &&
+                  p.id !== p3?.id
+              ) || fallbackGrid[3];
+
+            const gridCards = [
+              {
+                title: p1?.title || fallbackGrid[0].title,
+                summary: p1?.summary || fallbackGrid[0].summary,
+                category: p1?.category || fallbackGrid[0].category,
+                heroImage: p1?.heroImage || fallbackGrid[0].heroImage,
+                videoUrl: p1?.videoUrl || null,
+                slug: p1?.slug || fallbackGrid[0].slug,
+              },
+              {
+                title: p2?.title || fallbackGrid[1].title,
+                summary: p2?.summary || fallbackGrid[1].summary,
+                category: p2?.category || fallbackGrid[1].category,
+                heroImage: p2?.heroImage || fallbackGrid[1].heroImage,
+                videoUrl: p2?.videoUrl || null,
+                slug: p2?.slug || fallbackGrid[1].slug,
+              },
+              {
+                title: p3?.title || fallbackGrid[2].title,
+                summary: p3?.summary || fallbackGrid[2].summary,
+                category: p3?.category || fallbackGrid[2].category,
+                heroImage: p3?.heroImage || fallbackGrid[2].heroImage,
+                videoUrl: p3?.videoUrl || null,
+                slug: p3?.slug || fallbackGrid[2].slug,
+              },
+              {
+                title: p4?.title || fallbackGrid[3].title,
+                summary: p4?.summary || fallbackGrid[3].summary,
+                category: p4?.category || fallbackGrid[3].category,
+                heroImage: p4?.heroImage || fallbackGrid[3].heroImage,
+                videoUrl: p4?.videoUrl || null,
+                slug: p4?.slug || fallbackGrid[3].slug,
+              },
+            ];
+
+            const dbSpotlight =
+              allProjects.find(
+                (p) =>
+                  p.slug.toLowerCase().includes("badbaado") ||
+                  p.title.toLowerCase().includes("badbaado") ||
+                  p.title.toLowerCase().includes("healthcare")
+              ) || allProjects.find((p) => p.isFeatured) || allProjects[4];
+
+            const spotlight = {
+              title:
+                dbSpotlight?.title && dbSpotlight.title.toLowerCase().includes("healthcare")
+                  ? dbSpotlight.title
+                  : (dbSpotlight?.title
+                      ? `${dbSpotlight.title} Healthcare Coordination Platform`
+                      : defaultSpotlight.title),
+              summary: dbSpotlight?.summary || defaultSpotlight.summary,
+              heroImage:
+                dbSpotlight?.heroImage && !dbSpotlight.heroImage.includes("unsplash")
+                  ? dbSpotlight.heroImage
+                  : defaultSpotlight.heroImage,
+              videoUrl: dbSpotlight?.videoUrl || null,
+              slug: dbSpotlight?.slug || defaultSpotlight.slug,
+              stats: defaultSpotlight.stats,
+            };
+
+            return (
+              <div className="space-y-8 sm:space-y-10 lg:space-y-12">
+                {/* 1. TOP 2x2 GRID OF 4 PROJECTS (MATCHING SCREENSHOT 3) */}
+                <ScrollReveal animation="tilt-up" duration={900} delay={60}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 lg:gap-7">
+                    {gridCards.map((card, idx) => (
                       <Link
-                        href={`/projects/${mainProject.slug}`}
-                        className="group relative rounded-3xl overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.04),0_20px_40px_-20px_rgba(8,117,209,0.25)] hover:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_35px_70px_-20px_rgba(8,36,92,0.45)] transition-all duration-500 xl:col-span-7 xl:row-span-2 min-h-[340px] sm:min-h-[380px] lg:min-h-[430px] xl:min-h-[540px] flex flex-col justify-between ring-1 ring-black/5 hover:ring-[#0875D1]/20 before:absolute before:inset-0 before:z-20 before:pointer-events-none before:rounded-3xl before:ring-1 before:ring-inset before:ring-white/10 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500"
+                        key={card.slug || idx}
+                        href={`/projects/${card.slug}`}
+                        className="group relative rounded-3xl overflow-hidden aspect-[16/10] sm:aspect-[16/10] bg-slate-900 shadow-[0_4px_24px_-10px_rgba(8,36,92,0.18)] hover:shadow-[0_24px_48px_-12px_rgba(8,36,92,0.32)] transition-all duration-500 hover:-translate-y-1 block ring-1 ring-black/5"
                       >
-                        {/* Background */}
-                        <div className="absolute inset-0">
-                          <Image
-                            src={mainProject.heroImage || fallbackImg[0]}
-                            alt={mainProject.title}
-                            fill
-                            priority
-                            className="object-cover object-center group-hover:scale-[1.08] transition-transform duration-[1400ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#050D24]/97 via-[#08245C]/60 to-[#0875D1]/15 group-hover:from-[#050D24]/97 group-hover:via-[#0A2C6B]/70 group-hover:to-[#0875D1]/25 transition-all duration-700" />
-                          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/30 to-transparent" />
-                          {/* Radial glow accent */}
-                          <div className="absolute -top-1/3 -right-1/4 w-[500px] h-[500px] bg-[#0875D1]/25 rounded-full blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                        {/* Media Cover (Autoplay Video Takes Priority, Hero Image Fallback) */}
+                        <ProjectMediaCover
+                          videoUrl={card.videoUrl}
+                          imageUrl={card.heroImage}
+                          alt={card.title}
+                          className="object-cover object-center group-hover:scale-[1.06] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                        />
+
+                        {/* Gradient Vignette matching Screenshot 3 */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent transition-opacity duration-300 group-hover:from-black/90 group-hover:via-black/45" />
+
+                        {/* Top Category Badge */}
+                        <div className="absolute top-5 left-5 sm:top-6 sm:left-6 z-10">
+                          <span className="inline-block px-3 py-1 rounded-full bg-white/95 backdrop-blur-md text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-[#08245C] shadow-sm">
+                            {card.category}
+                          </span>
                         </div>
 
-                        {/* Top Meta Row */}
-                        <div className="relative z-10 p-6 sm:p-8 lg:p-9 flex items-start justify-between gap-4">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md text-[10px] sm:text-[11px] font-extrabold tracking-[0.14em] text-[#08245C] uppercase shadow-[0_10px_25px_-8px_rgba(0,0,0,0.2)] border border-white/70">
-                              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-0.5 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-                              {mainProject.category}
-                            </span>
-                            {mainProject.demoUrl && (
-                              <span className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#0875D1] to-cyan-500 backdrop-blur-md text-[10px] font-bold text-white uppercase tracking-wide shadow-[0_8px_20px_-8px_rgba(8,117,209,0.6)] border border-white/15">
-                                <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_6px_rgba(255,255,255,0.9)]" />
-                                Live Demo
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] group-hover:bg-white group-hover:text-[#0875D1] group-hover:scale-110 group-hover:rotate-[3deg] group-hover:shadow-[0_15px_35px_-10px_rgba(255,255,255,0.25)] transition-all duration-500">
-                            <ArrowUpRight className="w-5 h-5 sm:w-6 sm:h-6" />
-                          </div>
-                        </div>
-
-                        {/* Bottom Content */}
-                        <div className="relative z-10 p-6 sm:p-8 lg:p-9 space-y-4 sm:space-y-5">
-                          {/* Large Title */}
-                          <h3 className="text-2xl sm:text-3xl lg:text-4xl xl:text-[44px] font-black text-white tracking-tight leading-[1.08] max-w-2xl transition-all duration-500 group-hover:drop-shadow-[0_4px_20px_rgba(8,117,209,0.35)]">
-                            {mainProject.title}
+                        {/* Bottom Title & Summary */}
+                        <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7 z-10 flex flex-col justify-end">
+                          <h3 className="text-xl sm:text-2xl font-black text-white tracking-wide mb-1.5 transition-colors group-hover:text-cyan-300">
+                            {card.title}
                           </h3>
-                          <p className="text-sm sm:text-[15px] text-white/78 leading-relaxed max-w-xl line-clamp-3 sm:line-clamp-none group-hover:text-white/85 transition-colors duration-300">
-                            {mainProject.summary}
+                          <p className="text-xs sm:text-sm text-white/85 line-clamp-2 leading-relaxed">
+                            {card.summary}
                           </p>
-
-                          {/* Technology pills */}
-                          <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                            {String(mainProject.technology || "")
-                              .split(",")
-                              .slice(0, 5)
-                              .filter((t) => t.trim().length > 0)
-                              .map((tech, i) => (
-                                <span
-                                  key={i}
-                                  className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 text-[11px] font-semibold text-white/92 group-hover:bg-white/15 group-hover:border-white/25 group-hover:shadow-[0_4px_12px_-4px_rgba(8,117,209,0.35)] transition-all duration-300"
-                                >
-                                  {tech.trim()}
-                                </span>
-                              ))}
-                          </div>
-
-                          {/* Bottom action row */}
-                          <div className="flex flex-wrap items-center justify-between gap-4 pt-4 mt-1 border-t border-white/15 group-hover:border-white/25 transition-colors duration-300">
-                            <div className="flex items-center gap-5">
-                              <div className="flex -space-x-2">
-                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-[#0875D1] to-[#08245C] border-2 border-white/40 flex items-center justify-center text-[10px] sm:text-[11px] font-black text-white shadow-[0_4px_12px_-2px_rgba(8,117,209,0.45)]">
-                                  JU
-                                </div>
-                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 border-2 border-white/40 flex items-center justify-center text-[10px] sm:text-[11px] font-black text-white shadow-[0_4px_12px_-2px_rgba(16,185,129,0.45)]">
-                                  CS
-                                </div>
-                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/15 backdrop-blur border-2 border-white/30 flex items-center justify-center text-[10px] sm:text-[11px] font-bold text-white/90 group-hover:bg-white/20 transition-colors duration-300">
-                                  +{String(mainProject.technology || "").split(",").length}
-                                </div>
-                              </div>
-                              <div>
-                                <div className="text-[11px] font-bold text-white/92 group-hover:text-white transition-colors">JANIC Cohort</div>
-                                <div className="text-[10px] text-white/55 font-medium">Faculty of CS &amp; IT</div>
-                              </div>
-                            </div>
-
-                            <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white text-[#08245C] text-xs sm:text-[13px] font-bold shadow-[0_12px_30px_-8px_rgba(0,0,0,0.2)] group-hover:bg-gradient-to-r group-hover:from-[#0875D1] group-hover:to-cyan-500 group-hover:text-white group-hover:shadow-[0_15px_35px_-8px_rgba(8,117,209,0.65)] transition-all duration-300">
-                              View Project
-                              <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-300 group-hover:translate-x-1.5" />
-                            </div>
-                          </div>
                         </div>
                       </Link>
-
-                      {/* SECONDARY CARDS — xl:col-span-5 */}
-                      <div className="xl:col-span-5 flex flex-col gap-4 sm:gap-5">
-                        {restProjects.map((project, idx) => {
-                          const IconComp = iconsByCategory[(idx + 1) % iconsByCategory.length];
-                          return (
-                            <Link
-                              key={project.id}
-                              href={`/projects/${project.slug}`}
-                              className="group relative rounded-3xl overflow-hidden bg-white border border-slate-200/70 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_10px_30px_-15px_rgba(8,36,92,0.18)] hover:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_25px_60px_-15px_rgba(8,117,209,0.4)] hover:border-[#0875D1]/30 transition-all duration-500 hover:-translate-y-1 min-h-[150px] sm:min-h-[160px] lg:min-h-[175px] flex ring-1 ring-black/[0.03] hover:ring-[#0875D1]/10"
-                            >
-                              <div className="grid grid-cols-5 w-full">
-                                {/* LEFT: Thumbnail */}
-                                <div className="col-span-2 relative overflow-hidden min-h-[150px] sm:min-h-[160px] lg:min-h-[175px]">
-                                  <Image
-                                    src={project.heroImage || fallbackImg[(idx + 1) % fallbackImg.length]}
-                                    alt={project.title}
-                                    fill
-                                    className="object-cover object-center group-hover:scale-[1.12] transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
-                                  />
-                                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#08245C]/5 to-white/70 group-hover:from-transparent group-hover:via-[#0875D1]/10 group-hover:to-white/60 transition-colors duration-500" />
-                                  <div className="absolute inset-0 ring-1 ring-inset ring-black/5 group-hover:ring-[#0875D1]/10 transition-colors duration-500" />
-                                  {/* Corner accent */}
-                                  <div className="absolute top-2.5 left-2.5 w-2 h-2 rounded-full bg-white/80 shadow-[0_0_10px_rgba(255,255,255,0.8)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                </div>
-                                {/* RIGHT: Content */}
-                                <div className="col-span-3 p-4 sm:p-5 lg:p-6 flex flex-col justify-between gap-3">
-                                  <div>
-                                    <div className="flex items-center justify-between gap-2 mb-2">
-                                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-[#E9F3FD] to-white border border-[#0875D1]/15 text-[10px] sm:text-[11px] font-extrabold tracking-wider text-[#08245C] uppercase shadow-[0_1px_2px_rgba(8,117,209,0.06)]">
-                                        {project.category}
-                                      </span>
-                                      <div className="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-gradient-to-br group-hover:from-[#08245C] group-hover:to-[#0875D1] text-slate-500 group-hover:text-white transition-all duration-400 flex items-center justify-center shadow-[0_1px_2px_rgba(0,0,0,0.04)] group-hover:shadow-[0_6px_16px_-6px_rgba(8,117,209,0.5)]">
-                                        <IconComp className="w-3.5 h-3.5 transition-transform duration-300 group-hover:scale-110" />
-                                      </div>
-                                    </div>
-                                    <h3 className="text-base sm:text-lg lg:text-xl font-extrabold text-[#08245C] tracking-tight leading-tight group-hover:text-[#0875D1] transition-colors duration-300 line-clamp-2 group-hover:drop-shadow-[0_2px_8px_rgba(8,117,209,0.15)]">
-                                      {project.title}
-                                    </h3>
-                                  </div>
-                                  <div className="space-y-2.5">
-                                    <div className="flex flex-wrap gap-1.5">
-                                      {String(project.technology || "")
-                                        .split(",")
-                                        .slice(0, 3)
-                                        .filter((t) => t.trim().length > 0)
-                                        .map((tech, i) => (
-                                          <span
-                                            key={i}
-                                            className="px-2 py-0.5 rounded-lg bg-slate-50 group-hover:bg-blue-50 border border-slate-200/60 group-hover:border-[#0875D1]/20 text-[10px] font-semibold text-slate-600 group-hover:text-[#08245C] transition-all duration-300"
-                                          >
-                                            {tech.trim()}
-                                          </span>
-                                        ))}
-                                    </div>
-                                    <div className="flex items-center justify-between pt-1.5 border-t border-slate-100/80 group-hover:border-[#0875D1]/10 transition-colors duration-300">
-                                      <span className="text-[11px] font-bold text-[#08245C]/50 group-hover:text-[#0875D1] transition-colors duration-300">
-                                        Read Case Study
-                                      </span>
-                                      <div className="w-7 h-7 rounded-full bg-[#08245C]/5 group-hover:bg-gradient-to-r group-hover:from-[#0875D1] group-hover:to-cyan-500 text-[#08245C] group-hover:text-white flex items-center justify-center transition-all duration-400 group-hover:scale-[1.15] group-hover:shadow-[0_6px_16px_-6px_rgba(8,117,209,0.55)]">
-                                        <ArrowRight className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-0.5" />
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </>
-                  );
-                })()}
-              </div>
-            ) : (
-              /* HARDCODED FALLBACK BENTO (same layout) */
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4 sm:gap-5 items-stretch">
-                <Link
-                  href="/projects/maal-hub"
-                  className="group relative rounded-3xl overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.04),0_20px_40px_-20px_rgba(8,117,209,0.25)] hover:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_35px_70px_-20px_rgba(8,36,92,0.45)] transition-all duration-500 xl:col-span-7 xl:row-span-2 min-h-[340px] sm:min-h-[380px] lg:min-h-[430px] xl:min-h-[540px] flex flex-col justify-between ring-1 ring-black/5 hover:ring-[#0875D1]/20 before:absolute before:inset-0 before:z-20 before:pointer-events-none before:rounded-3xl before:ring-1 before:ring-inset before:ring-white/10 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500"
-                >
-                  <div className="absolute inset-0">
-                    <Image
-                      src="/images/maal-hub.jpg"
-                      alt="MAAL HUB Fintech Platform"
-                      fill
-                      priority
-                      className="object-cover object-center group-hover:scale-[1.08] transition-transform duration-[1400ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#050D24]/97 via-[#08245C]/60 to-[#0875D1]/15 group-hover:from-[#050D24]/97 group-hover:via-[#0A2C6B]/70 group-hover:to-[#0875D1]/25 transition-all duration-700" />
-                    <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/30 to-transparent" />
-                    <div className="absolute -top-1/3 -right-1/4 w-[500px] h-[500px] bg-[#0875D1]/25 rounded-full blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-                  </div>
-                  <div className="relative z-10 p-6 sm:p-8 lg:p-9 flex items-start justify-between gap-4">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md text-[10px] sm:text-[11px] font-extrabold tracking-[0.14em] text-[#08245C] uppercase shadow-[0_10px_25px_-8px_rgba(0,0,0,0.2)] border border-white/70">
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-0.5 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-                        FINTECH
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] group-hover:bg-white group-hover:text-[#0875D1] group-hover:scale-110 group-hover:rotate-[3deg] group-hover:shadow-[0_15px_35px_-10px_rgba(255,255,255,0.25)] transition-all duration-500">
-                      <ArrowUpRight className="w-5 h-5 sm:w-6 sm:h-6" />
-                    </div>
-                  </div>
-                  <div className="relative z-10 p-6 sm:p-8 lg:p-9 space-y-4 sm:space-y-5">
-                    <h3 className="text-2xl sm:text-3xl lg:text-4xl xl:text-[44px] font-black text-white tracking-tight leading-[1.08] max-w-2xl transition-all duration-500 group-hover:drop-shadow-[0_4px_20px_rgba(8,117,209,0.35)]">
-                      MAAL HUB: Fintech for Micro-Enterprises
-                    </h3>
-                    <p className="text-sm sm:text-[15px] text-white/78 leading-relaxed max-w-xl group-hover:text-white/85 transition-colors duration-300">
-                      Integrated financial management platform empowering Somali micro-enterprises with bookkeeping, digital payments, and micro-loan orchestration.
-                    </p>
-                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                      {["Next.js", "Prisma", "MySQL", "Stripe API"].map((t) => (
-                        <span key={t} className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 text-[11px] font-semibold text-white/92 group-hover:bg-white/15 group-hover:border-white/25 group-hover:shadow-[0_4px_12px_-4px_rgba(8,117,209,0.35)] transition-all duration-300">
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="flex flex-wrap items-center justify-between gap-4 pt-4 mt-1 border-t border-white/15 group-hover:border-white/25 transition-colors duration-300">
-                      <div className="flex items-center gap-5">
-                        <div className="flex -space-x-2">
-                          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-[#0875D1] to-[#08245C] border-2 border-white/40 flex items-center justify-center text-[11px] font-black text-white shadow-[0_4px_12px_-2px_rgba(8,117,209,0.45)]">JU</div>
-                          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 border-2 border-white/40 flex items-center justify-center text-[11px] font-black text-white shadow-[0_4px_12px_-2px_rgba(16,185,129,0.45)]">CS</div>
-                        </div>
-                        <div>
-                          <div className="text-[11px] font-bold text-white/92 group-hover:text-white transition-colors">JANIC Cohort</div>
-                          <div className="text-[10px] text-white/55 font-medium">Faculty of CS &amp; IT</div>
-                        </div>
-                      </div>
-                      <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white text-[#08245C] text-xs sm:text-[13px] font-bold shadow-[0_12px_30px_-8px_rgba(0,0,0,0.2)] group-hover:bg-gradient-to-r group-hover:from-[#0875D1] group-hover:to-cyan-500 group-hover:text-white group-hover:shadow-[0_15px_35px_-8px_rgba(8,117,209,0.65)] transition-all duration-300">
-                        View Project
-                        <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-300 group-hover:translate-x-1.5" />
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-                <div className="xl:col-span-5 flex flex-col gap-4 sm:gap-5">
-                  {[
-                    { slug: "sahal-sacco", title: "SAHAL SACCO: Credit &amp; Savings Automation", category: "SAAS", img: "/images/sahal-sacco.jpg", icon: Zap, tech: ["React", "Node.js", "Finflux"] },
-                    { slug: "robot-car-cleaner", title: "Autonomous Robot Car Cleaner", category: "ROBOTICS", img: "/images/robot-car-cleaner.jpg", icon: Target, tech: ["Arduino", "IoT", "Python"] },
-                    { slug: "badbaado", title: "BADBAADO Emergency Health Platform", category: "SAFETY TECH", img: "/images/badbaado-safety.jpg", icon: Award, tech: ["Next.js", "AI/ML", "Telehealth"] },
-                  ].map((project) => (
-                    <Link
-                      key={project.slug}
-                      href={`/projects/${project.slug}`}
-                      className="group relative rounded-3xl overflow-hidden bg-white border border-slate-200/70 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_10px_30px_-15px_rgba(8,36,92,0.18)] hover:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_25px_60px_-15px_rgba(8,117,209,0.4)] hover:border-[#0875D1]/30 transition-all duration-500 hover:-translate-y-1 min-h-[150px] sm:min-h-[160px] lg:min-h-[175px] flex ring-1 ring-black/[0.03] hover:ring-[#0875D1]/10"
-                    >
-                      <div className="grid grid-cols-5 w-full">
-                        <div className="col-span-2 relative overflow-hidden min-h-[150px] sm:min-h-[160px] lg:min-h-[175px]">
-                          <Image
-                            src={project.img}
-                            alt={project.title}
-                            fill
-                            className="object-cover object-center group-hover:scale-[1.12] transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#08245C]/5 to-white/70 group-hover:from-transparent group-hover:via-[#0875D1]/10 group-hover:to-white/60 transition-colors duration-500" />
-                          <div className="absolute inset-0 ring-1 ring-inset ring-black/5 group-hover:ring-[#0875D1]/10 transition-colors duration-500" />
-                          <div className="absolute top-2.5 left-2.5 w-2 h-2 rounded-full bg-white/80 shadow-[0_0_10px_rgba(255,255,255,0.8)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                        </div>
-                        <div className="col-span-3 p-4 sm:p-5 lg:p-6 flex flex-col justify-between gap-3">
-                          <div>
-                            <div className="flex items-center justify-between gap-2 mb-2">
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-[#E9F3FD] to-white border border-[#0875D1]/15 text-[10px] sm:text-[11px] font-extrabold tracking-wider text-[#08245C] uppercase shadow-[0_1px_2px_rgba(8,117,209,0.06)]">
-                                {project.category}
-                              </span>
-                              <div className="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-gradient-to-br group-hover:from-[#08245C] group-hover:to-[#0875D1] text-slate-500 group-hover:text-white transition-all duration-400 flex items-center justify-center shadow-[0_1px_2px_rgba(0,0,0,0.04)] group-hover:shadow-[0_6px_16px_-6px_rgba(8,117,209,0.5)]">
-                                <project.icon className="w-3.5 h-3.5 transition-transform duration-300 group-hover:scale-110" />
-                              </div>
-                            </div>
-                            <h3 className="text-base sm:text-lg lg:text-xl font-extrabold text-[#08245C] tracking-tight leading-tight group-hover:text-[#0875D1] transition-colors duration-300 line-clamp-2 group-hover:drop-shadow-[0_2px_8px_rgba(8,117,209,0.15)]">
-                              {project.title}
-                            </h3>
-                          </div>
-                          <div className="space-y-2.5">
-                            <div className="flex flex-wrap gap-1.5">
-                              {project.tech.map((t) => (
-                                <span key={t} className="px-2 py-0.5 rounded-lg bg-slate-50 group-hover:bg-blue-50 border border-slate-200/60 group-hover:border-[#0875D1]/20 text-[10px] font-semibold text-slate-600 group-hover:text-[#08245C] transition-all duration-300">
-                                  {t}
-                                </span>
-                              ))}
-                            </div>
-                            <div className="flex items-center justify-between pt-1.5 border-t border-slate-100/80 group-hover:border-[#0875D1]/10 transition-colors duration-300">
-                              <span className="text-[11px] font-bold text-[#08245C]/50 group-hover:text-[#0875D1] transition-colors duration-300">Read Case Study</span>
-                              <div className="w-7 h-7 rounded-full bg-[#08245C]/5 group-hover:bg-gradient-to-r group-hover:from-[#0875D1] group-hover:to-cyan-500 text-[#08245C] group-hover:text-white flex items-center justify-center transition-all duration-400 group-hover:scale-[1.15] group-hover:shadow-[0_6px_16px_-6px_rgba(8,117,209,0.55)]">
-                                <ArrowRight className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-0.5" />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </ScrollReveal>
-
-          {/* 7. FEATURED CASE STUDY: BADBAADO — ZOOM OUT ENTRANCE */}
-          <ScrollReveal animation="zoom-out" duration={900} className="mt-14 sm:mt-20 lg:mt-24">
-            <div className="relative rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-[#08245C] via-[#0A2C6B] to-[#051740] border border-white/10 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_40px_80px_-30px_rgba(8,36,92,0.55)]">
-              {/* Glow blobs */}
-              <div className="absolute -top-20 -right-20 w-96 h-96 bg-[#0875D1]/30 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-32 -left-16 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.06),_transparent_50%)]" />
-
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
-                {/* LEFT: Hero visual */}
-                <div className="lg:col-span-6 relative p-6 sm:p-10 lg:p-12 xl:p-14 order-2 lg:order-1">
-                  <div className="relative rounded-[1.5rem] overflow-hidden aspect-[4/3] lg:aspect-auto lg:h-full w-full shadow-[0_20px_60px_-15px_rgba(0,0,0,0.55)] border border-white/10">
-                    <Image
-                      src="/images/badbaado-healthcare.jpg"
-                      alt="BADBAADO Healthcare Coordination Platform"
-                      fill
-                      className="object-cover object-center hover:scale-[1.04] transition-transform duration-[1200ms] ease-out"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#050D24]/40 via-transparent to-transparent" />
-                    {/* Floating metric badge */}
-                    <div className="absolute top-4 left-4 sm:top-5 sm:left-5 p-3.5 sm:p-4 rounded-2xl bg-white/95 backdrop-blur-xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.25)] border border-white/70 flex items-center gap-3 max-w-[220px]">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white shadow-md">
-                        <CheckCircle2 className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <div className="text-[10px] font-extrabold tracking-wider text-emerald-700 uppercase">Live Pilot</div>
-                        <div className="text-sm font-black text-[#08245C] tracking-tight">6 Regional Clinics</div>
-                      </div>
-                    </div>
-                    {/* Floating response-time badge */}
-                    <div className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 p-3.5 sm:p-4 rounded-2xl bg-[#08245C]/95 backdrop-blur-xl text-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.35)] border border-white/10 flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0875D1] to-cyan-500 flex items-center justify-center text-white shadow-md">
-                      <Zap className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <div className="text-[10px] font-extrabold tracking-wider text-white/60 uppercase">Saved</div>
-                        <div className="text-sm font-black tracking-tight">35% Faster Response</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* RIGHT: Content */}
-                <div className="lg:col-span-6 p-6 sm:p-10 lg:p-12 xl:p-14 flex flex-col justify-center space-y-5 sm:space-y-6 relative z-10 order-1 lg:order-2">
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/15 self-start mb-2">
-                    <Award className="w-3.5 h-3.5 text-amber-300" />
-                    <span className="text-[11px] font-extrabold tracking-[0.18em] text-white/85 uppercase">
-                      Featured Case Study
-                    </span>
-                  </div>
-
-                  <h3 className="text-2xl sm:text-3xl lg:text-4xl xl:text-[44px] font-black text-white tracking-tight leading-[1.08]">
-                    BADBAADO: Emergency Healthcare Coordination Platform
-                  </h3>
-
-                  <p className="text-sm sm:text-[15px] text-white/70 leading-relaxed max-w-xl">
-                    A revolutionary AI-driven system designed to synchronize medical emergency responses and healthcare data across regional clinics. Streamlines patient triage, real-time ambulance routing, and cross-facility patient record transfer — reducing critical response times by 35%.
-                  </p>
-
-                  {/* Metric cards grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-                    {[
-                      { value: "35%", label: "Faster Response", icon: Zap, accent: "from-[#0875D1]" },
-                      { value: "12k+", label: "Patients / Managed", icon: Users, accent: "from-emerald-500" },
-                      { value: "6", label: "Partner Clinics", icon: Target, accent: "from-amber-500" },
-                    ].map((stat) => (
-                      <div
-                        key={stat.label}
-                        className="group p-3.5 sm:p-4 sm:p-5 rounded-2xl bg-white/5 hover:bg-white/[0.08] border border-white/10 hover:border-white/20 transition-all duration-300 hover:-translate-y-0.5"
-                      >
-                        <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${stat.accent} to-transparent flex items-center justify-center text-white shadow-md mb-2.5`}>
-                          <stat.icon className="w-[18px] h-[18px]" />
-                        </div>
-                        <div className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight leading-none">
-                          {stat.value}
-                        </div>
-                        <div className="text-[10px] sm:text-[11px] text-white/55 font-semibold mt-1 leading-tight">
-                          {stat.label}
-                        </div>
-                      </div>
                     ))}
                   </div>
+                </ScrollReveal>
 
-                  {/* CTA Row */}
-                  <div className="flex flex-wrap items-center gap-3 pt-2">
-                    <Link
-                      href="/projects/badbaado"
-                      className="group inline-flex items-center gap-2 px-6 sm:px-7 py-3 sm:py-3.5 rounded-full bg-white hover:bg-[#0875D1] text-[#08245C] hover:text-white text-xs sm:text-sm font-bold shadow-[0_15px_35px_-10px_rgba(255,255,255,0.2)] transition-all duration-300 hover:shadow-[0_18px_40px_-10px_rgba(8,117,209,0.6)]">
-                      View Full Case Study
-                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                    </Link>
-                    <Link
-                      href="/projects"
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/20 hover:border-white/40 text-white/85 hover:text-white text-xs sm:text-sm font-bold backdrop-blur-sm transition-all"
-                    >
-                      Browse All Projects
-                    </Link>
+                {/* 2. BOTTOM FEATURED SPOTLIGHT CARD (MATCHING SCREENSHOT 3) */}
+                <ScrollReveal animation="zoom-out" duration={900} delay={100}>
+                  <div className="bg-white rounded-3xl p-6 sm:p-8 lg:p-10 shadow-[0_4px_30px_rgba(0,0,0,0.04)] border border-slate-100 ring-1 ring-slate-900/[0.04]">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+                      {/* Left: Project Media (Video Priority or Hero Image) */}
+                      <div className="lg:col-span-6 relative aspect-[4/3] rounded-2xl overflow-hidden shadow-sm bg-slate-950">
+                        <ProjectMediaCover
+                          videoUrl={spotlight.videoUrl}
+                          imageUrl={spotlight.heroImage}
+                          alt={spotlight.title}
+                          className="object-cover object-center hover:scale-[1.03] transition-transform duration-700"
+                        />
+                      </div>
+
+                      {/* Right: Content & Stats */}
+                      <div className="lg:col-span-6 flex flex-col justify-center space-y-5 sm:space-y-6">
+                        <div>
+                          <span className="inline-block text-xs font-black text-[#0875D1] uppercase tracking-[0.18em] mb-2.5">
+                            FEATURED PROJECT
+                          </span>
+                          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#08245C] tracking-tight leading-tight">
+                            {spotlight.title}
+                          </h3>
+                        </div>
+
+                        <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+                          {spotlight.summary}
+                        </p>
+
+                        {/* Stats Row matching Screenshot 3 */}
+                        <div className="flex items-center gap-10 sm:gap-14 pt-1">
+                          {spotlight.stats.map((stat, idx) => (
+                            <div key={idx}>
+                              <div className="text-3xl sm:text-4xl font-black text-[#08245C] tracking-tight leading-none mb-1">
+                                {stat.value}
+                              </div>
+                              <div className="text-xs sm:text-sm text-slate-500 font-medium">
+                                {stat.label}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Blue Pill CTA Button matching Screenshot 3 */}
+                        <div className="pt-2">
+                          <Link
+                            href={`/projects/${spotlight.slug}`}
+                            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#0875D1] hover:bg-[#0663B3] text-white font-bold text-sm shadow-md shadow-[#0875D1]/25 hover:shadow-lg hover:shadow-[#0875D1]/35 transition-all hover:gap-3"
+                          >
+                            View Case Study
+                            <ArrowRight className="w-4 h-4" />
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </ScrollReveal>
               </div>
-            </div>
-          </ScrollReveal>
+            );
+          })()}
         </div>
       </section>
 

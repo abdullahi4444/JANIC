@@ -37,8 +37,24 @@ export class ProjectRepository {
   }
 
   static async findBySlug(slug: string) {
-    return prisma.project.findUnique({
-      where: { slug },
+    const raw = (slug || "").trim();
+    const decoded = decodeURIComponent(raw).trim();
+    const slugified = decoded
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w-]+/g, "")
+      .replace(/--+/g, "-");
+
+    return prisma.project.findFirst({
+      where: {
+        OR: [
+          { slug: raw },
+          { slug: decoded },
+          { slug: slugified },
+          { title: raw },
+          { title: decoded },
+        ],
+      },
       include: { gallery: { orderBy: { order: "asc" } } },
     });
   }

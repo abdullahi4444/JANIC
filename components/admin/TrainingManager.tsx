@@ -4,6 +4,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Search, Edit2, Trash2, ExternalLink, X, Loader2 } from "lucide-react";
+import { FileUploadChoice } from "./FileUploadChoice";
 
 interface TrainingProgram {
   id: string;
@@ -324,13 +325,14 @@ export function TrainingManager({ initialPrograms }: { initialPrograms: Training
                     className="w-full px-3 py-2 bg-muted/50 border border-border rounded-xl text-xs sm:text-sm"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-foreground mb-1">Cover Image URL</label>
-                  <input
-                    type="url"
+                <div className="sm:col-span-2">
+                  <FileUploadChoice
+                    label="Cover Image"
+                    fileType="image"
                     value={formData.coverImage}
-                    onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
-                    className="w-full px-3 py-2 bg-muted/50 border border-border rounded-xl text-xs sm:text-sm"
+                    onChange={(url) => setFormData({ ...formData, coverImage: url })}
+                    folder="training"
+                    placeholder="https://... or /uploads/..."
                   />
                 </div>
               </div>

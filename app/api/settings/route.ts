@@ -3,6 +3,7 @@ import { z } from "zod";
 import { SettingService } from "@/services/settings/setting.service";
 import { requireAuth } from "@/lib/permissions/roles";
 import { Role } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 const settingsUpdateSchema = z.object({
   settings: z.array(
@@ -38,6 +39,8 @@ export async function POST(req: NextRequest) {
     }
 
     const updated = await SettingService.updateMany(parsed.data.settings);
+    revalidatePath("/", "layout");
+    revalidatePath("/");
     return NextResponse.json({ success: true, items: updated });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Error updating settings";

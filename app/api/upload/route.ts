@@ -89,11 +89,10 @@ export async function POST(req: NextRequest) {
         data: {
           fileName: `${primaryFile.name} (+${imageFiles.length - 1} photos)`,
           url: uploadedUrls[0],
-          alt: alt || primaryFile.name,
+          alt: alt || formattedCaption || primaryFile.name,
           mimeType: primaryFile.type,
           sizeBytes: imageFiles.reduce((acc, f) => acc + f.size, 0),
           folder,
-          caption: formattedCaption,
         },
       });
 
@@ -124,11 +123,10 @@ export async function POST(req: NextRequest) {
         data: {
           fileName: file.name,
           url: publicUrl,
-          alt: alt || file.name,
+          alt: alt || caption || file.name,
           mimeType: file.type,
           sizeBytes: file.size,
           folder,
-          caption: caption || null,
         },
       });
 

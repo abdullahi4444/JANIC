@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Search, Edit2, Trash2, X, Loader2, ExternalLink } from "lucide-react";
 import { formatDate } from "@/lib/utils";
+import { FileUploadChoice } from "./FileUploadChoice";
 
 interface EventItem {
   id: string;
@@ -310,14 +311,14 @@ export function EventManager({ initialEvents }: { initialEvents: EventItem[] }) 
                     className="w-full px-3 py-2 bg-muted/50 border border-border rounded-xl text-xs sm:text-sm"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-foreground mb-1">Cover Image URL</label>
-                  <input
-                    type="url"
+                <div className="sm:col-span-2">
+                  <FileUploadChoice
+                    label="Cover Image"
+                    fileType="image"
                     value={formData.coverImage}
-                    onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
-                    placeholder="https://..."
-                    className="w-full px-3 py-2 bg-muted/50 border border-border rounded-xl text-xs sm:text-sm"
+                    onChange={(url) => setFormData({ ...formData, coverImage: url })}
+                    folder="events"
+                    placeholder="https://... or /uploads/..."
                   />
                 </div>
               </div>
