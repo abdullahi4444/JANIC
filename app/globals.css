@@ -600,6 +600,7 @@ body {
 nextjs-portal,
 [data-nextjs-dev-indicator],
 [data-nextjs-toast],
+[data-nextjs-indicator],
 #nextjs-dev-indicator,
 [data-next-badge],
 button[aria-label*="Next.js"] {
@@ -608,3 +609,22 @@ button[aria-label*="Next.js"] {
   pointer-events: none !important;
   opacity: 0 !important;
 }
+
+/* Sleek modern horizontal scroll track for Leadership & Advisors */
+.advisors-scroll-track {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(8, 117, 209, 0.4) transparent;
+}
+
+.advisors-scroll-track {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.advisors-scroll-track::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+

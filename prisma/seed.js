@@ -1230,12 +1230,12 @@ async function main() {
   }
   console.log(`Seeded ${events.length} events.`);
 
-  // 6. Seed Team Members
+  // 6. Seed Team Members (Leadership & Advisors)
   const teamMembers = [
     {
       name: "Jamila Hassan Mohamed",
       role: "CS & IT Dean",
-      department: "Faculty of Computer Science & IT, Jazeera University",
+      department: "Faculty of Computer Science & IT, Visionary founder of JANIC and Dean of the Faculty of Computer Science & IT, leading academic innovation, faculty mentorship.",
       bio: "Visionary founder of JANIC and Dean of the Faculty of Computer Science & IT, leading academic innovation, faculty mentorship, and youth technological empowerment.",
       avatar: "/images/Founder-img.jpeg",
       email: "jamiila@janic.edu.so",
@@ -1245,8 +1245,31 @@ async function main() {
     },
   ];
 
+  // Remove mock team members from database
+  await prisma.teamMember.deleteMany({
+    where: {
+      name: {
+        in: [
+          "Dr. Abdullahi Nur Barre",
+          "Eng. Fadumo Ahmed Warsame",
+          "Dr. Mohamed Hassan Osman",
+          "Eng. Ayan Abdirahman Jama",
+          "Dr. Zakaria Ali Guled",
+        ],
+      },
+    },
+  });
+
   for (const member of teamMembers) {
-    const existing = await prisma.teamMember.findFirst({ where: { name: member.name } });
+    const existing = await prisma.teamMember.findFirst({
+      where: {
+        OR: [
+          { name: member.name },
+          { name: member.name.trim() },
+          { email: member.email },
+        ],
+      },
+    });
     if (!existing) {
       await prisma.teamMember.create({ data: member });
     } else {
