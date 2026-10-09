@@ -6,14 +6,22 @@ import { requireAuth } from "@/lib/permissions/roles";
 import { Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
+const emptyToNull = (v: unknown) => {
+  if (typeof v === "string") {
+    const trimmed = v.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+  return v ?? null;
+};
+
 const teamSchema = z.object({
   name: z.string().min(2, "Name is required"),
   role: z.string().min(2, "Role is required"),
   department: z.string().default("Faculty of Computer Science & IT"),
-  bio: z.string().optional().nullable(),
-  avatar: z.string().optional().nullable(),
-  email: z.string().optional().nullable(),
-  linkedin: z.string().optional().nullable(),
+  bio: z.string().optional().nullable().transform(emptyToNull),
+  avatar: z.string().optional().nullable().transform(emptyToNull),
+  email: z.string().optional().nullable().transform(emptyToNull),
+  linkedin: z.string().optional().nullable().transform(emptyToNull),
   order: z.number().default(0),
   isFounder: z.boolean().default(false),
   isActive: z.boolean().default(true),
@@ -46,6 +54,7 @@ export async function POST(req: NextRequest) {
     revalidatePath("/about");
     return NextResponse.json({ success: true, item });
   } catch (err: unknown) {
+    console.error("POST /api/team error:", err);
     const msg = err instanceof Error ? err.message : "Error";
     const status = msg === "UNAUTHORIZED" ? 401 : msg === "FORBIDDEN" ? 403 : 500;
     return NextResponse.json({ success: false, error: msg }, { status });

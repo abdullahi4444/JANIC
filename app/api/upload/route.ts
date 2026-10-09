@@ -102,17 +102,29 @@ export async function POST(req: NextRequest) {
       const primaryFile = imageFiles[0];
       const formattedCaption = formatPostCaption(caption, uploadedUrls);
 
-      const mediaRecord = await prisma.media.create({
-        data: {
-          fileName: `${primaryFile.name} (+${imageFiles.length - 1} photos)`,
-          url: uploadedUrls[0],
-          alt: alt || formattedCaption || primaryFile.name,
-          mimeType: primaryFile.type,
-          sizeBytes: imageFiles.reduce((acc, f) => acc + f.size, 0),
-          folder,
-          source,
-        },
-      });
+      const mediaData: Record<string, any> = {
+        fileName: `${primaryFile.name} (+${imageFiles.length - 1} photos)`,
+        url: uploadedUrls[0],
+        alt: alt || formattedCaption || primaryFile.name,
+        mimeType: primaryFile.type,
+        sizeBytes: imageFiles.reduce((acc, f) => acc + f.size, 0),
+        folder,
+      };
+
+      let mediaRecord;
+      try {
+        mediaRecord = await prisma.media.create({
+          data: { ...mediaData, source } as any,
+        });
+      } catch (createErr: any) {
+        if (createErr?.message?.includes("Unknown argument `source`")) {
+          mediaRecord = await prisma.media.create({
+            data: mediaData as any,
+          });
+        } else {
+          throw createErr;
+        }
+      }
 
       return NextResponse.json({
         success: true,
@@ -137,17 +149,29 @@ export async function POST(req: NextRequest) {
 
       const publicUrl = `/uploads/${uniqueFileName}`;
 
-      const mediaRecord = await prisma.media.create({
-        data: {
-          fileName: file.name,
-          url: publicUrl,
-          alt: alt || caption || file.name,
-          mimeType: file.type,
-          sizeBytes: file.size,
-          folder,
-          source,
-        },
-      });
+      const mediaData: Record<string, any> = {
+        fileName: file.name,
+        url: publicUrl,
+        alt: alt || caption || file.name,
+        mimeType: file.type,
+        sizeBytes: file.size,
+        folder,
+      };
+
+      let mediaRecord;
+      try {
+        mediaRecord = await prisma.media.create({
+          data: { ...mediaData, source } as any,
+        });
+      } catch (createErr: any) {
+        if (createErr?.message?.includes("Unknown argument `source`")) {
+          mediaRecord = await prisma.media.create({
+            data: mediaData as any,
+          });
+        } else {
+          throw createErr;
+        }
+      }
 
       createdRecords.push(mediaRecord);
     }

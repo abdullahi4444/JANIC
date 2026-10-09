@@ -44,7 +44,6 @@ const allNavGroups: { label: string; items: NavItem[] }[] = [
     label: "Content",
     items: [
       { title: "Projects", href: "/admin/projects", icon: FolderGit2, capability: "projects:read" },
-      { title: "Project Members", href: "/admin/project-members", icon: Users, capability: "project_members:read" },
       { title: "Training", href: "/admin/training", icon: GraduationCap, capability: "training:read" },
       { title: "Research", href: "/admin/research", icon: FlaskConical, capability: "research:read" },
       { title: "Events", href: "/admin/events", icon: Calendar, capability: "events:read" },

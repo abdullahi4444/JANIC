@@ -256,17 +256,18 @@ export default async function AboutPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {/* 1. FOUNDER CARD (EDITABLE VIA MENTORS & FACULTY ADMIN - DISTINCT STYLING) */}
+                  {/* 1. FOUNDER CARD (EDITABLE VIA MENTORS & FACULTY ADMIN - DISTINCT STYLING) */}
                   {founder && (
-                  <div className="bg-gradient-to-b from-amber-50/70 via-white to-white rounded-2xl border-2 border-amber-300 shadow-md ring-2 ring-amber-400/20 p-6 text-center hover:shadow-xl transition-all duration-300 flex flex-col items-center justify-between relative overflow-hidden group">
+                  <div className="founder-card-gradient bg-gradient-to-b from-amber-50/70 via-white to-white dark:from-amber-950/40 dark:via-[#0c1e3d] dark:to-[#08152b] rounded-2xl border-2 border-amber-300 dark:border-amber-500/60 shadow-md ring-2 ring-amber-400/20 dark:ring-amber-500/25 dark:shadow-[0_0_30px_-5px_rgba(245,158,11,0.25)] p-6 text-center hover:shadow-xl transition-all duration-300 flex flex-col items-center justify-between relative overflow-hidden group">
                     <div className="w-full flex flex-col items-center">
                       {/* Distinctive Founder Badge */}
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-white text-[10px] font-black uppercase tracking-wider shadow-xs mb-3">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-white text-[10px] font-black uppercase tracking-wider shadow-xs mb-3 ring-1 ring-amber-300/40">
                         <Award className="w-3 h-3 text-amber-200" />
                         <span>FOUNDER</span>
                       </span>
 
                       {/* Founder Avatar with Amber Ring */}
-                      <div className="w-24 h-24 sm:w-26 sm:h-26 rounded-full mx-auto mb-3.5 relative bg-amber-50 border-2 border-amber-400 shadow-md overflow-hidden ring-4 ring-amber-100/80 group-hover:scale-105 transition-transform duration-300">
+                      <div className="w-24 h-24 sm:w-26 sm:h-26 rounded-full mx-auto mb-3.5 relative bg-amber-50 dark:bg-amber-950/60 border-2 border-amber-400 dark:border-amber-400 shadow-md overflow-hidden ring-4 ring-amber-100/80 dark:ring-amber-500/30 group-hover:scale-105 transition-transform duration-300">
                         <Image
                           src={founder.avatar || "/images/Founder-img.jpeg"}
                           alt={`${founder.name} - Founder & ${founder.role}`}
@@ -278,30 +279,27 @@ export default async function AboutPage() {
                       </div>
 
                       {/* Identity */}
-                      <h3 className="text-base sm:text-lg font-black text-[#08245C] tracking-tight group-hover:text-amber-700 transition-colors">
+                      <h3 className="text-base sm:text-lg font-black text-[#08245C] dark:text-white tracking-tight group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                         {founder.name}
                       </h3>
-                      <p className="text-xs font-bold text-amber-600 mt-0.5">
+                      <p className="text-xs font-bold text-amber-600 dark:text-amber-400 mt-0.5">
                         {founder.role}
                       </p>
-                      <p className="text-[11px] font-medium text-slate-400 mt-1">
+                      <p className="text-[11px] font-medium text-slate-500 dark:text-slate-300 mt-1">
                         {founder.department}
                       </p>
-                      <p className="text-xs text-slate-500 mt-3 leading-relaxed line-clamp-3">
-                        {founder.bio}
-                      </p>
+                      {founder.bio && (
+                        <p className="text-xs text-slate-500 dark:text-slate-300 mt-3 leading-relaxed line-clamp-3">
+                          {founder.bio}
+                        </p>
+                      )}
                     </div>
                   </div>
                   )}
 
-                  {/* 2. OTHER LEADERS FROM THE DATABASE (FILTERING OUT DUPLICATE DEAN) */}
+                  {/* 2. OTHER LEADERS FROM THE DATABASE */}
                   {teamMembers
-                    .filter(
-                      (m) =>
-                        !(m as any).isFounder &&
-                        !m.name.toLowerCase().includes("jamiila") &&
-                        !m.name.toLowerCase().includes("jamila")
-                    )
+                    .filter((m) => (founder ? m.id !== founder.id : !(m as any).isFounder))
                     .map((member) => (
                       <div
                         key={member.id}
