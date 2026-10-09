@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/jwt";
-import { Role } from "@prisma/client";
+import { hasPermission } from "@/lib/permissions/roles";
 import { getReactionsForComments } from "@/lib/db/comment-reactions";
 
 // GET /api/posts/[id]/comments - Read comments and return viewer session info
@@ -129,7 +129,7 @@ export async function PUT(
       existing.name.toLowerCase() === user.name.toLowerCase() ||
       Boolean(user.username && existing.name.toLowerCase() === user.username.toLowerCase()) ||
       (user.name.toLowerCase().includes("jamiila") && existing.name.toLowerCase().includes("jamiila"));
-    const isStaff = user.role === Role.ADMIN || user.role === Role.EDITOR;
+    const isStaff = await hasPermission(user.role, "media:update");
 
     if (!isAuthor && !isStaff) {
       return NextResponse.json(
@@ -196,7 +196,7 @@ export async function DELETE(
       existing.name.toLowerCase() === user.name.toLowerCase() ||
       Boolean(user.username && existing.name.toLowerCase() === user.username.toLowerCase()) ||
       (user.name.toLowerCase().includes("jamiila") && existing.name.toLowerCase().includes("jamiila"));
-    const isStaff = user.role === Role.ADMIN || user.role === Role.EDITOR;
+    const isStaff = await hasPermission(user.role, "media:delete");
 
     if (!isAuthor && !isStaff) {
       return NextResponse.json(

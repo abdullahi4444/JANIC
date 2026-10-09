@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Save, CheckCircle, Loader2, ShieldCheck } from "lucide-react";
+import { Save, CheckCircle, Loader2, ShieldCheck, ChevronDown, ChevronRight } from "lucide-react";
+import { MODULES, DEFAULT_ROLE_PERMISSIONS } from "@/lib/permissions/capabilities";
 
 interface SettingItem {
   id: string;
@@ -10,23 +11,6 @@ interface SettingItem {
   value: string;
   group: string;
 }
-
-const CAPABILITIES = [
-  "manage_users",
-  "manage_settings",
-  "edit_content",
-  "publish_content",
-  "delete_content",
-  "review_submissions",
-  "manage_media",
-  "manage_team",
-];
-
-const DEFAULTS: Record<string, string[]> = {
-  ADMIN: [...CAPABILITIES],
-  EDITOR: ["edit_content", "publish_content", "review_submissions", "manage_media"],
-  STAFF: ["review_submissions"],
-};
 
 export function PermissionsMatrix({ settings }: { settings: SettingItem[] }) {
   const router = useRouter();
@@ -36,15 +20,20 @@ export function PermissionsMatrix({ settings }: { settings: SettingItem[] }) {
     try {
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed.ADMIN && parsed.EDITOR && parsed.STAFF) return parsed;
+        const result: Record<string, string[]> = {};
+        if (parsed.ADMIN) result.ADMIN = parsed.ADMIN;
+        if (parsed.STAFF) result.STAFF = parsed.STAFF;
+        if (Object.keys(result).length > 0) return result;
       }
     } catch {
-      // fall through
     }
-    return DEFAULTS;
+    return { ADMIN: DEFAULT_ROLE_PERMISSIONS.ADMIN, STAFF: DEFAULT_ROLE_PERMISSIONS.STAFF };
   });
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  
+  const toggleExpanded = (mod: string) => setExpanded(prev => ({ ...prev, [mod]: !prev[mod] }));
 
   const toggle = (role: string, cap: string) => {
     setMatrix((prev) => {
@@ -94,7 +83,7 @@ export function PermissionsMatrix({ settings }: { settings: SettingItem[] }) {
           <thead>
             <tr>
               <th className="text-left py-2 pr-4 font-semibold text-foreground">Capability</th>
-              {Object.keys(matrix).map((role) => (
+              {Object.keys(matrix).filter(r => r !== "ADMIN").map((role) => (
                 <th key={role} className="text-center py-2 px-2 font-semibold text-foreground">
                   {role}
                 </th>
@@ -102,20 +91,40 @@ export function PermissionsMatrix({ settings }: { settings: SettingItem[] }) {
             </tr>
           </thead>
           <tbody>
-            {CAPABILITIES.map((cap) => (
-              <tr key={cap} className="border-t border-border">
-                <td className="py-2 pr-4 font-mono text-[11px] text-muted-foreground">{cap}</td>
-                {Object.keys(matrix).map((role) => (
-                  <td key={role} className="text-center py-2 px-2">
-                    <input
-                      type="checkbox"
-                      checked={matrix[role].includes(cap)}
-                      onChange={() => toggle(role, cap)}
-                      className="w-4 h-4 accent-blue-600 cursor-pointer"
-                    />
+            {MODULES.map((mod) => (
+              <React.Fragment key={mod}>
+                <tr className="border-t border-border hover:bg-slate-50 cursor-pointer" onClick={() => toggleExpanded(mod)}>
+                  <td className="py-2.5 pr-4 font-semibold text-foreground flex items-center gap-1.5">
+                    {expanded[mod] ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
+                    <span className="capitalize">{mod.replace('_', ' ')}</span>
                   </td>
-                ))}
-              </tr>
+                  {Object.keys(matrix).filter(r => r !== "ADMIN").map((role) => (
+                    <td key={role} className="text-center py-2 px-2 text-muted-foreground text-[10px]">
+                      {/* Optional: Summary of checked */}
+                    </td>
+                  ))}
+                </tr>
+                {expanded[mod] && ["create", "read", "update", "delete"].map((crud) => {
+                  const cap = `${mod}:${crud}`;
+                  return (
+                    <tr key={cap} className="border-t border-border/40 bg-slate-50/30">
+                      <td className="py-1.5 pr-4 pl-8 font-mono text-[11px] text-muted-foreground capitalize">
+                        {crud}
+                      </td>
+                      {Object.keys(matrix).filter(r => r !== "ADMIN").map((role) => (
+                        <td key={role} className="text-center py-1.5 px-2">
+                          <input
+                            type="checkbox"
+                            checked={matrix[role].includes(cap)}
+                            onChange={() => toggle(role, cap)}
+                            className="w-3.5 h-3.5 accent-blue-600 cursor-pointer"
+                          />
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </React.Fragment>
             ))}
           </tbody>
         </table>

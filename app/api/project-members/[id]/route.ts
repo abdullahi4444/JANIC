@@ -8,7 +8,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAuth([Role.ADMIN]);
+    await requireAuth(null, "project_members:update");
     const { id } = await params;
     const body = await req.json();
 
@@ -37,7 +37,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAuth([Role.ADMIN]);
+    await requireAuth(null, "project_members:update");
     const { id } = await params;
 
     await ProjectMemberRepository.delete(id);

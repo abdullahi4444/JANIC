@@ -31,7 +31,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAuth([Role.ADMIN, Role.EDITOR]);
+    await requireAuth(null, "projects:update");
     const { id } = await params;
     const body = await req.json();
 
@@ -68,7 +68,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAuth([Role.ADMIN]);
+    await requireAuth(null, "projects:update");
     const { id } = await params;
 
     await ProjectService.deleteProject(id);

@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { UserRepository } from "@/repositories/user.repository";
 import { requireAuth } from "@/lib/permissions/roles";
 import { Role } from "@prisma/client";
+import prisma from "@/lib/db/prisma";
 
 const updateUserSchema = z.object({
   name: z.string().min(2).optional(),
@@ -13,7 +14,7 @@ const updateUserSchema = z.object({
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireAuth([Role.ADMIN], "manage_users");
+    await requireAuth(null, "users:update");
     const { id } = await params;
     const body = await req.json();
     const parsed = updateUserSchema.safeParse(body);
@@ -23,6 +24,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         { success: false, error: parsed.error.issues[0]?.message || "Invalid input" },
         { status: 400 }
       );
+    }
+
+    const current = await requireAuth(null, "users:update");
+    const targetUser = await UserRepository.findById(id);
+    if (!targetUser) return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
+
+    if (current.role === Role.STAFF && (targetUser.role === Role.STAFF || targetUser.role === Role.ADMIN)) {
+      return NextResponse.json({ success: false, error: "Staff cannot modify other staff or admin members" }, { status: 403 });
     }
 
     const data: { name?: string; role?: Role; passwordHash?: string } = {};
@@ -41,11 +50,26 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const current = await requireAuth([Role.ADMIN], "manage_users");
+    const current = await requireAuth(null, "users:update");
     const { id } = await params;
     if (current.id === id) {
       return NextResponse.json({ success: false, error: "You cannot delete your own account" }, { status: 400 });
     }
+
+    const targetUser = await UserRepository.findById(id);
+    if (!targetUser) return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
+
+    if (current.role === Role.STAFF && (targetUser.role === Role.STAFF || targetUser.role === Role.ADMIN)) {
+      return NextResponse.json({ success: false, error: "Staff cannot delete staff or admin members." }, { status: 403 });
+    }
+
+    if (targetUser.role === Role.ADMIN) {
+      const adminCount = await prisma.user.count({ where: { role: Role.ADMIN } });
+      if (adminCount <= 1) {
+        return NextResponse.json({ success: false, error: "Cannot delete the last remaining ADMIN account." }, { status: 403 });
+      }
+    }
+
     await UserRepository.delete(id);
     return NextResponse.json({ success: true });
   } catch (err: unknown) {

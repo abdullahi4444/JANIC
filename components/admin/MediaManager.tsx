@@ -295,6 +295,7 @@ export function MediaManager({
     if (uploadAlt) formData.append("alt", uploadAlt);
     if (uploadCaption) formData.append("caption", uploadCaption);
     formData.append("groupPost", groupPost ? "true" : "false");
+    formData.append("source", "post");
 
     try {
       const res = await fetch("/api/upload", { method: "POST", body: formData });

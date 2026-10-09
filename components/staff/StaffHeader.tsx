@@ -1,0 +1,130 @@
+"use client";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Search, Menu, Bell, Calendar, Download, LogOut, UserCircle } from "lucide-react";
+import { AuthUser } from "@/types/user";
+import { ThemeModeDropdown } from "@/components/theme/ThemeModeDropdown";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+interface StaffHeaderProps {
+  user: AuthUser | null;
+  onMenu: () => void;
+  notifCount?: number;
+}
+
+export function StaffHeader({ user, onMenu, notifCount = 0 }: StaffHeaderProps) {
+  const router = useRouter();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const displayName = user?.username ? `@${user.username}` : user?.name || "Staff Member";
+  const displayTitle = user?.role || "STAFF";
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      router.push("/login");
+      router.refresh();
+    } catch {
+      router.push("/login");
+    } finally {
+      setLoggingOut(false);
+    }
+  };
+
+  return (
+    <header className="h-14 bg-card border-b border-border px-4 lg:px-6 flex items-center justify-between sticky top-0 z-20">
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" size="sm" className="lg:hidden px-2" onClick={onMenu}>
+          <Menu className="w-5 h-5" />
+        </Button>
+        <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground">
+          <Search className="w-4 h-4" />
+          <span className="text-sm hidden sm:inline">Search</span>
+          <kbd className="ml-1 hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium bg-muted rounded border border-border">
+            ⌘K
+          </kbd>
+        </Button>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <span className="relative inline-flex">
+          <Button variant="ghost" size="sm" className="px-2">
+            <Bell className="w-4 h-4" />
+          </Button>
+          {notifCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
+              {notifCount}
+            </span>
+          )}
+        </span>
+
+        <ThemeModeDropdown />
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="relative h-10 px-2 sm:px-2.5 gap-2 rounded-full hover:bg-accent border border-border/60 transition-all shrink-0"
+            >
+              <Avatar className="h-7 w-7 ring-1 ring-primary/30">
+                {user?.avatar ? <AvatarImage src={user.avatar} alt={user?.name} /> : null}
+                <AvatarFallback className="bg-gradient-to-br from-[#0875D1] to-[#08245C] text-white font-bold text-xs">
+                  {user?.name ? user.name.charAt(0) : "S"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="hidden sm:flex flex-col text-left leading-tight">
+                <span className="text-xs font-bold text-foreground">
+                  {displayName}
+                </span>
+                <span className="text-[10px] font-semibold text-[#0875D1] dark:text-sky-400">
+                  {displayTitle}
+                </span>
+              </div>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-64" align="end" forceMount>
+            <DropdownMenuLabel className="font-normal p-3 rounded-lg bg-muted/60 border border-border/50">
+              <div className="flex flex-col space-y-1.5">
+                <div className="flex items-center justify-between gap-1.5">
+                  <p className="text-sm font-bold text-foreground">
+                    {displayName}
+                  </p>
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-primary/15 text-primary">
+                    {user?.role || "STAFF"}
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground break-all">
+                  {user?.email}
+                </p>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <Link href="/staff/profile" className="flex items-center">
+                <UserCircle className="mr-2 h-4 w-4" />
+                <span>My Profile</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout} disabled={loggingOut} className="text-red-600 cursor-pointer">
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </header>
+  );
+}

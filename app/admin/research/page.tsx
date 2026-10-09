@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import React from "react";
+import { requireAuth } from "@/lib/permissions/roles";
 import { KpiRow } from "@/components/admin/KpiRow";
 import { ResearchService } from "@/services/research/research.service";
 import { ResearchManager } from "@/components/admin/ResearchManager";
@@ -7,6 +8,7 @@ import { ResearchManager } from "@/components/admin/ResearchManager";
 export const dynamic = "force-dynamic";
 
 export default async function AdminResearchPage() {
+  await requireAuth(null, "research:read");
   const papers = await ResearchService.getAllAdmin();
 
   return (

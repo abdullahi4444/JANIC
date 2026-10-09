@@ -76,7 +76,7 @@ export function ProjectMediaCover({
       return (
         <div
           className={`${aspectClassName} overflow-hidden bg-black ${
-            showControls ? "relative pointer-events-auto" : "pointer-events-none"
+            showControls ? "pointer-events-auto" : "pointer-events-none"
           }`}
         >
           <iframe
@@ -95,7 +95,7 @@ export function ProjectMediaCover({
 
     if (isDirectVideo) {
       return (
-        <div className={`${aspectClassName} overflow-hidden bg-black group/video relative`}>
+        <div className={`${aspectClassName} overflow-hidden bg-black group/video`}>
           <video
             ref={videoRef}
             src={cleanVideo}

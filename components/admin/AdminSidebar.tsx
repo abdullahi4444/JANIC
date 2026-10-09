@@ -16,6 +16,7 @@ import {
   Users,
   Image as ImageIcon,
   Settings,
+  UserCircle,
   ExternalLink,
   X,
 } from "lucide-react";
@@ -23,15 +24,18 @@ import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separatorators";
 import { AuthUser } from "@/types/user";
+import { hasCapability } from "@/lib/permissions/client-helper";
+import { PermissionCapability } from "@/lib/permissions/capabilities";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface NavItem {
   title: string;
   href: string;
   icon: React.ElementType;
+  capability?: PermissionCapability;
 }
 
-const navGroups: { label: string; items: NavItem[] }[] = [
+const allNavGroups: { label: string; items: NavItem[] }[] = [
   {
     label: "Overview",
     items: [{ title: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard }],
@@ -39,27 +43,28 @@ const navGroups: { label: string; items: NavItem[] }[] = [
   {
     label: "Content",
     items: [
-      { title: "Projects", href: "/admin/projects", icon: FolderGit2 },
-      { title: "Project Members", href: "/admin/project-members", icon: Users },
-      { title: "Training", href: "/admin/training", icon: GraduationCap },
-      { title: "Research", href: "/admin/research", icon: FlaskConical },
-      { title: "Events", href: "/admin/events", icon: Calendar },
-      { title: "Submissions", href: "/admin/submissions", icon: Lightbulb },
+      { title: "Projects", href: "/admin/projects", icon: FolderGit2, capability: "projects:read" },
+      { title: "Project Members", href: "/admin/project-members", icon: Users, capability: "project_members:read" },
+      { title: "Training", href: "/admin/training", icon: GraduationCap, capability: "training:read" },
+      { title: "Research", href: "/admin/research", icon: FlaskConical, capability: "research:read" },
+      { title: "Events", href: "/admin/events", icon: Calendar, capability: "events:read" },
+      { title: "Submissions", href: "/admin/submissions", icon: Lightbulb, capability: "submissions:read" },
     ],
   },
   {
     label: "Engagement",
     items: [
-      { title: "Partnerships", href: "/admin/partnerships", icon: Handshake },
-      { title: "Messages", href: "/admin/messages", icon: MessageSquare },
+      { title: "Partnerships", href: "/admin/partnerships", icon: Handshake, capability: "partnerships:read" },
+      { title: "Messages", href: "/admin/messages", icon: MessageSquare, capability: "messages:read" },
     ],
   },
   {
     label: "System",
     items: [
-      { title: "Team", href: "/admin/team", icon: Users },
-      { title: "Media", href: "/admin/media", icon: ImageIcon },
-      { title: "Settings", href: "/admin/settings", icon: Settings },
+      { title: "Mentors & Faculty", href: "/admin/team", icon: Users, capability: "team:read" },
+      { title: "Media", href: "/admin/media", icon: ImageIcon, capability: "media:read" },
+      { title: "Settings", href: "/admin/settings", icon: Settings, capability: "settings:read" },
+      { title: "My Profile", href: "/admin/profile", icon: UserCircle },
     ],
   },
 ];
@@ -72,6 +77,15 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ open, onClose, user }: AdminSidebarProps) {
   const pathname = usePathname();
+
+  const navGroups = React.useMemo(() => {
+    return allNavGroups
+      .map((group) => ({
+        ...group,
+        items: group.items.filter((item) => !item.capability || hasCapability(user, item.capability)),
+      }))
+      .filter((group) => group.items.length > 0);
+  }, [user]);
 
   return (
     <>

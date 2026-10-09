@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import React from "react";
+import { requireAuth } from "@/lib/permissions/roles";
 import { KpiRow } from "@/components/admin/KpiRow";
 import { TrainingService } from "@/services/training/training.service";
 import { TrainingManager } from "@/components/admin/TrainingManager";
@@ -7,6 +8,7 @@ import { TrainingManager } from "@/components/admin/TrainingManager";
 export const dynamic = "force-dynamic";
 
 export default async function AdminTrainingPage() {
+  await requireAuth(null, "training:read");
   const programs = await TrainingService.getAllAdmin();
 
   return (

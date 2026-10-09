@@ -31,7 +31,7 @@ export function RegisterForm() {
       }
 
       setSuccess(true);
-      setTimeout(() => router.push("/admin/login"), 2000);
+      setTimeout(() => router.push("/login"), 2000);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Error creating account.");
     } finally {

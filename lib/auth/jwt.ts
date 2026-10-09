@@ -1,6 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { AuthUser } from "@/types/user";
+import { getRolePermissions } from "@/lib/permissions/roles";
 
 const SECRET_KEY = new TextEncoder().encode(
   process.env.AUTH_SECRET || "janic_super_secret_session_jwt_key_2026_xYz987!@"
@@ -45,7 +46,13 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     const cookieStore = await cookies();
     const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
     if (!token) return null;
-    return await verifyAuthToken(token);
+    const user = await verifyAuthToken(token);
+    if (!user) return null;
+
+    const permissions = await getRolePermissions();
+    user.capabilities = user.role === "ADMIN" ? [...permissions.ADMIN] : [...(permissions[user.role] || [])];
+    
+    return user;
   } catch {
     return null;
   }

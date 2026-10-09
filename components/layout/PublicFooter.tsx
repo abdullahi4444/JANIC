@@ -109,7 +109,7 @@ export async function PublicFooter() {
                 <Link href="/contact" className="text-slate-400 hover:text-white transition">Contact Us</Link>
               </li>
               <li>
-                <Link href="/admin/login" className="text-slate-400 hover:text-white transition">Staff Sign In</Link>
+                <Link href="/login" className="text-slate-400 hover:text-white transition">Staff Sign In</Link>
               </li>
             </ul>
           </div>

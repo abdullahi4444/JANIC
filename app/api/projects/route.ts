@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     // 1. Role verification
-    await requireAuth([Role.ADMIN, Role.EDITOR]);
+    const current = await requireAuth(null, "projects:update");
 
     // 2. Input validation
     const body = await req.json();
@@ -64,6 +64,14 @@ export async function POST(req: NextRequest) {
         { success: false, error: parsed.error.issues[0]?.message || "Invalid input" },
         { status: 400 }
       );
+    }
+
+    if (parsed.data.status === ContentStatus.PUBLISHED) {
+      const { hasPermission } = await import("@/lib/permissions/roles");
+      const canPublish = await hasPermission(current.role, "projects:update");
+      if (!canPublish) {
+        return NextResponse.json({ success: false, error: "You do not have permission to publish content" }, { status: 403 });
+      }
     }
 
     // 3. Service execution

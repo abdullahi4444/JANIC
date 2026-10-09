@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
 // POST /api/media - Bulk actions (bulk delete, bulk folder update)
 export async function POST(req: NextRequest) {
   try {
-    await requireAuth([Role.ADMIN, Role.EDITOR]);
+    await requireAuth(null, "media:update");
     const body = await req.json();
     const { action, ids, folder } = body;
 

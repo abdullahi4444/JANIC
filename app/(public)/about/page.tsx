@@ -23,8 +23,11 @@ export const metadata = {
     "Learn about the history, vision, mission, and leadership of Jazeera Nexus Innovation Center at Jazeera University.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function AboutPage() {
   const teamMembers = await TeamRepository.findActive();
+  const founder = teamMembers.find((m: any) => m.isFounder) || null;
 
   const coreValues = [
     {
@@ -252,7 +255,8 @@ export default async function AboutPage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {/* 1. HARDCODED FOUNDER CARD (DISTINCT STYLING) */}
+                  {/* 1. FOUNDER CARD (EDITABLE VIA MENTORS & FACULTY ADMIN - DISTINCT STYLING) */}
+                  {founder && (
                   <div className="bg-gradient-to-b from-amber-50/70 via-white to-white rounded-2xl border-2 border-amber-300 shadow-md ring-2 ring-amber-400/20 p-6 text-center hover:shadow-xl transition-all duration-300 flex flex-col items-center justify-between relative overflow-hidden group">
                     <div className="w-full flex flex-col items-center">
                       {/* Distinctive Founder Badge */}
@@ -264,8 +268,8 @@ export default async function AboutPage() {
                       {/* Founder Avatar with Amber Ring */}
                       <div className="w-24 h-24 sm:w-26 sm:h-26 rounded-full mx-auto mb-3.5 relative bg-amber-50 border-2 border-amber-400 shadow-md overflow-hidden ring-4 ring-amber-100/80 group-hover:scale-105 transition-transform duration-300">
                         <Image
-                          src="/images/Founder-img.jpeg"
-                          alt="Jamila Hassan Mohamed - Founder & CS & IT Dean"
+                          src={founder.avatar || "/images/Founder-img.jpeg"}
+                          alt={`${founder.name} - Founder & ${founder.role}`}
                           fill
                           className="object-cover object-top"
                           sizes="(max-width: 640px) 96px, 104px"
@@ -275,24 +279,26 @@ export default async function AboutPage() {
 
                       {/* Identity */}
                       <h3 className="text-base sm:text-lg font-black text-[#08245C] tracking-tight group-hover:text-amber-700 transition-colors">
-                        Jamila Hassan Mohamed
+                        {founder.name}
                       </h3>
                       <p className="text-xs font-bold text-amber-600 mt-0.5">
-                        CS &amp; IT Dean
+                        {founder.role}
                       </p>
                       <p className="text-[11px] font-medium text-slate-400 mt-1">
-                        Faculty of Computer Science &amp; IT, Jazeera University
+                        {founder.department}
                       </p>
                       <p className="text-xs text-slate-500 mt-3 leading-relaxed line-clamp-3">
-                        Visionary founder of JANIC and Dean of the Faculty of Computer Science &amp; IT, leading academic innovation, faculty mentorship, and youth technological empowerment.
+                        {founder.bio}
                       </p>
                     </div>
                   </div>
+                  )}
 
                   {/* 2. OTHER LEADERS FROM THE DATABASE (FILTERING OUT DUPLICATE DEAN) */}
                   {teamMembers
                     .filter(
                       (m) =>
+                        !(m as any).isFounder &&
                         !m.name.toLowerCase().includes("jamiila") &&
                         !m.name.toLowerCase().includes("jamila")
                     )

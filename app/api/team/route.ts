@@ -4,6 +4,7 @@ import { z } from "zod";
 import { TeamRepository } from "@/repositories/team.repository";
 import { requireAuth } from "@/lib/permissions/roles";
 import { Role } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 const teamSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -14,6 +15,7 @@ const teamSchema = z.object({
   email: z.string().optional().nullable(),
   linkedin: z.string().optional().nullable(),
   order: z.number().default(0),
+  isFounder: z.boolean().default(false),
   isActive: z.boolean().default(true),
 });
 
@@ -29,7 +31,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    await requireAuth([Role.ADMIN]);
+    await requireAuth(null, "team:update");
     const body = await req.json();
     const parsed = teamSchema.safeParse(body);
 
@@ -41,6 +43,7 @@ export async function POST(req: NextRequest) {
     }
 
     const item = await TeamRepository.create(parsed.data as any);
+    revalidatePath("/about");
     return NextResponse.json({ success: true, item });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Error";

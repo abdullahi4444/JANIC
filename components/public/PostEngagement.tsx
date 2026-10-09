@@ -278,7 +278,7 @@ export function PostEngagement({ mediaId, dark = false }: { mediaId: string; dar
         }`}>
           <AlertCircle className="w-3.5 h-3.5 shrink-0" />
           <span>{error}</span>
-          <a href="/admin/login" className="underline font-bold ml-auto hover:text-[#0875D1]">
+          <a href="/login" className="underline font-bold ml-auto hover:text-[#0875D1]">
             Sign in
           </a>
         </div>

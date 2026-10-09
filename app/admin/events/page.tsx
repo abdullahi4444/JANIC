@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import React from "react";
+import { requireAuth } from "@/lib/permissions/roles";
 import { KpiRow } from "@/components/admin/KpiRow";
 import { EventService } from "@/services/events/event.service";
 import { EventManager } from "@/components/admin/EventManager";
@@ -7,6 +8,7 @@ import { EventManager } from "@/components/admin/EventManager";
 export const dynamic = "force-dynamic";
 
 export default async function AdminEventsPage() {
+  await requireAuth(null, "events:read");
   const events = await EventService.getAllAdmin();
 
   return (

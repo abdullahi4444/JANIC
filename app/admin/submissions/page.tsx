@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import React from "react";
+import { requireAuth } from "@/lib/permissions/roles";
 import { KpiRow } from "@/components/admin/KpiRow";
 import { SubmissionService } from "@/services/submissions/submission.service";
 import { SubmissionManager } from "@/components/admin/SubmissionManager";
@@ -7,6 +8,7 @@ import { SubmissionManager } from "@/components/admin/SubmissionManager";
 export const dynamic = "force-dynamic";
 
 export default async function AdminSubmissionsPage() {
+  await requireAuth(null, "submissions:read");
   const submissions = await SubmissionService.getAllAdmin();
 
   return (

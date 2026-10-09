@@ -34,7 +34,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    await requireAuth([Role.ADMIN, Role.EDITOR]);
+    await requireAuth(null, "training:update");
     const body = await req.json();
     const parsed = trainingSchema.safeParse(body);
 

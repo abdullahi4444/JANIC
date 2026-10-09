@@ -18,7 +18,7 @@ const createUserSchema = z.object({
 
 export async function GET() {
   try {
-    await requireAuth([Role.ADMIN], "manage_users");
+    await requireAuth(null, "users:update");
     const users = await UserRepository.listAll();
     return NextResponse.json({ success: true, items: users });
   } catch (err: unknown) {
@@ -30,7 +30,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    await requireAuth([Role.ADMIN], "manage_users");
+    await requireAuth(null, "users:update");
     const body = await req.json();
     const parsed = createUserSchema.safeParse(body);
 

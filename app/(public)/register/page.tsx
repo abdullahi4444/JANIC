@@ -13,7 +13,7 @@ export default function RegisterPage() {
       <AuthPage />
       <p className="text-center text-sm text-slate-500 pb-16">
         Already have an account?{" "}
-        <Link href="/admin/login" className="text-[#0875D1] font-semibold hover:underline">
+        <Link href="/login" className="text-[#0875D1] font-semibold hover:underline">
           Sign in here
         </Link>
       </p>

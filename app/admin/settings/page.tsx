@@ -3,10 +3,12 @@ import React from "react";
 import { KpiRow } from "@/components/admin/KpiRow";
 import { SettingService } from "@/services/settings/setting.service";
 import { SettingsManager } from "@/components/admin/SettingsManager";
+import { requireAuth } from "@/lib/permissions/roles";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminSettingsPage() {
+  await requireAuth(null, "settings:read");
   const settings = await SettingService.getAll();
 
   return (

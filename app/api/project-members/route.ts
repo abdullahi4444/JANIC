@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    await requireAuth([Role.ADMIN]);
+    await requireAuth(null, "project_members:update");
     const body = await req.json();
     const parsed = projectMemberSchema.safeParse(body);
 

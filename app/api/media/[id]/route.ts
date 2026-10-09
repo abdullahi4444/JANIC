@@ -10,7 +10,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAuth([Role.ADMIN, Role.EDITOR]);
+    await requireAuth(null, "media:update");
     const { id } = await params;
     const body = await req.json();
 
@@ -34,7 +34,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAuth([Role.ADMIN, Role.EDITOR]);
+    await requireAuth(null, "media:update");
     const { id } = await params;
 
     const media = await prisma.media.findUnique({ where: { id } });

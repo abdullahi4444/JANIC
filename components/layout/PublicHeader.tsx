@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, X, LogIn, UserPlus, LayoutDashboard, LogOut, ChevronDown, FolderKanban, Users } from "lucide-react";
+import { Menu, X, LogIn, UserPlus, LayoutDashboard, LogOut, ChevronDown, FolderKanban, Users, UserCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeModeDropdown } from "@/components/theme/ThemeModeDropdown";
 import type { AuthUser } from "@/types/user";
@@ -112,7 +112,16 @@ function UserAvatarMenu({ user, loggingOut, onLogout }: UserAvatarMenuProps) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="my-1 bg-slate-100 dark:bg-slate-800" />
         <DropdownMenuItem
-          onClick={() => router.push("/admin/dashboard")}
+          onClick={() => router.push(user.role === "STAFF" ? "/staff/profile" : "/admin/profile")}
+          className="cursor-pointer gap-2 rounded-lg px-2.5 py-2 text-slate-800 dark:text-slate-200 hover:bg-gradient-to-r hover:from-[#E9F3FD] hover:to-white dark:hover:from-slate-900 dark:hover:to-slate-800 focus:bg-gradient-to-r focus:from-[#E9F3FD] focus:to-white dark:focus:from-slate-900 dark:focus:to-slate-800 hover:text-[#08245C] dark:hover:text-white transition-colors"
+        >
+          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-[#0875D1]/10 to-[#08245C]/10 dark:from-[#0875D1]/15 dark:to-[#08245C]/15">
+            <UserCircle className="h-4 w-4 text-[#0875D1]" />
+          </span>
+          <span className="text-sm font-bold">My Profile</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => router.push(user.role === "STAFF" ? "/staff/dashboard" : "/admin/dashboard")}
           className="cursor-pointer gap-2 rounded-lg px-2.5 py-2 text-slate-800 dark:text-slate-200 hover:bg-gradient-to-r hover:from-[#E9F3FD] hover:to-white dark:hover:from-slate-900 dark:hover:to-slate-800 focus:bg-gradient-to-r focus:from-[#E9F3FD] focus:to-white dark:focus:from-slate-900 dark:focus:to-slate-800 hover:text-[#08245C] dark:hover:text-white transition-colors"
         >
           <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-[#0875D1]/10 to-[#08245C]/10 dark:from-[#0875D1]/15 dark:to-[#08245C]/15">
@@ -340,22 +349,13 @@ export function PublicHeader({ navLinks, currentUser }: PublicHeaderProps) {
           </Link>
           <ThemeModeDropdown />
           {isLoggedIn ? (
-            <>
-              <Link
-                href="/admin/dashboard"
-                className="inline-flex items-center gap-1.5 px-3.5 xl:px-5 py-2 xl:py-2.5 rounded-full bg-gradient-to-r from-[#0875D1] to-[#0aa5e8] hover:from-[#0660ab] hover:to-[#0891c7] text-white font-bold text-[10px] xl:text-xs tracking-wider uppercase shadow-md shadow-blue-500/25 hover:shadow-lg hover:-translate-y-0.5 transition-all"
-              >
-                <LayoutDashboard className="w-3.5 h-3.5" />
-                Dashboard
-              </Link>
-              {currentUser ? (
-                <UserAvatarMenu user={currentUser} loggingOut={loggingOut} onLogout={handleLogout} />
-              ) : null}
-            </>
+            currentUser ? (
+              <UserAvatarMenu user={currentUser} loggingOut={loggingOut} onLogout={handleLogout} />
+            ) : null
           ) : (
             <>
               <Link
-                href="/admin/login"
+                href="/login"
                 className="inline-flex items-center gap-1.5 px-3.5 xl:px-5 py-2 xl:py-2.5 rounded-full border border-slate-200 dark:border-slate-800 text-[#08245C] dark:text-slate-200 hover:border-[#08245C] dark:hover:border-slate-600 hover:bg-[#08245C] hover:text-white font-bold text-[10px] xl:text-xs tracking-wider uppercase transition"
               >
                 <LogIn className="w-3.5 h-3.5" />
@@ -499,8 +499,15 @@ export function PublicHeader({ navLinks, currentUser }: PublicHeaderProps) {
             {isLoggedIn ? (
               <>
                 <Link
-                  href="/admin/dashboard"
+                  href={currentUser?.role === "STAFF" ? "/staff/profile" : "/admin/profile"}
                   className="w-full py-2.5 px-4 rounded-full bg-gradient-to-r from-[#0875D1] to-[#0aa5e8] text-white font-semibold text-xs text-center shadow-md flex items-center justify-center gap-1.5"
+                >
+                  <UserCircle className="w-3.5 h-3.5" />
+                  My Profile
+                </Link>
+                <Link
+                  href={currentUser?.role === "STAFF" ? "/staff/dashboard" : "/admin/dashboard"}
+                  className="w-full py-2.5 px-4 rounded-full border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs text-center flex items-center justify-center gap-1.5"
                 >
                   <LayoutDashboard className="w-3.5 h-3.5" />
                   Dashboard
@@ -518,7 +525,7 @@ export function PublicHeader({ navLinks, currentUser }: PublicHeaderProps) {
             ) : (
               <>
                 <Link
-                  href="/admin/login"
+                  href="/login"
                   className="w-full py-2.5 px-4 rounded-full border border-[#08245C] text-[#08245C] font-semibold text-xs text-center flex items-center justify-center gap-1.5"
                 >
                   <LogIn className="w-3.5 h-3.5" />

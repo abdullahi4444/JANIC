@@ -33,20 +33,23 @@ interface SettingItem {
 
 interface SettingsManagerProps {
   initialSettings: SettingItem[];
+  isAdmin?: boolean;
 }
 
-const TABS = [
+const ALL_TABS = [
   { id: "content", label: "Site Content", icon: Globe },
   { id: "system", label: "System", icon: SlidersHorizontal },
   { id: "permissions", label: "Permissions", icon: KeyRound },
   { id: "users", label: "Users", icon: UserCog },
 ];
 
-export function SettingsManager({ initialSettings }: SettingsManagerProps) {
+export function SettingsManager({ initialSettings, isAdmin = true }: SettingsManagerProps) {
   const router = useRouter();
   const [tab, setTab] = useState("content");
   const [loading, setLoading] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+
+  const tabs = ALL_TABS.filter(t => isAdmin || (t.id !== "permissions" && t.id !== "users"));
 
   const settingsMap = initialSettings.reduce<Record<string, string>>((acc, curr) => {
     acc[curr.key] = curr.value;
@@ -142,7 +145,7 @@ export function SettingsManager({ initialSettings }: SettingsManagerProps) {
     <div className="space-y-4">
       {/* Tab bar */}
       <div className="flex flex-wrap gap-2">
-        {TABS.map((t) => {
+        {tabs.map((t) => {
           const Icon = t.icon;
           return (
             <button
@@ -163,8 +166,8 @@ export function SettingsManager({ initialSettings }: SettingsManagerProps) {
       </div>
 
       {tab === "system" && <SystemToggles settings={initialSettings} />}
-      {tab === "permissions" && <PermissionsMatrix settings={initialSettings} />}
-      {tab === "users" && <UserManager />}
+      {isAdmin && tab === "permissions" && <PermissionsMatrix settings={initialSettings} />}
+      {isAdmin && tab === "users" && <UserManager />}
 
       {tab === "content" && (
         <form onSubmit={handleSave} className="space-y-8">

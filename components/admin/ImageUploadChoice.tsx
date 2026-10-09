@@ -19,6 +19,7 @@ interface ImageUploadChoiceProps {
   folder?: string;
   placeholder?: string;
   required?: boolean;
+  source?: string;
 }
 
 export function ImageUploadChoice({
@@ -28,6 +29,7 @@ export function ImageUploadChoice({
   folder = "projects",
   placeholder = "https://images.unsplash.com/... or /uploads/...",
   required = false,
+  source = "project",
 }: ImageUploadChoiceProps) {
   // Determine initial mode: If value starts with "/uploads/", prefer upload mode; otherwise default to "url" or "upload"
   const [mode, setMode] = useState<"url" | "upload">(
@@ -65,6 +67,7 @@ export function ImageUploadChoice({
       formData.append("file", file);
       formData.append("folder", folder);
       formData.append("alt", file.name);
+      formData.append("source", source);
 
       const res = await fetch("/api/upload", {
         method: "POST",

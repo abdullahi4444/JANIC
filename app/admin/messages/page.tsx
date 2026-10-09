@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import React from "react";
+import { requireAuth } from "@/lib/permissions/roles";
 import { KpiRow } from "@/components/admin/KpiRow";
 import { MessageService } from "@/services/messages/message.service";
 import { MessageManager } from "@/components/admin/MessageManager";
@@ -7,6 +8,7 @@ import { MessageManager } from "@/components/admin/MessageManager";
 export const dynamic = "force-dynamic";
 
 export default async function AdminMessagesPage() {
+  await requireAuth(null, "messages:read");
   const messages = await MessageService.getAllAdmin();
 
   return (

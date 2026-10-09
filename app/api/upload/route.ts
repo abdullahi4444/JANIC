@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
-import { requireAuth } from "@/lib/permissions/roles";
+import { getCurrentUser } from "@/lib/auth/jwt";
+import { hasPermission } from "@/lib/permissions/roles";
 import { Role } from "@prisma/client";
 import fs from "fs";
 import path from "path";
@@ -8,13 +9,29 @@ import { formatPostCaption } from "@/lib/media/post-media";
 
 export async function POST(req: NextRequest) {
   try {
-    await requireAuth([Role.ADMIN, Role.EDITOR]);
+    // 1. Authenticate user
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ success: false, error: "UNAUTHORIZED" }, { status: 401 });
+    }
 
+    // 2. Parse form data
     const formData = await req.formData();
     const folder = (formData.get("folder") as string) || "general";
     const alt = (formData.get("alt") as string) || "";
     const caption = (formData.get("caption") as string) || "";
     const groupPost = formData.get("groupPost") === "true";
+    const source = (formData.get("source") as string) || "post";
+
+    // 3. Permission check: Avatar uploads allowed for any authenticated user.
+    // For other folders, require media:create or media:update unless admin.
+    if (folder !== "avatars" && user.role !== Role.ADMIN) {
+      const canCreate = await hasPermission(user.role, "media:create");
+      const canUpdate = await hasPermission(user.role, "media:update");
+      if (!canCreate && !canUpdate) {
+        return NextResponse.json({ success: false, error: "FORBIDDEN" }, { status: 403 });
+      }
+    }
 
     // Support both single "file" and multiple "files" or multiple "file" entries
     const allFiles: File[] = [];
@@ -93,6 +110,7 @@ export async function POST(req: NextRequest) {
           mimeType: primaryFile.type,
           sizeBytes: imageFiles.reduce((acc, f) => acc + f.size, 0),
           folder,
+          source,
         },
       });
 
@@ -127,6 +145,7 @@ export async function POST(req: NextRequest) {
           mimeType: file.type,
           sizeBytes: file.size,
           folder,
+          source,
         },
       });
 

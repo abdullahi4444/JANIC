@@ -14,6 +14,7 @@ interface Member {
   bio?: string | null;
   avatar?: string | null;
   email?: string | null;
+  isFounder?: boolean;
   order: number;
   isActive: boolean;
 }
@@ -33,6 +34,7 @@ export function TeamManager({ initialTeam }: { initialTeam: Member[] }) {
     bio: "",
     avatar: "",
     email: "",
+    isFounder: false,
     order: 0,
     isActive: true,
   });
@@ -46,6 +48,7 @@ export function TeamManager({ initialTeam }: { initialTeam: Member[] }) {
       bio: "",
       avatar: "",
       email: "",
+      isFounder: false,
       order: team.length + 1,
       isActive: true,
     });
@@ -61,6 +64,7 @@ export function TeamManager({ initialTeam }: { initialTeam: Member[] }) {
       bio: m.bio || "",
       avatar: m.avatar || "",
       email: m.email || "",
+      isFounder: m.isFounder || false,
       order: m.order,
       isActive: m.isActive,
     });
@@ -158,6 +162,9 @@ export function TeamManager({ initialTeam }: { initialTeam: Member[] }) {
                   </div>
                 )}
               </div>
+              {m.isFounder && (
+                <span className="inline-block mb-1 px-2 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-black tracking-wider">FOUNDER</span>
+              )}
               <h3 className="text-base font-bold text-foreground">{m.name}</h3>
               <p className="text-xs font-semibold text-blue-600 mt-0.5">{m.role}</p>
               <p className="text-[11px] text-muted-foreground mt-1">{m.department}</p>
@@ -249,6 +256,16 @@ export function TeamManager({ initialTeam }: { initialTeam: Member[] }) {
                   className="w-full px-3 py-2 bg-muted/50 border border-border rounded-xl text-xs sm:text-sm"
                 />
               </div>
+
+              <label className="flex items-center gap-2 text-xs font-semibold text-foreground pt-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.isFounder}
+                  onChange={(e) => setFormData({ ...formData, isFounder: e.target.checked })}
+                  className="w-4 h-4 accent-amber-600"
+                />
+                Founder card (About page Leadership & Advisors)
+              </label>
 
               <div className="flex justify-end gap-2 pt-4 border-t border-border">
                 <button

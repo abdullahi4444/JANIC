@@ -235,6 +235,7 @@ model TeamMember {
   avatar     String?
   email      String?
   linkedin   String?
+  isFounder  Boolean  @default(false)
   order      Int      @default(0)
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
@@ -281,11 +282,10 @@ model Media {
   sizeBytes Int?
   folder    String   @default("general")
   caption   String?  @db.Text
+  source    String   @default("post")
   createdAt DateTime @default(now())
   likes     MediaLike[]
   comments  MediaComment[]
-
-  @@index([folder, createdAt])
 }
 
 model MediaLike {

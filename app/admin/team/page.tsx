@@ -3,10 +3,12 @@ import React from "react";
 import { KpiRow } from "@/components/admin/KpiRow";
 import { TeamRepository } from "@/repositories/team.repository";
 import { TeamManager } from "@/components/admin/TeamManager";
+import { requireAuth } from "@/lib/permissions/roles";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminTeamPage() {
+  await requireAuth(null, "team:read");
   const team = await TeamRepository.findAllAdmin();
 
   return (

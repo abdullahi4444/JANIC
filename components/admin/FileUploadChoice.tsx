@@ -25,6 +25,7 @@ interface FileUploadChoiceProps {
   placeholder?: string;
   required?: boolean;
   helperText?: string;
+  source?: string;
 }
 
 export function FileUploadChoice({
@@ -36,6 +37,7 @@ export function FileUploadChoice({
   placeholder,
   required = false,
   helperText,
+  source = "project",
 }: FileUploadChoiceProps) {
   // If the value is a local upload path, default mode to "upload"; otherwise "url"
   const [mode, setMode] = useState<"url" | "upload">(
@@ -120,6 +122,7 @@ export function FileUploadChoice({
       formData.append("file", file);
       formData.append("folder", folder);
       formData.append("alt", file.name);
+      formData.append("source", source);
 
       const res = await fetch("/api/upload", {
         method: "POST",

@@ -804,6 +804,7 @@ export function ProjectMemberManager({
                     folder="avatars"
                     placeholder="https://images.unsplash.com/... or upload photo"
                     helperText="Upload student headshot or paste photo link (recommended: square image)"
+                    source="avatar"
                   />
                 </div>
 

@@ -2,8 +2,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, Menu, Bell, Calendar, Download, LogOut } from "lucide-react";
+import { Search, Menu, Bell, Calendar, Download, LogOut, UserCircle } from "lucide-react";
 import { AuthUser } from "@/types/user";
 import { ThemeModeDropdown } from "@/components/theme/ThemeModeDropdown";
 import { Button } from "@/components/ui/button";
@@ -42,10 +43,10 @@ export function AdminHeader({ user, onMenu, notifCount = 0 }: AdminHeaderProps) 
     setLoggingOut(true);
     try {
       await fetch("/api/auth/logout", { method: "POST" });
-      router.push("/admin/login");
+      router.push("/login");
       router.refresh();
     } catch {
-      router.push("/admin/login");
+      router.push("/login");
     } finally {
       setLoggingOut(false);
     }
@@ -142,6 +143,12 @@ export function AdminHeader({ user, onMenu, notifCount = 0 }: AdminHeaderProps) 
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <Link href="/admin/profile" className="flex items-center">
+                <UserCircle className="mr-2 h-4 w-4" />
+                <span>My Profile</span>
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={handleLogout} disabled={loggingOut} className="text-red-600 cursor-pointer">
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>

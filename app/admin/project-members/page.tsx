@@ -1,4 +1,5 @@
 import React from "react";
+import { requireAuth } from "@/lib/permissions/roles";
 import { KpiRow } from "@/components/admin/KpiRow";
 import { ProjectMemberRepository } from "@/repositories/project-member.repository";
 import { ProjectMemberManager } from "@/components/admin/ProjectMemberManager";
@@ -12,6 +13,7 @@ export const metadata = {
 };
 
 export default async function AdminProjectMembersPage() {
+  await requireAuth(null, "project_members:read");
   const [members, rawProjects] = await Promise.all([
     ProjectMemberRepository.findAll(),
     ProjectService.getPublishedProjects(),

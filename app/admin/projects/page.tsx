@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import React from "react";
+import { requireAuth } from "@/lib/permissions/roles";
 import { KpiRow } from "@/components/admin/KpiRow";
 import { ProjectService } from "@/services/projects/project.service";
 import { ProjectManager } from "@/components/admin/ProjectManager";
@@ -7,6 +8,7 @@ import { ProjectManager } from "@/components/admin/ProjectManager";
 export const dynamic = "force-dynamic";
 
 export default async function AdminProjectsPage() {
+  await requireAuth(null, "projects:read");
   const [{ items: projects }, categories] = await Promise.all([
     ProjectService.getAllAdmin(),
     ProjectService.getCategories(),

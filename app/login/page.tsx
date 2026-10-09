@@ -10,7 +10,7 @@ import { toast } from "sonner";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const from = searchParams.get("from") || "/admin/dashboard";
+  const fromParam = searchParams.get("from");
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -35,7 +35,9 @@ function LoginForm() {
       }
 
       toast.success("Welcome back! Redirecting to dashboard...");
-      router.push(from);
+      const defaultDest = data.user?.role === "STAFF" ? "/staff/dashboard" : "/admin/dashboard";
+      const dest = fromParam && fromParam !== "/admin/dashboard" ? fromParam : defaultDest;
+      router.push(dest);
       router.refresh();
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "An unexpected error occurred");

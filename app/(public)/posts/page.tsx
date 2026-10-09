@@ -15,9 +15,10 @@ export default async function PostsPage() {
   const media = await MediaRepository.findAll();
   const items = media.filter(
     (m) =>
-      !m.mimeType ||
-      m.mimeType.startsWith("image") ||
-      m.mimeType.startsWith("video")
+      m.source === "post" &&
+      (!m.mimeType ||
+        m.mimeType.startsWith("image") ||
+        m.mimeType.startsWith("video"))
   );
 
   const tracks = [

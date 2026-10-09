@@ -33,7 +33,7 @@ export function InstitutionalTopBar() {
             </a>
           </div>
           <Link
-            href="/admin/login"
+            href="/login"
             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-blue-950/70 hover:bg-blue-900 text-blue-300 hover:text-white border border-blue-800/60 transition"
           >
             <Lock className="w-3 h-3 text-blue-400" />

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import React from "react";
+import { requireAuth } from "@/lib/permissions/roles";
 import { KpiRow } from "@/components/admin/KpiRow";
 import { PartnershipService } from "@/services/partnerships/partnership.service";
 import { PartnershipManager } from "@/components/admin/PartnershipManager";
@@ -7,6 +8,7 @@ import { PartnershipManager } from "@/components/admin/PartnershipManager";
 export const dynamic = "force-dynamic";
 
 export default async function AdminPartnershipsPage() {
+  await requireAuth(null, "partnerships:read");
   const inquiries = await PartnershipService.getAllAdmin();
 
   return (

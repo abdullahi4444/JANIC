@@ -2,10 +2,12 @@
 import React from "react";
 import prisma from "@/lib/db/prisma";
 import { MediaManager } from "@/components/admin/MediaManager";
+import { requireAuth } from "@/lib/permissions/roles";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminMediaPage() {
+  await requireAuth(null, "media:read");
   const media = await prisma.media.findMany({
     orderBy: { createdAt: "desc" },
   });
