@@ -1,53 +1,56 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from './button';
+import { Input } from './input';
 import { motion } from 'framer-motion';
 import { useClerk } from '@clerk/nextjs';
+import { toast } from 'sonner';
 import googleIcon from 'thesvg/google';
 import githubIcon from 'thesvg/github';
 
 import {
-	AtSignIcon,
 	ChevronLeftIcon,
 	Loader2,
 	AlertCircle,
-	CheckCircle2,
 	User,
-	UserPlus,
 	Lock,
+	Eye,
+	EyeOff,
 } from 'lucide-react';
-import { Input } from './input';
 
-interface RegisterErrors {
-	name?: string;
+interface LoginErrors {
 	username?: string;
-	email?: string;
 	password?: string;
 }
 
-export function AuthPage() {
+export function LoginPage() {
 	const router = useRouter();
-	const [formData, setFormData] = useState({ name: '', username: '', email: '', password: '' });
-	const [errors, setErrors] = useState<RegisterErrors>({});
-	const [loading, setLoading] = useState(false);
-	const [success, setSuccess] = useState(false);
-	const [error, setError] = useState<string | null>(null);
+	const searchParams = useSearchParams();
+	const fromParam = searchParams.get('from');
 	const clerk = useClerk();
+
+	const [formData, setFormData] = useState({
+		username: '',
+		password: '',
+	});
+	const [showPassword, setShowPassword] = useState(false);
+	const [errors, setErrors] = useState<LoginErrors>({});
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 	const [oauthLoading, setOauthLoading] = useState<'oauth_google' | 'oauth_github' | null>(null);
 
 	// Prefetch the SSO callback route & auto-reset loading if the user cancels or navigates Back (bfcache)
-	React.useEffect(() => {
+	useEffect(() => {
 		router.prefetch('/sso-callback');
 
 		const stopLoading = () => {
 			setOauthLoading(null);
 		};
 
-		// Reset spinner when page is restored from Back/Forward cache or reopened
 		window.addEventListener('pageshow', stopLoading);
 		window.addEventListener('focus', stopLoading);
 		const handleVisibilityChange = () => {
@@ -67,7 +70,6 @@ export function AuthPage() {
 	const handleOAuth = async (strategy: 'oauth_google' | 'oauth_github') => {
 		if (oauthLoading) return;
 		setOauthLoading(strategy);
-		setError(null);
 
 		// Auto-stop spinner after 5s if user cancels prompt or navigation doesn't occur
 		setTimeout(() => {
@@ -75,7 +77,6 @@ export function AuthPage() {
 		}, 5000);
 
 		try {
-			// Direct, instant dispatch using client.signIn
 			const client = clerk.client || (typeof window !== 'undefined' ? (window as unknown as { Clerk?: { client?: typeof clerk.client } }).Clerk?.client : null);
 
 			if (client?.signIn) {
@@ -129,34 +130,19 @@ export function AuthPage() {
 	};
 
 	const validate = (): boolean => {
-		const newErrors: RegisterErrors = {};
+		const newErrors: LoginErrors = {};
 
-		const trimmedName = formData.name.trim();
-		if (!trimmedName) {
-			newErrors.name = 'Full name is required';
-		} else if (trimmedName.length < 2) {
-			newErrors.name = 'Name must be at least 2 characters';
-		}
-
-		const trimmedUsername = formData.username.trim();
-		if (!trimmedUsername) {
-			newErrors.username = 'Username is required';
-		} else if (trimmedUsername.length < 3) {
-			newErrors.username = 'Username must be at least 3 characters';
-		}
-
-		const trimmedEmail = formData.email.trim();
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		if (!trimmedEmail) {
-			newErrors.email = 'Email address is required';
-		} else if (!emailRegex.test(trimmedEmail)) {
-			newErrors.email = 'Please enter a valid email address';
+		const trimmedUser = formData.username.trim();
+		if (!trimmedUser) {
+			newErrors.username = 'Username or email is required';
+		} else if (trimmedUser.length < 3) {
+			newErrors.username = 'Must be at least 3 characters';
 		}
 
 		if (!formData.password) {
 			newErrors.password = 'Password is required';
-		} else if (formData.password.length < 6) {
-			newErrors.password = 'Password must be at least 6 characters';
+		} else if (formData.password.length < 4) {
+			newErrors.password = 'Password must be at least 4 characters';
 		}
 
 		setErrors(newErrors);
@@ -174,7 +160,7 @@ export function AuthPage() {
 		e.preventDefault();
 
 		if (!validate()) {
-			setError('Please fill in all registration fields correctly.');
+			setError('Please enter your username/email and password.');
 			return;
 		}
 
@@ -182,13 +168,11 @@ export function AuthPage() {
 		setError(null);
 
 		try {
-			const res = await fetch('/api/auth/register', {
+			const res = await fetch('/api/auth/login', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					name: formData.name.trim(),
 					username: formData.username.trim(),
-					email: formData.email.trim(),
 					password: formData.password,
 				}),
 			});
@@ -196,13 +180,30 @@ export function AuthPage() {
 			const data = await res.json();
 
 			if (!res.ok || !data.success) {
-				throw new Error(data.error || 'Registration failed.');
+				throw new Error(data.error || 'Login failed. Please check your credentials.');
 			}
 
-			setSuccess(true);
-			setTimeout(() => router.push('/login'), 2000);
+			const isPublicUser = data.user?.role === 'USER';
+			toast.success(isPublicUser ? 'Welcome back!' : 'Welcome back! Redirecting to dashboard...');
+
+			const defaultDest =
+				data.user?.role === 'STAFF'
+					? '/staff/dashboard'
+					: isPublicUser
+					? '/'
+					: '/admin/dashboard';
+
+			const dest =
+				fromParam &&
+				fromParam !== '/admin/dashboard' &&
+				!(isPublicUser && (fromParam.startsWith('/admin') || fromParam.startsWith('/staff')))
+					? fromParam
+					: defaultDest;
+
+			router.push(dest);
+			router.refresh();
 		} catch (err: unknown) {
-			setError(err instanceof Error ? err.message : 'Error creating account.');
+			setError(err instanceof Error ? err.message : 'Invalid credentials. Please try again.');
 		} finally {
 			setLoading(false);
 		}
@@ -211,6 +212,7 @@ export function AuthPage() {
 	return (
 		<section className="mx-auto w-full max-w-[1380px] px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
 			<main className="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl shadow-blue-900/5 lg:grid lg:grid-cols-2">
+				{/* Left Column: Branding, Animated Waves & Quote */}
 				<div className="bg-[#F8FBFF] dark:bg-slate-950 relative hidden h-full flex-col border-r border-slate-100 dark:border-slate-800 p-10 lg:flex">
 					<div className="z-10 flex items-center gap-3">
 						<div className="relative h-10 w-36">
@@ -243,6 +245,8 @@ export function AuthPage() {
 					<FloatingPaths position={1} />
 					<FloatingPaths position={-1} />
 				</div>
+
+				{/* Right Column: Sign In Form */}
 				<div className="relative flex flex-col justify-center p-6 sm:p-10 lg:min-h-[640px]">
 					<Button variant="ghost" className="absolute top-5 left-5 transition-colors duration-150" asChild>
 						<Link href="/">
@@ -250,7 +254,9 @@ export function AuthPage() {
 							Home
 						</Link>
 					</Button>
+
 					<div className="mx-auto w-full max-w-sm space-y-4 pt-10 lg:pt-0">
+						{/* Mobile Brand Logo */}
 						<div className="flex items-center gap-2 lg:hidden">
 							<div className="relative h-8 w-28">
 								<Image
@@ -271,154 +277,110 @@ export function AuthPage() {
 								/>
 							</div>
 						</div>
+
+						{/* Heading */}
 						<div className="flex flex-col space-y-1">
 							<h1 className="font-heading text-2xl font-bold tracking-wide text-[#08245C] dark:text-white">
-								Create an Account
+								Welcome Back
 							</h1>
 							<p className="text-muted-foreground text-sm">
-								Join JANIC to access innovation cohorts, events, and programs.
+								Enter your credentials to access your JANIC account.
 							</p>
 						</div>
 
-						{success ? (
-							<div className="rounded-xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-950/40 dark:border-emerald-900/60 p-6 text-center space-y-2">
-								<CheckCircle2 className="mx-auto size-6 text-emerald-600 dark:text-emerald-400" />
-								<p className="font-semibold text-emerald-900 dark:text-emerald-200">Welcome to JANIC!</p>
-								<p className="text-sm text-emerald-700 dark:text-emerald-300">Your account has been created. Redirecting to sign in...</p>
-							</div>
-						) : (
-							<form className="space-y-3.5" onSubmit={handleSubmit} noValidate>
-								{error && (
-									<div role="alert" className="flex items-start gap-2 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-600">
-										<AlertCircle className="size-4 mt-0.5 shrink-0" />
-										<span>{error}</span>
+						{/* Credentials Form */}
+						<form className="space-y-3.5" onSubmit={handleSubmit} noValidate>
+							{error && (
+								<div role="alert" className="flex items-start gap-2 rounded-md border border-red-200 bg-red-50 dark:bg-red-950/40 dark:border-red-900/60 p-3 text-sm text-red-600 dark:text-red-400">
+									<AlertCircle className="size-4 mt-0.5 shrink-0" />
+									<span>{error}</span>
+								</div>
+							)}
+
+							<div>
+								<label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+									Username or Email
+								</label>
+								<div className="relative h-max">
+									<Input
+										placeholder="Your username or email"
+										aria-label="Username or Email"
+										className={`peer ps-9 ${errors.username ? 'border-red-500 focus-visible:ring-red-400' : ''}`}
+										type="text"
+										value={formData.username}
+										onChange={(e) => handleInputChange('username', e.target.value)}
+										autoComplete="username"
+									/>
+									<div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
+										<User className="size-4" aria-hidden="true" />
 									</div>
+								</div>
+								{errors.username && (
+									<p className="mt-1 text-xs text-red-500 font-medium flex items-center gap-1 animate-in fade-in duration-200">
+										<AlertCircle className="size-3.5 shrink-0" />
+										<span>{errors.username}</span>
+									</p>
 								)}
+							</div>
 
-								<div>
-									<label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-										Full Name
-									</label>
-									<div className="relative h-max">
-										<Input
-											placeholder="Your full name"
-											aria-label="Full name"
-											className={`peer ps-9 ${errors.name ? 'border-red-500 focus-visible:ring-red-400' : ''}`}
-											type="text"
-											value={formData.name}
-											onChange={(e) => handleInputChange('name', e.target.value)}
-										/>
-										<div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
-											<User className="size-4" aria-hidden="true" />
-										</div>
+							<div>
+								<label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+									Password
+								</label>
+								<div className="relative h-max">
+									<Input
+										placeholder="••••••••••••"
+										aria-label="Password"
+										className={`peer ps-9 pe-9 ${errors.password ? 'border-red-500 focus-visible:ring-red-400' : ''}`}
+										type={showPassword ? 'text' : 'password'}
+										value={formData.password}
+										onChange={(e) => handleInputChange('password', e.target.value)}
+										autoComplete="current-password"
+									/>
+									<div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
+										<Lock className="size-4" aria-hidden="true" />
 									</div>
-									{errors.name && (
-										<p className="mt-1 text-xs text-red-500 font-medium flex items-center gap-1 animate-in fade-in duration-200">
-											<AlertCircle className="size-3.5 shrink-0" />
-											<span>{errors.name}</span>
-										</p>
-									)}
+									<button
+										type="button"
+										onClick={() => setShowPassword(!showPassword)}
+										className="absolute inset-y-0 end-0 flex items-center pe-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+										aria-label={showPassword ? 'Hide password' : 'Show password'}
+									>
+										{showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+									</button>
 								</div>
+								{errors.password && (
+									<p className="mt-1 text-xs text-red-500 font-medium flex items-center gap-1 animate-in fade-in duration-200">
+										<AlertCircle className="size-3.5 shrink-0" />
+										<span>{errors.password}</span>
+									</p>
+								)}
+							</div>
 
-								<div>
-									<label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-										Username
-									</label>
-									<div className="relative h-max">
-										<Input
-											placeholder="Choose a username"
-											aria-label="Username"
-											className={`peer ps-9 ${errors.username ? 'border-red-500 focus-visible:ring-red-400' : ''}`}
-											type="text"
-											value={formData.username}
-											onChange={(e) => handleInputChange('username', e.target.value)}
-										/>
-										<div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
-											<UserPlus className="size-4" aria-hidden="true" />
-										</div>
-									</div>
-									{errors.username && (
-										<p className="mt-1 text-xs text-red-500 font-medium flex items-center gap-1 animate-in fade-in duration-200">
-											<AlertCircle className="size-3.5 shrink-0" />
-											<span>{errors.username}</span>
-										</p>
-									)}
-								</div>
-
-								<div>
-									<label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-										Email Address
-									</label>
-									<div className="relative h-max">
-										<Input
-											placeholder="your.email@example.com"
-											aria-label="Email address"
-											className={`peer ps-9 ${errors.email ? 'border-red-500 focus-visible:ring-red-400' : ''}`}
-											type="email"
-											value={formData.email}
-											onChange={(e) => handleInputChange('email', e.target.value)}
-										/>
-										<div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
-											<AtSignIcon className="size-4" aria-hidden="true" />
-										</div>
-									</div>
-									{errors.email && (
-										<p className="mt-1 text-xs text-red-500 font-medium flex items-center gap-1 animate-in fade-in duration-200">
-											<AlertCircle className="size-3.5 shrink-0" />
-											<span>{errors.email}</span>
-										</p>
-									)}
-								</div>
-
-								<div>
-									<label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-										Password
-									</label>
-									<div className="relative h-max">
-										<Input
-											placeholder="At least 6 characters"
-											aria-label="Password"
-											className={`peer ps-9 ${errors.password ? 'border-red-500 focus-visible:ring-red-400' : ''}`}
-											type="password"
-											value={formData.password}
-											onChange={(e) => handleInputChange('password', e.target.value)}
-										/>
-										<div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
-											<Lock className="size-4" aria-hidden="true" />
-										</div>
-									</div>
-									{errors.password && (
-										<p className="mt-1 text-xs text-red-500 font-medium flex items-center gap-1 animate-in fade-in duration-200">
-											<AlertCircle className="size-3.5 shrink-0" />
-											<span>{errors.password}</span>
-										</p>
-									)}
-								</div>
-
-							<Button type="submit" className="w-full transition-colors duration-150 cursor-pointer" disabled={loading}>
+							<Button type="submit" className="w-full bg-[#0875D1] hover:bg-[#0764B2] text-white transition-colors duration-150 cursor-pointer" disabled={loading}>
 								{loading ? (
 									<>
 										<Loader2 className="size-4 me-2 animate-spin" />
-										Creating Account...
+										Signing In...
 									</>
 								) : (
-									<span>Create Account</span>
+									<span>Sign In</span>
 								)}
 							</Button>
 						</form>
-					)}
 
-					<div className="relative my-4">
-						<div className="absolute inset-0 flex items-center">
-							<span className="w-full border-t border-slate-200 dark:border-slate-700" />
+						{/* Divider */}
+						<div className="relative my-4">
+							<div className="absolute inset-0 flex items-center">
+								<span className="w-full border-t border-slate-200 dark:border-slate-700" />
+							</div>
+							<div className="relative flex justify-center text-xs uppercase">
+								<span className="bg-white dark:bg-slate-900 px-2 text-muted-foreground">Or continue with</span>
+							</div>
 						</div>
-						<div className="relative flex justify-center text-xs uppercase">
-							<span className="bg-white dark:bg-slate-900 px-2 text-muted-foreground">Or continue with</span>
-						</div>
-					</div>
 
-					<div className="grid grid-cols-2 gap-3">
-
+						{/* OAuth Buttons with Real thesvg Logos */}
+						<div className="grid grid-cols-2 gap-3">
 							<Button
 								type="button"
 								variant="outline"
@@ -437,7 +399,6 @@ export function AuthPage() {
 								Google
 							</Button>
 
-
 							<Button
 								type="button"
 								variant="outline"
@@ -455,21 +416,22 @@ export function AuthPage() {
 								)}
 								GitHub
 							</Button>
+						</div>
 
-					</div>
-
+						{/* Registration Link */}
 						<div className="pt-2 text-center text-sm text-slate-600 dark:text-slate-400">
-							Already have an account?{' '}
+							Don&apos;t have an account?{' '}
 							<Link
-								href="/login"
+								href="/register"
 								className="font-semibold text-blue-600 dark:text-blue-400 hover:underline"
 							>
-								Sign In
+								Join Us / Register
 							</Link>
 						</div>
 
+						{/* Terms Notice */}
 						<p className="text-muted-foreground mt-4 text-xs text-center">
-							By registering, you agree to our{' '}
+							By signing in, you agree to our{' '}
 							<Link
 								href="#"
 								className="hover:text-primary underline underline-offset-4 transition-colors duration-150"

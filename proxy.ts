@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
 const SECRET_KEY = new TextEncoder().encode(
   process.env.AUTH_SECRET || "janic_super_secret_session_jwt_key_2026_xYz987!@"
@@ -8,7 +9,7 @@ const SECRET_KEY = new TextEncoder().encode(
 
 const SESSION_COOKIE_NAME = "janic_auth_token";
 
-export async function proxy(request: NextRequest) {
+const handler = clerkMiddleware(async (auth, request: NextRequest) => {
   const { pathname } = request.nextUrl;
 
   // Protect /admin and /staff routes
@@ -70,8 +71,17 @@ export async function proxy(request: NextRequest) {
   }
 
   return NextResponse.next();
-}
+});
+
+export default handler;
+export const proxy = handler;
 
 export const config = {
-  matcher: ["/admin/:path*", "/staff/:path*", "/login"],
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    // Always run for API routes
+    "/(api|trpc)(.*)",
+    "/__clerk/:path*",
+  ],
 };

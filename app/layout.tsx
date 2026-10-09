@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { Toaster } from "sonner";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -46,7 +47,15 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/images/janic-logo-white-badge.png" />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans selection:bg-blue-600 selection:text-white">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ClerkProvider
+          appearance={{
+            options: {
+              logoImageUrl: "/favicon.png",
+            },
+          }}
+        >
+          <ThemeProvider>{children}</ThemeProvider>
+        </ClerkProvider>
         <Toaster position="top-center" richColors />
       </body>
     </html>

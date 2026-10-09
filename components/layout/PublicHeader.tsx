@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Menu, X, LogIn, UserPlus, LayoutDashboard, LogOut, ChevronDown, FolderKanban, Users, UserCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeModeDropdown } from "@/components/theme/ThemeModeDropdown";
+import { useUser, useClerk } from "@clerk/nextjs";
 import type { AuthUser } from "@/types/user";
 import {
   DropdownMenu,
@@ -159,7 +160,18 @@ export function PublicHeader({ navLinks, currentUser }: PublicHeaderProps) {
   const [projectsDropdownOpen, setProjectsDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
-  const isLoggedIn = Boolean(currentUser);
+  const { user: clerkUser, isSignedIn: isClerkSignedIn } = useUser();
+  const { signOut: clerkSignOut } = useClerk();
+
+  const activeUser: AuthUser | null = currentUser || (isClerkSignedIn && clerkUser ? {
+    id: clerkUser.id,
+    name: clerkUser.fullName || clerkUser.username || clerkUser.primaryEmailAddress?.emailAddress || "Member",
+    username: clerkUser.username || clerkUser.firstName?.toLowerCase() || "member",
+    email: clerkUser.primaryEmailAddress?.emailAddress || "",
+    role: "USER" as any,
+    avatar: clerkUser.imageUrl,
+  } : null);
+  const isLoggedIn = Boolean(activeUser);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -168,6 +180,24 @@ export function PublicHeader({ navLinks, currentUser }: PublicHeaderProps) {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (isClerkSignedIn && clerkUser) {
+      const email = clerkUser.primaryEmailAddress?.emailAddress;
+      if (email) {
+        fetch("/api/auth/sync", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            name: clerkUser.fullName || clerkUser.username || "Member",
+            username: clerkUser.username || email.split("@")[0],
+            avatar: clerkUser.imageUrl,
+          }),
+        }).catch(() => {});
+      }
+    }
+  }, [isClerkSignedIn, clerkUser?.id]);
 
   const [lastPathname, setLastPathname] = useState(pathname);
 
@@ -179,6 +209,9 @@ export function PublicHeader({ navLinks, currentUser }: PublicHeaderProps) {
   const handleLogout = async () => {
     setLoggingOut(true);
     try {
+      if (isClerkSignedIn) {
+        await clerkSignOut();
+      }
       await fetch("/api/auth/logout", { method: "POST" });
       router.push("/");
       router.refresh();
@@ -353,8 +386,8 @@ export function PublicHeader({ navLinks, currentUser }: PublicHeaderProps) {
           </Link>
           <ThemeModeDropdown />
           {isLoggedIn ? (
-            currentUser ? (
-              <UserAvatarMenu user={currentUser} loggingOut={loggingOut} onLogout={handleLogout} />
+            activeUser ? (
+              <UserAvatarMenu user={activeUser} loggingOut={loggingOut} onLogout={handleLogout} />
             ) : null
           ) : (
             <>
@@ -395,32 +428,32 @@ export function PublicHeader({ navLinks, currentUser }: PublicHeaderProps) {
           </div>
 
           {/* Logged-in user card (mobile) */}
-          {isLoggedIn && currentUser && (
+          {isLoggedIn && activeUser && (
             <div className="mb-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-br from-[#F5F9FF] to-white dark:from-slate-900 dark:to-slate-950 p-4 flex items-center gap-3 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_10px_25px_-15px_rgba(8,117,209,0.35)]">
               <Avatar className="h-11 w-11 shrink-0">
-                {currentUser.avatar ? (
-                  <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
+                {activeUser.avatar ? (
+                  <AvatarImage src={activeUser.avatar} alt={activeUser.name} />
                 ) : null}
                 <AvatarFallback className="bg-gradient-to-br from-[#0875D1] to-[#08245C] text-white font-bold">
-                  {getUserInitial(currentUser.name)}
+                  {getUserInitial(activeUser.name)}
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
-                  {currentUser.username ? `@${currentUser.username}` : currentUser.name}
+                  {activeUser.username ? `@${activeUser.username}` : activeUser.name}
                 </p>
-                {currentUser.username === "jamiila" || currentUser.name.toLowerCase().includes("jamiila") ? (
+                {activeUser.username === "jamiila" || activeUser.name.toLowerCase().includes("jamiila") ? (
                   <p className="text-xs font-bold text-[#0875D1] dark:text-sky-400">
                     Dean of CS & IT
                   </p>
                 ) : null}
                 <p className="text-[11px] text-muted-foreground truncate">
-                  {currentUser.email}
+                  {activeUser.email}
                 </p>
                 <p className="text-[10px] font-extrabold tracking-wider text-[#0875D1] uppercase mt-0.5">
-                  {currentUser.username === "jamiila" || currentUser.name.toLowerCase().includes("jamiila")
+                  {activeUser.username === "jamiila" || activeUser.name.toLowerCase().includes("jamiila")
                     ? "Dean of CS & IT • System Admin"
-                    : currentUser.role}
+                    : activeUser.role}
                 </p>
               </div>
             </div>

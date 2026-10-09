@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-const SCHEMA_VERSION = "2026-10-09-v3-user-role";
+const SCHEMA_VERSION = "2026-10-09-v4-user-role-fix";
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
   schemaVersion?: string;
