@@ -1,11 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { requireAuth } from "@/lib/permissions/roles";
-import { KpiRow } from "@/components/admin/KpiRow";
 import { ProjectService } from "@/services/projects/project.service";
 import { ProjectManager } from "@/components/admin/ProjectManager";
 
 export const dynamic = "force-dynamic";
+
+export const metadata = {
+  title: "Projects Showcase | JANIC Admin",
+  description: "Create, edit, publish, and manage student innovation projects and prototypes.",
+};
 
 export default async function AdminProjectsPage() {
   await requireAuth(null, "projects:read");
@@ -15,7 +19,7 @@ export default async function AdminProjectsPage() {
   ]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-extrabold text-foreground tracking-tight">
           Project Showcases
@@ -24,13 +28,6 @@ export default async function AdminProjectsPage() {
           Create, edit, publish, and manage student innovation projects and laboratory prototypes.
         </p>
       </div>
-
-      <KpiRow items={[
-      { title: "Total Projects", value: projects.length, sub: "all time" },
-      { title: "Published", value: projects.filter((p) => p.status === "PUBLISHED").length, sub: "live on portal" },
-      { title: "Drafts", value: projects.filter((p) => p.status === "DRAFT").length, sub: "in progress" },
-      { title: "Archived", value: projects.filter((p) => p.status === "ARCHIVED").length, sub: "retired" },
-    ]} />
 
       <ProjectManager
         initialProjects={projects as any}

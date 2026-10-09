@@ -5,8 +5,8 @@ import { notFound } from "next/navigation";
 import { ProjectService } from "@/services/projects/project.service";
 import { TeamRepository } from "@/repositories/team.repository";
 import { SectionHero } from "@/components/layout/SectionHero";
-import { enrichProjectTeam, parseProjectTeam } from "@/lib/project-team";
-import { ProjectTeamGrid } from "@/components/public/ProjectTeamGrid";
+import { ProjectMemberRepository } from "@/repositories/project-member.repository";
+import { ProjectTeamGrid, ProjectTeamGridMember } from "@/components/public/ProjectTeamGrid";
 import {
   ExternalLink,
   Code2,
@@ -63,11 +63,97 @@ export default async function ProjectDetailPage({
 
   const techList = project.technology.split(",").map((t) => t.trim());
 
-  const profiles = await TeamRepository.findActive();
-  const projectTeam = enrichProjectTeam(
-    parseProjectTeam(project.teamMembers),
-    profiles
-  );
+  // Resolve rich student members for this project
+  const rawMembers = ((project as any).members || []) as any[];
+  let projectTeam: ProjectTeamGridMember[] = [];
+
+  if (rawMembers.length > 0) {
+    projectTeam = rawMembers.map((m) => ({
+      id: m.id,
+      name: m.name,
+      role: m.role || "Innovator",
+      department: m.department || "Faculty of Computer Science & IT",
+      bio: m.bio || null,
+      avatar: m.avatar || null,
+      email: m.email || null,
+      phone: m.phone || null,
+      linkedin: m.linkedin || null,
+      github: m.github || null,
+      facebook: m.facebook || null,
+      twitter: m.twitter || null,
+      website: m.website || null,
+      tags: m.tags || null,
+    }));
+  } else {
+    const allStudentMembers = await ProjectMemberRepository.findAll();
+    const matchedByProj = allStudentMembers.filter(
+      (m) => m.projectId === project.id || (m.project && m.project.slug === project.slug)
+    );
+
+    if (matchedByProj.length > 0) {
+      projectTeam = matchedByProj.map((m) => ({
+        id: m.id,
+        name: m.name,
+        role: m.role || "Innovator",
+        department: m.department || "Faculty of Computer Science & IT",
+        bio: m.bio || null,
+        avatar: m.avatar || null,
+        email: m.email || null,
+        phone: m.phone || null,
+        linkedin: m.linkedin || null,
+        github: m.github || null,
+        facebook: m.facebook || null,
+        twitter: m.twitter || null,
+        website: m.website || null,
+        tags: m.tags || null,
+      }));
+    } else if (project.teamMembers) {
+      const names = project.teamMembers
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      projectTeam = names.map((entry) => {
+        const match = entry.match(/^(.+?)\s*(?:\((.+?)\))?$/);
+        const parsedName = match ? match[1].trim() : entry;
+        const parsedRole = match && match[2] ? match[2].trim() : null;
+
+        const student = allStudentMembers.find(
+          (s) =>
+            s.name.toLowerCase().trim() === parsedName.toLowerCase().trim() ||
+            s.name.toLowerCase().includes(parsedName.toLowerCase().trim()) ||
+            parsedName.toLowerCase().includes(s.name.toLowerCase().trim())
+        );
+
+        if (student) {
+          return {
+            id: student.id,
+            name: student.name,
+            role: student.role || parsedRole || "Innovator",
+            department: student.department || "Faculty of Computer Science & IT",
+            bio: student.bio || null,
+            avatar: student.avatar || null,
+            email: student.email || null,
+            phone: student.phone || null,
+            linkedin: student.linkedin || null,
+            github: student.github || null,
+            facebook: student.facebook || null,
+            twitter: student.twitter || null,
+            website: student.website || null,
+            tags: student.tags || null,
+          };
+        }
+
+        return {
+          name: parsedName,
+          role: parsedRole || "Team Member",
+          department: "Faculty of Computer Science & IT",
+          bio: null,
+          avatar: null,
+        };
+      });
+    }
+  }
 
   return (
     <div>
@@ -197,33 +283,26 @@ export default async function ProjectDetailPage({
                 </div>
               )}
 
-              {/* Engineering Team */}
+              {/* Student Innovators & Engineering Team */}
               {projectTeam.length > 0 && (
-                <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-sm space-y-6">
+                <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950 text-[#0875D1] dark:text-sky-400 text-xs font-bold uppercase tracking-wider">
                         <Users className="w-3.5 h-3.5" />
-                        Engineering Team
+                        Student Innovators & Engineering Team
                       </div>
-                      <h2 className="text-2xl font-extrabold text-[#08245C] dark:text-white mt-3">
+                      <h2 className="text-2xl font-black text-[#08245C] dark:text-white mt-2.5">
                         Built by {projectTeam.length}{" "}
-                        {projectTeam.length === 1 ? "Engineer" : "Engineers"}
+                        {projectTeam.length === 1 ? "Student Innovator" : "Student Innovators"}
                       </h2>
+                      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        Meet the student inventors, developers, and researchers behind this prototype.
+                      </p>
                     </div>
                   </div>
 
-                  <ProjectTeamGrid
-                    members={projectTeam.map((m) => ({
-                      name: m.name,
-                      role: m.role,
-                      department: m.profile?.department ?? null,
-                      bio: m.profile?.bio ?? null,
-                      avatar: m.profile?.avatar ?? null,
-                      email: m.profile?.email ?? null,
-                      linkedin: m.profile?.linkedin ?? null,
-                    }))}
-                  />
+                  <ProjectTeamGrid members={projectTeam} />
                 </div>
               )}
 
@@ -301,7 +380,7 @@ export default async function ProjectDetailPage({
               {/* Project Gallery in the Sidebar Empty Space */}
               {project.gallery && project.gallery.length > 0 && (
                 <ProjectSidebarGallery
-                  gallery={project.gallery}
+                  gallery={project.gallery as any}
                   projectTitle={project.title}
                 />
               )}

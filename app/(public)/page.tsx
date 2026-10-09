@@ -42,9 +42,9 @@ export default async function HomePage() {
   const heroBadgeLabel = await getSetting("hero_badge_label", "STUDENT INNOVATION PROJECTS");
 
   return (
-    <div className="flex flex-col min-h-screen overflow-x-clip">
+    <div className="flex flex-col min-h-screen bg-white dark:bg-slate-950 overflow-x-clip">
       {/* 1. HERO SECTION (MATCHING DESIGN MOCKUP) - FADE DOWN ENTRANCE */}
-      <section className="bg-white pt-6 pb-10 sm:pt-8 sm:pb-12 overflow-hidden">
+      <section className="bg-white dark:bg-slate-950 pt-6 pb-10 sm:pt-8 sm:pb-12 overflow-hidden">
         <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal animation="fade-down" duration={850} rootMargin="0px">
             {/* Main Hero Card with Futuristic Lab Backdrop */}
@@ -93,22 +93,22 @@ export default async function HomePage() {
 
                 {/* Right Column: Floating White Innovation Hub Card */}
                 <div className="lg:col-span-5 flex justify-start lg:justify-end">
-                  <div className="w-full max-w-md bg-white rounded-3xl p-7 sm:p-8 shadow-2xl border border-slate-100/90">
+                  <div className="w-full max-w-md bg-white dark:bg-slate-900/95 rounded-3xl p-7 sm:p-8 shadow-2xl border border-slate-100/90 dark:border-slate-800">
                     <div className="flex items-center gap-2 mb-3">
                       <span className="w-6 h-1 bg-[#0875D1] rounded-full inline-block" />
-                      <span className="text-xs font-black tracking-wider uppercase text-[#0875D1]">
+                      <span className="text-xs font-black tracking-wider uppercase text-[#0875D1] dark:text-sky-400">
                         Innovation Hub
                       </span>
                     </div>
-                    <h2 className="text-xl sm:text-2xl font-black text-[#08245C] tracking-tight leading-snug">
+                    <h2 className="text-xl sm:text-2xl font-black text-[#08245C] dark:text-white tracking-tight leading-snug">
                       Ideas <span className="text-[#0875D1] mx-1">→</span> Prototypes <span className="text-[#0875D1] mx-1">→</span> Solutions
                     </h2>
-                    <p className="text-slate-600 text-xs sm:text-sm mt-3 leading-relaxed">
+                    <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm mt-3 leading-relaxed">
                       Bridging the gap between academic theory and real-world industrial impact through cutting-edge technology development.
                     </p>
                     <Link
                       href="/innovation-hub"
-                      className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#08245C] hover:text-[#0875D1] transition-colors mt-5 group"
+                      className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#08245C] dark:text-slate-200 hover:text-[#0875D1] dark:hover:text-sky-400 transition-colors mt-5 group"
                     >
                       <span>Explore the Hub</span>
                       <ArrowRight className="w-4 h-4 text-[#0875D1] transition-transform group-hover:translate-x-1" />
@@ -626,7 +626,7 @@ export default async function HomePage() {
                   <div className="bg-white dark:bg-slate-900/90 dark:backdrop-blur-xl rounded-3xl p-6 sm:p-8 lg:p-10 shadow-[0_4px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-slate-100 dark:border-slate-800 ring-1 ring-slate-900/[0.04] dark:ring-white/[0.05]">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
                       {/* Left: Project Media (Video Priority or Hero Image) */}
-                      <div className="lg:col-span-6 relative aspect-[4/3] rounded-2xl overflow-hidden shadow-sm bg-slate-950">
+                      <div className="lg:col-span-6 relative aspect-[4/3] rounded-2xl overflow-hidden shadow-sm bg-slate-950 border border-transparent dark:border-slate-800">
                         <ProjectMediaCover
                           videoUrl={spotlight.videoUrl}
                           imageUrl={spotlight.heroImage}
@@ -668,7 +668,7 @@ export default async function HomePage() {
                         <div className="pt-2">
                           <Link
                             href={`/projects/${spotlight.slug}`}
-                            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#0875D1] hover:bg-[#0663B3] text-white font-bold text-sm shadow-md shadow-[#0875D1]/25 hover:shadow-lg hover:shadow-[#0875D1]/35 transition-all hover:gap-3"
+                            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#0875D1] hover:bg-[#0663B3] text-white font-bold text-sm shadow-md shadow-[#0875D1]/25 dark:shadow-sky-500/20 hover:shadow-lg hover:shadow-[#0875D1]/35 transition-all hover:gap-3"
                           >
                             View Case Study
                             <ArrowRight className="w-4 h-4" />
@@ -689,7 +689,7 @@ export default async function HomePage() {
         <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal animation="fade-right" duration={850}>
             {/* Dark Navy Rounded Box */}
-            <div className="bg-[#0A224E] text-white rounded-2xl sm:rounded-2xl p-8 sm:p-12 lg:p-14 shadow-xl relative overflow-hidden">
+            <div className="bg-[#0A224E] dark:bg-[#061739] text-white rounded-2xl sm:rounded-2xl p-8 sm:p-12 lg:p-14 shadow-xl border border-blue-900/40 dark:border-slate-800 relative overflow-hidden">
               {/* Header: Scientific Inquiry / Research & Insights / View Publications */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
                 <div>
@@ -703,7 +703,7 @@ export default async function HomePage() {
 
                 <Link
                   href="/research"
-                  className="px-6 py-2.5 rounded-full bg-white text-[#0A224E] hover:bg-slate-100 text-xs sm:text-sm font-bold shadow-sm transition self-start sm:self-auto shrink-0"
+                  className="px-6 py-2.5 rounded-full bg-white dark:bg-slate-800 text-[#0A224E] dark:text-white hover:bg-slate-100 dark:hover:bg-slate-700 text-xs sm:text-sm font-bold shadow-sm transition self-start sm:self-auto shrink-0"
                 >
                   View Publications
                 </Link>

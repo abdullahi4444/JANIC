@@ -5,6 +5,19 @@ import { requireAuth } from "@/lib/permissions/roles";
 import { Role, ContentStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
+const memberItemSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1, "Member name is required"),
+  role: z.string().optional().default("Team Member"),
+  department: z.string().optional().default("Faculty of Computer Science & IT"),
+  bio: z.string().optional().nullable(),
+  avatar: z.string().optional().nullable(),
+  github: z.string().optional().nullable(),
+  linkedin: z.string().optional().nullable(),
+  facebook: z.string().optional().nullable(),
+  email: z.string().optional().nullable(),
+});
+
 const projectSchema = z.object({
   title: z.string().min(2, "Title is required"),
   category: z.string().min(2, "Category is required"),
@@ -12,17 +25,18 @@ const projectSchema = z.object({
   problem: z.string().min(10, "Problem description is required"),
   solution: z.string().min(10, "Solution description is required"),
   technology: z.string().min(2, "Technologies are required"),
-  innovation: z.string().optional(),
-  outcomes: z.string().optional(),
+  innovation: z.string().optional().nullable(),
+  outcomes: z.string().optional().nullable(),
   status: z.nativeEnum(ContentStatus).default(ContentStatus.DRAFT),
   isFeatured: z.boolean().default(false),
-  heroImage: z.string().optional(),
-  demoUrl: z.string().optional(),
-  videoUrl: z.string().optional(),
-  githubUrl: z.string().optional(),
-  teamMembers: z.string().optional(),
+  heroImage: z.string().optional().nullable(),
+  demoUrl: z.string().optional().nullable(),
+  videoUrl: z.string().optional().nullable(),
+  githubUrl: z.string().optional().nullable(),
+  teamMembers: z.string().optional().nullable(),
   order: z.number().default(0),
   galleryImages: z.array(z.string()).optional(),
+  members: z.array(memberItemSchema).optional(),
 });
 
 export async function GET(req: NextRequest) {

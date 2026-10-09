@@ -45,24 +45,41 @@ export class ProjectService {
     problem: string;
     solution: string;
     technology: string;
-    innovation?: string;
-    outcomes?: string;
+    innovation?: string | null;
+    outcomes?: string | null;
     category: string;
     status?: ContentStatus;
     isFeatured?: boolean;
-    heroImage?: string;
-    demoUrl?: string;
-    videoUrl?: string;
-    githubUrl?: string;
-    teamMembers?: string;
+    heroImage?: string | null;
+    demoUrl?: string | null;
+    videoUrl?: string | null;
+    githubUrl?: string | null;
+    teamMembers?: string | null;
     order?: number;
     galleryImages?: string[];
+    members?: Array<{
+      id?: string;
+      name: string;
+      role?: string;
+      department?: string;
+      avatar?: string | null;
+      github?: string | null;
+      linkedin?: string | null;
+      facebook?: string | null;
+      email?: string | null;
+    }>;
   }) {
     let slug = slugify(data.title);
     const existing = await ProjectRepository.findBySlug(slug);
     if (existing) {
       slug = `${slug}-${Date.now().toString().slice(-4)}`;
     }
+
+    const computedTeamMembers =
+      data.teamMembers?.trim() ||
+      (data.members && data.members.length > 0
+        ? data.members.map((m) => (m.role ? `${m.name} (${m.role})` : m.name)).join(", ")
+        : null);
 
     const createInput: Prisma.ProjectCreateInput = {
       title: data.title,
@@ -80,7 +97,7 @@ export class ProjectService {
       demoUrl: data.demoUrl || null,
       videoUrl: data.videoUrl || null,
       githubUrl: data.githubUrl || null,
-      teamMembers: data.teamMembers || null,
+      teamMembers: computedTeamMembers,
       order: data.order || 0,
       publishedAt: data.status === ContentStatus.PUBLISHED ? new Date() : null,
     };
@@ -97,6 +114,27 @@ export class ProjectService {
             order: idx,
           })),
         });
+      }
+    }
+
+    if (data.members && Array.isArray(data.members)) {
+      const memberModel = (prisma as any).projectMember;
+      for (const m of data.members) {
+        if (m.name && m.name.trim()) {
+          await memberModel.create({
+            data: {
+              projectId: project.id,
+              name: m.name.trim(),
+              role: m.role?.trim() || "Team Member",
+              department: m.department?.trim() || "Faculty of Computer Science & IT",
+              avatar: m.avatar?.trim() || null,
+              github: m.github?.trim() || null,
+              linkedin: m.linkedin?.trim() || null,
+              facebook: m.facebook?.trim() || null,
+              email: m.email?.trim() || null,
+            },
+          });
+        }
       }
     }
 
@@ -123,9 +161,27 @@ export class ProjectService {
       teamMembers?: string | null;
       order?: number;
       galleryImages?: string[];
+      members?: Array<{
+        id?: string;
+        name: string;
+        role?: string;
+        department?: string;
+        avatar?: string | null;
+        github?: string | null;
+        linkedin?: string | null;
+        facebook?: string | null;
+        email?: string | null;
+      }>;
     }
   ) {
-    const { galleryImages, ...scalarData } = data;
+    const { galleryImages, members, ...scalarData } = data;
+
+    const computedTeamMembers =
+      scalarData.teamMembers !== undefined
+        ? scalarData.teamMembers
+        : members && members.length > 0
+        ? members.map((m) => (m.role ? `${m.name} (${m.role})` : m.name)).join(", ")
+        : undefined;
 
     const updateInput: Prisma.ProjectUpdateInput = {
       ...scalarData,
@@ -133,7 +189,7 @@ export class ProjectService {
       demoUrl: scalarData.demoUrl !== undefined ? (scalarData.demoUrl || null) : undefined,
       videoUrl: scalarData.videoUrl !== undefined ? (scalarData.videoUrl || null) : undefined,
       githubUrl: scalarData.githubUrl !== undefined ? (scalarData.githubUrl || null) : undefined,
-      teamMembers: scalarData.teamMembers !== undefined ? (scalarData.teamMembers || null) : undefined,
+      teamMembers: computedTeamMembers !== undefined ? (computedTeamMembers || null) : undefined,
       innovation: scalarData.innovation !== undefined ? (scalarData.innovation || null) : undefined,
       outcomes: scalarData.outcomes !== undefined ? (scalarData.outcomes || null) : undefined,
     };
@@ -155,6 +211,55 @@ export class ProjectService {
             order: idx,
           })),
         });
+      }
+    }
+
+    if (members !== undefined && Array.isArray(members)) {
+      const memberModel = (prisma as any).projectMember;
+      const currentMembers: any[] = await memberModel.findMany({ where: { projectId: id } });
+      const keptIds = new Set(members.filter((m) => m.id).map((m) => m.id));
+
+      for (const cm of currentMembers) {
+        if (!keptIds.has(cm.id)) {
+          await memberModel.update({
+            where: { id: cm.id },
+            data: { projectId: null },
+          });
+        }
+      }
+
+      for (const m of members) {
+        if (m.name && m.name.trim()) {
+          if (m.id && currentMembers.some((cm: any) => cm.id === m.id)) {
+            await memberModel.update({
+              where: { id: m.id },
+              data: {
+                name: m.name.trim(),
+                role: m.role?.trim() || "Team Member",
+                department: m.department?.trim() || "Faculty of Computer Science & IT",
+                avatar: m.avatar?.trim() || null,
+                github: m.github?.trim() || null,
+                linkedin: m.linkedin?.trim() || null,
+                facebook: m.facebook?.trim() || null,
+                email: m.email?.trim() || null,
+              },
+            });
+          } else {
+            await memberModel.create({
+              data: {
+                projectId: id,
+                name: m.name.trim(),
+                role: m.role?.trim() || "Team Member",
+                department: m.department?.trim() || "Faculty of Computer Science & IT",
+                avatar: m.avatar?.trim() || null,
+                github: m.github?.trim() || null,
+                linkedin: m.linkedin?.trim() || null,
+                facebook: m.facebook?.trim() || null,
+                email: m.email?.trim() || null,
+              },
+            });
+          }
+        }
       }
     }
 
