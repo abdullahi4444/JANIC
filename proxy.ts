@@ -36,6 +36,11 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
+    // Regular USER (public account) cannot access /admin or /staff portals
+    if (userRole === "USER") {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+
     // If STAFF tries to access /admin/..., redirect to /staff/...
     if (userRole === "STAFF" && pathname.startsWith("/admin")) {
       const staffPath = pathname.replace(/^\/admin/, "/staff");
@@ -50,7 +55,12 @@ export async function proxy(request: NextRequest) {
       try {
         const { payload } = await jwtVerify(token, SECRET_KEY);
         if (payload?.id) {
-          const dest = payload.role === "STAFF" ? "/staff/dashboard" : "/admin/dashboard";
+          const dest =
+            payload.role === "STAFF"
+              ? "/staff/dashboard"
+              : payload.role === "ADMIN" || payload.role === "EDITOR"
+              ? "/admin/dashboard"
+              : "/";
           return NextResponse.redirect(new URL(dest, request.url));
         }
       } catch {

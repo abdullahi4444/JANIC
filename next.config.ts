@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 
+// Updated to reload server configuration with latest schema definitions
 const nextConfig: NextConfig = {
   devIndicators: false,
   async redirects() {

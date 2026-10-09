@@ -100,7 +100,7 @@ export function ProjectsFilterControls({
     currentCategory !== "all" || currentYear !== "all" || !!searchQuery;
 
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6 mb-12">
+    <div className="bg-white dark:bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-sm space-y-6 mb-12">
       {/* Top Search & Category Dropdown Bar */}
       <div className="flex flex-col md:flex-row items-center gap-3.5">
         {/* Search Bar */}
@@ -116,7 +116,7 @@ export function ProjectsFilterControls({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search projects by title, problem, or technology (e.g. Next.js, Arduino, AI)..."
-            className="w-full pl-11 pr-24 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0875D1] focus:bg-white transition"
+            className="w-full pl-11 pr-24 py-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0875D1] focus:bg-white dark:focus:bg-slate-800 transition"
           />
           {searchTerm && (
             <button
@@ -143,7 +143,7 @@ export function ProjectsFilterControls({
           <button
             type="button"
             onClick={() => setCategoryOpen(!categoryOpen)}
-            className="w-full flex items-center justify-between gap-3 px-4 py-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl text-xs sm:text-sm font-semibold text-[#08245C] transition cursor-pointer"
+            className="w-full flex items-center justify-between gap-3 px-4 py-3.5 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl text-xs sm:text-sm font-semibold text-[#08245C] dark:text-white transition cursor-pointer"
           >
             <div className="flex items-center gap-2 truncate">
               <Filter className="w-4 h-4 text-[#0875D1] shrink-0" />
@@ -208,9 +208,9 @@ export function ProjectsFilterControls({
       </div>
 
       {/* Year Filter Bar with 2026 (green dot), 2027, 2028 */}
-      <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
+      <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1 flex items-center gap-1.5">
+          <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mr-1 flex items-center gap-1.5">
             <Calendar className="w-3.5 h-3.5 text-[#0875D1]" /> Cohort Year:
           </span>
 
@@ -223,8 +223,8 @@ export function ProjectsFilterControls({
                 onClick={() => updateFilters({ year: y.id })}
                 className={`relative inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   isSelected
-                    ? "bg-[#08245C] text-white shadow-md shadow-slate-900/10"
-                    : "bg-slate-100/80 text-slate-600 hover:bg-slate-200/70 border border-slate-200/60"
+                    ? "bg-[#08245C] text-white shadow-md shadow-slate-900/10 dark:bg-[#0875D1] dark:shadow-blue-500/20"
+                    : "bg-slate-100/80 dark:bg-slate-800/90 text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-700/80 border border-slate-200/60 dark:border-slate-700/80"
                 }`}
               >
                 <span>{y.label}</span>
@@ -243,8 +243,8 @@ export function ProjectsFilterControls({
 
         {/* Reset Filters / Project Count Pill */}
         <div className="flex items-center gap-3">
-          <span className="text-xs text-slate-500 font-medium">
-            Showing <strong className="text-[#08245C]">{totalProjectsCount}</strong> {totalProjectsCount === 1 ? "project" : "projects"}
+          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            Showing <strong className="text-[#08245C] dark:text-white">{totalProjectsCount}</strong> {totalProjectsCount === 1 ? "project" : "projects"}
           </span>
 
           {hasActiveFilters && (

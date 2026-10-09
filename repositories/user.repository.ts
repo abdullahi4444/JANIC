@@ -49,7 +49,7 @@ export class UserRepository {
         username: data.username.trim(),
         passwordHash: data.passwordHash,
         name: data.name,
-        role: data.role || Role.STAFF,
+        role: data.role || (((Role as any).USER || "USER") as Role),
         avatar: data.avatar,
       },
     });

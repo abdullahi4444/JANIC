@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { MediaViewer, MediaItem } from "@/components/public/MediaViewer";
 import {
   Grid,
@@ -19,6 +19,10 @@ export function PostsBrowser({ items }: { items: MediaItem[] }) {
   const [activeTab, setActiveTab] = useState<string>("All");
   const [search, setSearch] = useState("");
   const [layoutMode, setLayoutMode] = useState<"cards" | "masonry">("cards");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // 6 rows at 3 cards per row in cards grid
+  const ITEMS_PER_PAGE = 18;
 
   // Extract distinct folders
   const availableFolders = useMemo(() => {
@@ -67,6 +71,18 @@ export function PostsBrowser({ items }: { items: MediaItem[] }) {
   const videosCount = useMemo(() => {
     return items.filter((m) => !!m.mimeType?.startsWith("video") || /\.(mp4|webm|ogg|mov|m4v)$/i.test(m.url)).length;
   }, [items]);
+
+  // Reset to first page when filtering or searching
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, search]);
+
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+
+  const paginatedItems = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filtered.slice(start, start + ITEMS_PER_PAGE);
+  }, [filtered, currentPage, ITEMS_PER_PAGE]);
 
   return (
     <div className="space-y-8">
@@ -180,7 +196,9 @@ export function PostsBrowser({ items }: { items: MediaItem[] }) {
         <span className="flex items-center gap-1.5">
           <Filter className="w-3 h-3 text-[#0875D1]" />
           <span>
-            Displaying <strong className="text-slate-800 dark:text-slate-200">{filtered.length}</strong> {filtered.length === 1 ? "asset" : "assets"}
+            Displaying <strong className="text-slate-800 dark:text-slate-200">{paginatedItems.length}</strong> of{" "}
+            <strong className="text-slate-800 dark:text-slate-200">{filtered.length}</strong> {filtered.length === 1 ? "asset" : "assets"}
+            {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
             {activeTab !== "All" && ` in "${activeTab}"`}
             {search && ` matching "${search}"`}
           </span>
@@ -211,7 +229,66 @@ export function PostsBrowser({ items }: { items: MediaItem[] }) {
           )}
         </div>
       ) : (
-        <MediaViewer items={filtered} layoutMode={layoutMode} />
+        <>
+          <MediaViewer items={paginatedItems} layoutMode={layoutMode} />
+
+          {/* NUMBERS UNDER: PAGINATION CONTROLS (WHEN ROWS EXCEED 6) */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-10 border-t border-slate-200 dark:border-slate-800">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                Showing <span className="font-bold text-slate-900 dark:text-white">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> to{" "}
+                <span className="font-bold text-slate-900 dark:text-white">{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)}</span> of{" "}
+                <span className="font-bold text-slate-900 dark:text-white">{filtered.length}</span> assets
+              </p>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentPage((p) => Math.max(p - 1, 1));
+                    window.scrollTo({ top: 380, behavior: "smooth" });
+                  }}
+                  disabled={currentPage === 1}
+                  className="px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-800 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition cursor-pointer"
+                >
+                  Previous
+                </button>
+
+                <div className="flex items-center gap-1.5">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                    <button
+                      key={pageNum}
+                      type="button"
+                      onClick={() => {
+                        setCurrentPage(pageNum);
+                        window.scrollTo({ top: 380, behavior: "smooth" });
+                      }}
+                      className={`w-9 h-9 rounded-xl text-xs font-bold transition flex items-center justify-center cursor-pointer ${
+                        currentPage === pageNum
+                          ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+                          : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentPage((p) => Math.min(p + 1, totalPages));
+                    window.scrollTo({ top: 380, behavior: "smooth" });
+                  }}
+                  disabled={currentPage === totalPages}
+                  className="px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-800 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition cursor-pointer"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

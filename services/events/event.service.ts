@@ -7,7 +7,12 @@ export class EventService {
     return EventRepository.findPublished({ upcomingOnly: true, limit });
   }
 
-  static async getPublishedEvents(options?: { isFeatured?: boolean; limit?: number }) {
+  static async getPublishedEvents(options?: {
+    isFeatured?: boolean;
+    upcomingOnly?: boolean;
+    pastOnly?: boolean;
+    limit?: number;
+  }) {
     return EventRepository.findPublished(options);
   }
 
@@ -28,17 +33,23 @@ export class EventService {
     endDate?: Date;
     location: string;
     isVirtual?: boolean;
-    registrationUrl?: string;
-    capacity?: number;
+    registrationUrl?: string | null;
+    capacity?: number | null;
     status?: ContentStatus;
     isFeatured?: boolean;
-    coverImage?: string;
+    coverImage?: string | null;
+    videoUrl?: string | null;
+    attendeesCount?: number | null;
+    gallery?: any;
+    guests?: any;
+    agenda?: any;
+    keyHighlights?: any;
   }) {
     let slug = slugify(data.title);
     const existing = await EventRepository.findBySlug(slug);
     if (existing) slug = `${slug}-${Date.now().toString().slice(-4)}`;
 
-    const createInput: Prisma.EventCreateInput = {
+    const createInput: any = {
       title: data.title,
       slug,
       summary: data.summary,
@@ -53,6 +64,12 @@ export class EventService {
       status: data.status || ContentStatus.DRAFT,
       isFeatured: !!data.isFeatured,
       coverImage: data.coverImage,
+      videoUrl: data.videoUrl,
+      attendeesCount: data.attendeesCount,
+      gallery: data.gallery,
+      guests: data.guests,
+      agenda: data.agenda,
+      keyHighlights: data.keyHighlights,
     };
 
     return EventRepository.create(createInput);

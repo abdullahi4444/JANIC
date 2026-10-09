@@ -61,9 +61,20 @@ function LoginForm() {
         throw new Error(data.error || "Login failed. Please check your credentials.");
       }
 
-      toast.success("Welcome back! Redirecting to dashboard...");
-      const defaultDest = data.user?.role === "STAFF" ? "/staff/dashboard" : "/admin/dashboard";
-      const dest = fromParam && fromParam !== "/admin/dashboard" ? fromParam : defaultDest;
+      const isPublicUser = data.user?.role === "USER";
+      toast.success(isPublicUser ? "Welcome back! Redirecting..." : "Welcome back! Redirecting to dashboard...");
+      const defaultDest =
+        data.user?.role === "STAFF"
+          ? "/staff/dashboard"
+          : isPublicUser
+          ? "/"
+          : "/admin/dashboard";
+      const dest =
+        fromParam &&
+        fromParam !== "/admin/dashboard" &&
+        !(isPublicUser && (fromParam.startsWith("/admin") || fromParam.startsWith("/staff")))
+          ? fromParam
+          : defaultDest;
       router.push(dest);
       router.refresh();
     } catch (err: unknown) {

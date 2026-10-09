@@ -20,6 +20,10 @@ export default async function AdminLayout({
     redirect("/staff/dashboard");
   }
 
+  if (user.role === "USER") {
+    redirect("/");
+  }
+
   const [unreadMessages, pendingSubmissions, newPartnerships, rolePermSetting] = await Promise.all([
     prisma.contactMessage.count({ where: { status: "UNREAD" } }),
     prisma.innovationSubmission.count({ where: { status: "PENDING" } }),

@@ -26,7 +26,7 @@ export const PERMISSION_CAPABILITIES: PermissionCapability[] = MODULES.flatMap(m
   `${mod}:delete`
 ] as PermissionCapability[]);
 
-export const DEFAULT_ROLE_PERMISSIONS: Record<Role, PermissionCapability[]> = {
+export const DEFAULT_ROLE_PERMISSIONS: Record<Role | "USER" | string, PermissionCapability[]> = {
   ADMIN: [...PERMISSION_CAPABILITIES],
   EDITOR: [
     "projects:create", "projects:read", "projects:update", "projects:delete",
@@ -39,4 +39,5 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<Role, PermissionCapability[]> = {
   STAFF: [
     "projects:read", "training:read", "research:read", "events:read", "media:read", "submissions:read"
   ],
+  USER: [],
 };

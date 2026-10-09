@@ -11,6 +11,7 @@ enum Role {
   ADMIN
   EDITOR
   STAFF
+  USER
 }
 
 enum ContentStatus {
@@ -46,7 +47,7 @@ model User {
   username     String   @unique
   passwordHash String
   name         String
-  role         Role     @default(ADMIN)
+  role         Role     @default(USER)
   avatar       String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -161,6 +162,12 @@ model Event {
   status          ContentStatus @default(DRAFT)
   isFeatured      Boolean       @default(false)
   coverImage      String?
+  videoUrl        String?
+  attendeesCount  Int?
+  gallery         String?       @db.Text
+  guests          String?       @db.Text
+  agenda          String?       @db.Text
+  keyHighlights   String?       @db.Text
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 

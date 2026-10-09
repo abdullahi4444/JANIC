@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       username,
       passwordHash,
       name,
-      role: Role.STAFF,
+      role: ((Role as any).USER || "USER") as Role,
     });
 
     return NextResponse.json({

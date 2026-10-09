@@ -19,6 +19,12 @@ const eventSchema = z.object({
   status: z.nativeEnum(ContentStatus).default(ContentStatus.DRAFT),
   isFeatured: z.boolean().default(false),
   coverImage: z.string().optional().nullable(),
+  videoUrl: z.string().optional().nullable(),
+  attendeesCount: z.number().optional().nullable(),
+  gallery: z.any().optional().nullable(),
+  guests: z.any().optional().nullable(),
+  agenda: z.any().optional().nullable(),
+  keyHighlights: z.any().optional().nullable(),
 });
 
 export async function GET() {

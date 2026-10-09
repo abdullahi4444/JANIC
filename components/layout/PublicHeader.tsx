@@ -106,30 +106,34 @@ function UserAvatarMenu({ user, loggingOut, onLogout }: UserAvatarMenuProps) {
               {user.email}
             </p>
             <p className="inline-flex items-center w-fit mt-1 px-2 py-0.5 rounded-full bg-[#08245C] dark:bg-[#0875D1] text-white text-[10px] font-extrabold tracking-wider uppercase shadow-xs">
-              {isJamiila ? "Dean of CS & IT • System Admin" : user.role}
+              {isJamiila ? "Dean of CS & IT • System Admin" : (user.role as string) === "USER" ? "Member" : user.role}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="my-1 bg-slate-100 dark:bg-slate-800" />
-        <DropdownMenuItem
-          onClick={() => router.push(user.role === "STAFF" ? "/staff/profile" : "/admin/profile")}
-          className="cursor-pointer gap-2 rounded-lg px-2.5 py-2 text-slate-800 dark:text-slate-200 hover:bg-gradient-to-r hover:from-[#E9F3FD] hover:to-white dark:hover:from-slate-900 dark:hover:to-slate-800 focus:bg-gradient-to-r focus:from-[#E9F3FD] focus:to-white dark:focus:from-slate-900 dark:focus:to-slate-800 hover:text-[#08245C] dark:hover:text-white transition-colors"
-        >
-          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-[#0875D1]/10 to-[#08245C]/10 dark:from-[#0875D1]/15 dark:to-[#08245C]/15">
-            <UserCircle className="h-4 w-4 text-[#0875D1]" />
-          </span>
-          <span className="text-sm font-bold">My Profile</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => router.push(user.role === "STAFF" ? "/staff/dashboard" : "/admin/dashboard")}
-          className="cursor-pointer gap-2 rounded-lg px-2.5 py-2 text-slate-800 dark:text-slate-200 hover:bg-gradient-to-r hover:from-[#E9F3FD] hover:to-white dark:hover:from-slate-900 dark:hover:to-slate-800 focus:bg-gradient-to-r focus:from-[#E9F3FD] focus:to-white dark:focus:from-slate-900 dark:focus:to-slate-800 hover:text-[#08245C] dark:hover:text-white transition-colors"
-        >
-          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-[#0875D1]/10 to-[#08245C]/10 dark:from-[#0875D1]/15 dark:to-[#08245C]/15">
-            <LayoutDashboard className="h-4 w-4 text-[#0875D1]" />
-          </span>
-          <span className="text-sm font-bold">Dashboard</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator className="my-1 bg-slate-100 dark:bg-slate-800" />
+        {(user.role as string) !== "USER" && (
+          <>
+            <DropdownMenuItem
+              onClick={() => router.push(user.role === "STAFF" ? "/staff/profile" : "/admin/profile")}
+              className="cursor-pointer gap-2 rounded-lg px-2.5 py-2 text-slate-800 dark:text-slate-200 hover:bg-gradient-to-r hover:from-[#E9F3FD] hover:to-white dark:hover:from-slate-900 dark:hover:to-slate-800 focus:bg-gradient-to-r focus:from-[#E9F3FD] focus:to-white dark:focus:from-slate-900 dark:focus:to-slate-800 hover:text-[#08245C] dark:hover:text-white transition-colors"
+            >
+              <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-[#0875D1]/10 to-[#08245C]/10 dark:from-[#0875D1]/15 dark:to-[#08245C]/15">
+                <UserCircle className="h-4 w-4 text-[#0875D1]" />
+              </span>
+              <span className="text-sm font-bold">My Profile</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => router.push(user.role === "STAFF" ? "/staff/dashboard" : "/admin/dashboard")}
+              className="cursor-pointer gap-2 rounded-lg px-2.5 py-2 text-slate-800 dark:text-slate-200 hover:bg-gradient-to-r hover:from-[#E9F3FD] hover:to-white dark:hover:from-slate-900 dark:hover:to-slate-800 focus:bg-gradient-to-r focus:from-[#E9F3FD] focus:to-white dark:focus:from-slate-900 dark:focus:to-slate-800 hover:text-[#08245C] dark:hover:text-white transition-colors"
+            >
+              <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-[#0875D1]/10 to-[#08245C]/10 dark:from-[#0875D1]/15 dark:to-[#08245C]/15">
+                <LayoutDashboard className="h-4 w-4 text-[#0875D1]" />
+              </span>
+              <span className="text-sm font-bold">Dashboard</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="my-1 bg-slate-100 dark:bg-slate-800" />
+          </>
+        )}
         <DropdownMenuItem
           onClick={onLogout}
           disabled={loggingOut}
@@ -498,20 +502,24 @@ export function PublicHeader({ navLinks, currentUser }: PublicHeaderProps) {
             </Link>
             {isLoggedIn ? (
               <>
-                <Link
-                  href={currentUser?.role === "STAFF" ? "/staff/profile" : "/admin/profile"}
-                  className="w-full py-2.5 px-4 rounded-full bg-gradient-to-r from-[#0875D1] to-[#0aa5e8] text-white font-semibold text-xs text-center shadow-md flex items-center justify-center gap-1.5"
-                >
-                  <UserCircle className="w-3.5 h-3.5" />
-                  My Profile
-                </Link>
-                <Link
-                  href={currentUser?.role === "STAFF" ? "/staff/dashboard" : "/admin/dashboard"}
-                  className="w-full py-2.5 px-4 rounded-full border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs text-center flex items-center justify-center gap-1.5"
-                >
-                  <LayoutDashboard className="w-3.5 h-3.5" />
-                  Dashboard
-                </Link>
+                {(currentUser?.role as string) !== "USER" && (
+                  <>
+                    <Link
+                      href={currentUser?.role === "STAFF" ? "/staff/profile" : "/admin/profile"}
+                      className="w-full py-2.5 px-4 rounded-full bg-gradient-to-r from-[#0875D1] to-[#0aa5e8] text-white font-semibold text-xs text-center shadow-md flex items-center justify-center gap-1.5"
+                    >
+                      <UserCircle className="w-3.5 h-3.5" />
+                      My Profile
+                    </Link>
+                    <Link
+                      href={currentUser?.role === "STAFF" ? "/staff/dashboard" : "/admin/dashboard"}
+                      className="w-full py-2.5 px-4 rounded-full border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs text-center flex items-center justify-center gap-1.5"
+                    >
+                      <LayoutDashboard className="w-3.5 h-3.5" />
+                      Dashboard
+                    </Link>
+                  </>
+                )}
                 <button
                   type="button"
                   onClick={handleLogout}
